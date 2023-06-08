@@ -1,6 +1,6 @@
 import { EditorView, basicSetup } from "codemirror"
 import { javascript } from "@codemirror/lang-javascript"
-import { UserExecutionContext } from "./UserExecutionContext"
+import { UserExecutionContext } from "./userExecutionContext/UserExecutionContext"
 
 export class Editor {
     private view: EditorView
@@ -11,7 +11,10 @@ export class Editor {
             extensions: [basicSetup, javascript()],
             parent
         })
-        this.userExecutionContext = new UserExecutionContext(executionParent)
+        this.userExecutionContext = new UserExecutionContext(
+            executionParent,
+            {}
+        )
     }
 
     public get script(): string {
