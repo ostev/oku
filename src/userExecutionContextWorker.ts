@@ -20,6 +20,7 @@ let safeObjects = [
     "Date",
     "Function",
     "Object",
+    "Promise",
     "String",
     "undefined",
     "Infinity",
@@ -69,7 +70,7 @@ onmessage = (e) => {
     let data: string = e.data
     let workerResult = null
     ;(() => {
-        var e = null // remove "e" frome execution context
+        var e = null // remove "e" from execution context
         workerResult = eval(data)
     })()
 
