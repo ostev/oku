@@ -2,6 +2,7 @@ let safeObjects = [
     "self",
     "onmessage",
     "postMessage",
+    "console", // Probably not safe, but we're in a sandboxed iframe anyway
     "__proto__",
     "__defineGetter__",
     "__defineSetter__",

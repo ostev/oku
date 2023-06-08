@@ -1,13 +1,9 @@
-import UserExecutionContextWorker from "./userExecutionContextWorker?worker"
 import userExecutionContextIFrameScriptUrl from "./userExecutionContextIFrame?url"
 
 export class UserExecutionContext {
-    private worker: Worker
     private iframe: HTMLIFrameElement | undefined
 
     constructor(parent: Element) {
-        this.worker = new UserExecutionContextWorker()
-
         this.initialiseIFrame(parent)
     }
 
@@ -23,33 +19,39 @@ export class UserExecutionContext {
         let script = this.iframe.contentWindow?.document.createElement(
             "script"
         ) as HTMLScriptElement
+        if (import.meta.env.DEV) {
+            script.setAttribute("type", "module")
+        }
         script.setAttribute("src", userExecutionContextIFrameScriptUrl)
         this.iframe.contentWindow?.document.appendChild(script)
 
         this.iframe.contentWindow?.document.close()
     }
 
-    killWorker = () => {
-        this.worker.terminate()
-        this.worker = new UserExecutionContextWorker()
-    }
-
-    evalAsync = (script: string, timeout = 2000) =>
-        new Promise((resolve, reject) => {
-            let handle = setTimeout(() => {
-                this.killWorker, reject("timeout")
-            }, timeout)
-
-            this.worker.postMessage(script)
-
-            this.worker.onmessage = (e) => {
-                clearTimeout(handle)
-                resolve(e.data)
-            }
-
-            this.worker.onerror = (e) => {
-                clearTimeout(handle)
-                reject(e.message)
+    evalAsync = async (code: string) => {
+        ;(this.iframe as HTMLIFrameElement).contentWindow?.postMessage(
+            ["eval", code],
+            "*"
+        )
+        window.addEventListener("message", (e) => {
+            // Check that we received an array and that the program finished
+            if (typeof e.data === "object" && e.data[0] === "result") {
+                console.log("Code finished running.")
+            } else if (typeof e.data === "object" && e.data[0] === "error") {
+                console.error("Your code has an error! 😲 Here it is:")
+                console.error(e.data[1])
+            } else {
+                throw new InvalidMessageReceivedFromUserExecutionContextError(
+                    "The user execution context iframe posted an invalid response to the host application."
+                )
             }
         })
+    }
+}
+
+export class InvalidMessageReceivedFromUserExecutionContextError extends Error {
+    constructor(message?: string | undefined) {
+        super(message)
+        this.name = "InvalidMessageReceivedFromExecutionContext"
+    }
 }
