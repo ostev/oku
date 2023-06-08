@@ -8,9 +8,9 @@ renderer.setSize(window.innerWidth, window.innerHeight)
 window.addEventListener("resize", () =>
     renderer.setSize(window.innerWidth, window.innerHeight)
 )
-renderer.appendToElement($("#renderer") as Element)
+renderer.appendToElement($("#renderer"))
 
-const editor = new Editor($("#editor") as Element)
+const editor = new Editor($("#editor"), $("#executionContext"))
 
 ;($("#run") as HTMLButtonElement).addEventListener("click", (e) => {
     console.log(`Running ${editor.script}`)

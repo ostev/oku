@@ -6,12 +6,12 @@ export class Editor {
     private view: EditorView
     private userExecutionContext: UserExecutionContext
 
-    constructor(parent: Element) {
+    constructor(parent: Element, executionParent: Element) {
         this.view = new EditorView({
             extensions: [basicSetup, javascript()],
             parent
         })
-        this.userExecutionContext = new UserExecutionContext()
+        this.userExecutionContext = new UserExecutionContext(executionParent)
     }
 
     public get script(): string {

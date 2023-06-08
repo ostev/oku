@@ -1,10 +1,32 @@
 import UserExecutionContextWorker from "./userExecutionContextWorker?worker"
+import userExecutionContextIFrameScriptUrl from "./userExecutionContextIFrame?url"
 
 export class UserExecutionContext {
-    worker: Worker
+    private worker: Worker
+    private iframe: HTMLIFrameElement | undefined
 
-    constructor() {
+    constructor(parent: Element) {
         this.worker = new UserExecutionContextWorker()
+
+        this.initialiseIFrame(parent)
+    }
+
+    initialiseIFrame = (parent: Element) => {
+        this.iframe = document.createElement("iframe")
+
+        parent.appendChild(this.iframe)
+
+        this.iframe.setAttribute("sandbox", "allow-scripts")
+
+        this.iframe.contentWindow?.document.open()
+
+        let script = this.iframe.contentWindow?.document.createElement(
+            "script"
+        ) as HTMLScriptElement
+        script.setAttribute("src", userExecutionContextIFrameScriptUrl)
+        this.iframe.contentWindow?.document.appendChild(script)
+
+        this.iframe.contentWindow?.document.close()
     }
 
     killWorker = () => {
