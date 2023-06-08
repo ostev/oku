@@ -13,6 +13,7 @@ export class UserExecutionContext {
         parent.appendChild(this.iframe)
 
         this.iframe.setAttribute("sandbox", "allow-scripts")
+        this.iframe.setAttribute("style", "display: none;")
 
         this.iframe.contentWindow?.document.open()
 
