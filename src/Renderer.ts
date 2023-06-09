@@ -1,13 +1,19 @@
 import * as Three from "three"
 import { Player } from "./Player"
 
+type RapierModule =
+    typeof import("/home/ostev/programming-game/node_modules/@dimforge/rapier3d/rapier")
+
 export class Renderer {
     camera: Three.OrthographicCamera
     scene: Three.Scene
     player: Player
     renderer: Three.WebGLRenderer
+    rapier: RapierModule | undefined
 
     constructor() {
+        import("@dimforge/rapier3d").then((rapier) => (this.rapier = rapier))
+
         this.camera = new Three.OrthographicCamera()
         this.camera.position.z = 1
         this.camera.rotation.order = "YXZ"
