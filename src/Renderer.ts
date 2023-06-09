@@ -38,6 +38,8 @@ export class Renderer {
     }
 
     animation = (time: number) => {
-        this.renderer.render(this.scene, this.camera)
+        if (this.rapier !== undefined) {
+            this.renderer.render(this.scene, this.camera)
+        }
     }
 }
