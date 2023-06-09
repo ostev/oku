@@ -30,13 +30,7 @@ export class UserExecutionContext {
         this.iframe.contentWindow?.document.appendChild(script)
 
         this.iframe.contentWindow?.document.close()
-    }
 
-    evalAsync = async (code: string) => {
-        ;(this.iframe as HTMLIFrameElement).contentWindow?.postMessage(
-            ["eval", code],
-            "*"
-        )
         window.addEventListener("message", (e) => {
             // Check that we received an array and that the program finished
             if (typeof e.data === "object" && e.data[0] === "result") {
@@ -60,6 +54,15 @@ export class UserExecutionContext {
                 )
             }
         })
+
+        // ;(this.iframe as HTMLIFrameElement).contentWindow?.postMessage([""], "*")
+    }
+
+    evalAsync = async (code: string) => {
+        ;(this.iframe as HTMLIFrameElement).contentWindow?.postMessage(
+            ["eval", code],
+            "*"
+        )
     }
 }
 

@@ -11,10 +11,9 @@ export class Editor {
             extensions: [basicSetup, javascript()],
             parent
         })
-        this.userExecutionContext = new UserExecutionContext(
-            executionParent,
-            {}
-        )
+        this.userExecutionContext = new UserExecutionContext(executionParent, {
+            helloThere: { fn: () => console.log("Hi!"), sync: { delay: 1000 } }
+        })
     }
 
     public get script(): string {

@@ -10,7 +10,7 @@ class UserExecutionContext {
     private postMessage: (message: any[]) => void
 
     constructor(bindings: Bindings, postMessage: (message: any[]) => void) {
-        this.syncBuffer = new SharedArrayBuffer(32)
+        this.syncBuffer = new SharedArrayBuffer(8)
         this.syncArray = new Int32Array(this.syncBuffer)
 
         this.bindings = bindings
@@ -37,10 +37,14 @@ class UserExecutionContext {
     }
 
     resume = () => {
-        this.syncArray[0] += 1
+        Atomics.store(this.syncArray, 0, 1)
+        Atomics.notify(this.syncArray, 0, 1)
+        console.log(`Resumed with value ${this.syncArray[0]}`)
+        console.log(this.syncArray.buffer)
+        Atomics.store(this.syncArray, 0, 0)
     }
 
-    evalAsync = (script: string, timeout = 2000) =>
+    evalAsync = (script: string, timeout = 30000) =>
         new Promise((resolve, reject) => {
             const handle = setTimeout(() => {
                 this.killWorker, reject("timeout")
@@ -57,9 +61,10 @@ class UserExecutionContext {
                 ) {
                     const name = e.data[0] as string
                     const syncInfo = this.bindings[name]
-                    if (syncInfo.delay !== 0) {
-                        setTimeout(this.resume, syncInfo.delay)
-                    }
+                    // if (syncInfo.delay !== 0) {
+                    //     console.log(`Delaying ${syncInfo.delay}ms...`)
+                    //     setTimeout(this.resume, syncInfo.delay)
+                    // }
 
                     this.postMessage(e.data)
                 }
@@ -76,8 +81,9 @@ class UserExecutionContext {
         })
 }
 
-const context = new UserExecutionContext({}, (message) =>
-    window.top?.postMessage(message)
+const context = new UserExecutionContext(
+    { helloThere: { delay: 5000 } },
+    (message) => window.top?.postMessage(message)
 )
 
 window.addEventListener("message", (e) => {

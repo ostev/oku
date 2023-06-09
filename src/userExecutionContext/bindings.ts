@@ -11,6 +11,11 @@ export interface SyncInfo {
     delay: number
 }
 
-export const stripFn = (fnBindings: FnBindings): Bindings =>{
-    const bindings = {}
-    for ([fnObject.entries()}
+export const stripFn = (fnBindings: FnBindings): Bindings => {
+    const bindings: Bindings = {}
+    for (const [name, { sync }] of Object.entries(fnBindings)) {
+        bindings[name] = sync
+    }
+
+    return bindings
+}
