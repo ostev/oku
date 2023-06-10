@@ -53,7 +53,7 @@ export class World {
         this.initComponent(entity, component)
     }
 
-    private initComponent = (entity: Entity, component: Component) => {
+    private initComponent = (_entity: Entity, component: Component) => {
         if (component.kind === "rigidBody") {
             this.physics.createRigidBody(component.descriptor)
         }
