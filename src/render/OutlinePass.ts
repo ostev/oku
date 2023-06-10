@@ -1,8 +1,10 @@
 import {
     Camera,
+    Color,
     DepthStencilFormat,
     DepthTexture,
     HalfFloatType,
+    Material,
     MeshNormalMaterial,
     NearestFilter,
     NoBlending,
@@ -11,7 +13,8 @@ import {
     ShaderMaterial,
     UniformsUtils,
     Vector2,
-    WebGLRenderTarget
+    WebGLRenderTarget,
+    WebGLRenderer
 } from "three"
 import { FullScreenQuad, Pass } from "three/examples/jsm/postprocessing/Pass.js"
 
@@ -37,7 +40,7 @@ const shader = {
     `
 }
 
-class OutlinePass extends Pass {
+export class OutlinePass extends Pass {
     private scene: Scene
     private camera: Camera
 
@@ -81,12 +84,43 @@ class OutlinePass extends Pass {
                 tDepth: { value: this.normalRenderTarget.depthTexture }
             }
         })
+        this.fullscreenQuad.material = this.outlineMaterial
     }
 
     setSize = (width: number, height: number) => {
         this.width = width
         this.height = height
+
+        this.normalRenderTarget.setSize(this.width, this.height)
     }
 
-    render(renderer: Renderer, writeBuffer: WebGLRenderTarget) {}
+    override render(renderer: WebGLRenderer, writeBuffer: WebGLRenderTarget) {
+        this.renderOverride(
+            renderer,
+            this.normalMaterial,
+            this.normalRenderTarget
+        )
+
+        if (this.renderToScreen) {
+            renderer.setRenderTarget(null)
+        } else {
+            renderer.setRenderTarget(writeBuffer)
+            if (this.clear) {
+                renderer.clear()
+            }
+        }
+        this.fullscreenQuad.render(renderer)
+    }
+
+    renderOverride = (
+        renderer: WebGLRenderer,
+        overrideMaterial: Material,
+        renderTarget: WebGLRenderTarget | null
+    ) => {
+        renderer.setRenderTarget(renderTarget)
+
+        this.scene.overrideMaterial = overrideMaterial
+        renderer.render(this.scene, this.camera)
+        this.scene.overrideMaterial = null
+    }
 }

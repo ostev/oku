@@ -1,13 +1,12 @@
 import * as Three from "three"
-import { Player } from "./Player"
 
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js"
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js"
 
-import paperTextureUrl from "./paper2k.png?url"
+import { Player } from "./Player"
+import { OutlinePass } from "./render/OutlinePass"
 
-type RapierModule =
-    typeof import("/home/ostev/programming-game/node_modules/@dimforge/rapier3d/rapier")
+import paperTextureUrl from "./paper2k.png?url"
 
 export class Renderer {
     camera: Three.OrthographicCamera
@@ -15,8 +14,11 @@ export class Renderer {
 
     scene: Three.Scene
     player: Player
+
     renderer: Three.WebGLRenderer
     composer: EffectComposer
+
+    outlinePass: OutlinePass
 
     constructor() {
         this.camera = new Three.OrthographicCamera()
@@ -37,13 +39,17 @@ export class Renderer {
         // this.renderer.setAnimationLoop(this.animation)
 
         this.composer = new EffectComposer(this.renderer)
+
         const renderPass = new RenderPass(
             this.scene,
             this.camera,
             undefined,
-            new Three.Color("white")
+            new Three.Color("blue")
         )
         this.composer.addPass(renderPass)
+
+        this.outlinePass = new OutlinePass(this.scene, this.camera, 1, 1)
+        this.composer.addPass(this.outlinePass)
     }
 
     // load = async () => {
@@ -69,6 +75,8 @@ export class Renderer {
         this.camera.bottom = -halfHeight
 
         this.camera.updateProjectionMatrix()
+
+        this.outlinePass.setSize(width, height)
 
         this.renderer.setSize(width, height)
         this.renderer.setPixelRatio(window.devicePixelRatio)
