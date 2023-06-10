@@ -15,6 +15,9 @@ export class Renderer {
     scene: Three.Scene
     player: Player
 
+    ambientLight = new Three.AmbientLight()
+    sun = new Three.DirectionalLight()
+
     renderer: Three.WebGLRenderer
     composer: EffectComposer
 
@@ -31,6 +34,9 @@ export class Renderer {
 
         this.player = new Player(new Three.Vector3(0, 0, 0))
         this.scene.add(this.player.mesh)
+
+        this.scene.add(this.ambientLight)
+        this.scene.add(this.sun)
 
         this.renderer = new Three.WebGLRenderer({
             powerPreference: "high-performance",

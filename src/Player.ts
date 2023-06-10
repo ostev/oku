@@ -10,7 +10,7 @@ export class Player {
         this.mesh = new Three.Mesh(
             new Three.BoxGeometry(0.2, 0.2, 0.2),
             // new Three.MeshBasicMaterial({ color: "#F9FBFF" })
-            new Three.MeshBasicMaterial({ color: "orange" })
+            new Three.MeshPhysicalMaterial({ color: "orange" })
         )
     }
 }
