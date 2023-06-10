@@ -9,11 +9,8 @@ export class Player {
         this.position = position
         this.mesh = new Three.Mesh(
             new Three.BoxGeometry(0.2, 0.2, 0.2),
-            createLitMaterial({
-                front: new Three.Color("blue"),
-                right: new Three.Color("red"),
-                top: new Three.Color("white")
-            })
+            // new Three.MeshBasicMaterial({ color: "#F9FBFF" })
+            new Three.MeshBasicMaterial({ color: "orange" })
         )
     }
 }
