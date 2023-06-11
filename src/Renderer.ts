@@ -41,6 +41,12 @@ export class Renderer {
         this.scene.add(this.ambientLight)
         this.scene.add(this.sun)
 
+        const plane = new Three.Mesh(
+            new Three.PlaneGeometry(),
+            new Three.MeshStandardMaterial()
+        )
+        this.scene.add(plane)
+
         this.renderer = new Three.WebGLRenderer({
             powerPreference: "high-performance"
         })
