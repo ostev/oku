@@ -62,8 +62,6 @@ export const paintFragment = `
         gl_FragColor = vec4(baseColor * base + color1 * q.x + color2 * q.y + color3 * r.x + color4 * r.y, 1.0);
         // gl_FragColor = vec4(color1, 1.0);
 
-        if (step(0.0, gl_FragColor.xyz) == vec3(0.0)) {
-            gl_FragColor = vec4(vec3(0.0), 1.0);
-        }
+        // gl_FragColor = vec4(smoothstep(0.0, 0.1, gl_FragColor.xyz), 1.0);
     }
 `

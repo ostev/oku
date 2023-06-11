@@ -41,7 +41,7 @@ export class Renderer {
         this.scene = new Three.Scene()
 
         this.player = new Player(new Three.Vector3(0, 0, 0))
-        // this.scene.add(this.player.mesh)
+        this.scene.add(this.player.mesh)
 
         this.scene.add(this.ambientLight)
         this.scene.add(this.sun)
@@ -86,7 +86,7 @@ export class Renderer {
         this.composer.addPass(renderPass)
 
         this.outlinePass = new SketchPass(this.scene, this.camera, 1, 1)
-        // this.composer.addPass(this.outlinePass)
+        this.composer.addPass(this.outlinePass)
 
         this.fxaaPass = new ShaderPass(FXAAShader)
         // this.composer.addPass(this.fxaaPass)
