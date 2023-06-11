@@ -18,11 +18,55 @@ import {
 } from "three"
 import { FullScreenQuad, Pass } from "three/examples/jsm/postprocessing/Pass.js"
 
+const gradientNoise = `
+vec2 grad( ivec2 z ) {
+    // 2D to 1D
+    int n = z.x+z.y*11111;
+
+    // Hugo Elias hash
+    n = (n<<13)^n;
+    n = (n*(n*n*15731+789221)+1376312589)>>16;
+
+    #if 0
+
+        // simple random vectors
+        return vec2(cos(float(n)),sin(float(n)));
+        
+    #else
+
+        // Perlin style vectors
+        n &= 7;
+        vec2 gr = vec2(n&1,n>>1)*2.0-1.0;
+        return ( n>=6 ) ? vec2(0.0,gr.x) : 
+            ( n>=4 ) ? vec2(gr.x,0.0) :
+                                gr;
+    #endif                              
+}
+
+float noise( in vec2 p ) {
+    ivec2 i = ivec2(floor( p ));
+     vec2 f =       fract( p );
+	
+	vec2 u = f*f*(3.0-2.0*f); // feel free to replace by a quintic smoothstep instead
+
+    return mix( mix( dot( grad( i+ivec2(0,0) ), f-vec2(0.0,0.0) ), 
+                     dot( grad( i+ivec2(1,0) ), f-vec2(1.0,0.0) ), u.x),
+                mix( dot( grad( i+ivec2(0,1) ), f-vec2(0.0,1.0) ), 
+                     dot( grad( i+ivec2(1,1) ), f-vec2(1.0,1.0) ), u.x), u.y);
+}
+`
+
 const sobelOperator = `
+    ${gradientNoise}
+
     float valueAtPoint(sampler2D image, vec2 coord, vec2 texel, vec2 point) {
         vec3 luma = vec3(0.299, 0.587, 0.114);
 
         return dot(texture2D(image, coord + texel * point).xyz, luma);
+    }
+
+    float diffuseValue(int x, int y) {
+        return valueAtPoint(tDiffuse, vUv, vec2(1.0 / uResolution.x, 1.0 / uResolution.y), vec2(x, y)) * 0.6;
     }
 
     float normalValue(int x, int y) {
@@ -35,7 +79,9 @@ const sobelOperator = `
     }
 
     float getValue(int x, int y) {
-        return normalValue(x, y);
+        float noiseValue = 5.0 * (noise(gl_FragCoord.xy) * 2.0 - 1.0);
+
+        return diffuseValue(x, y) + normalValue(x, y) * noiseValue;
     }
 
     float combinedSobelValue() {
@@ -87,6 +133,7 @@ const shader = {
         }
     `,
     fragmentShader: `
+        uniform sampler2D tDiffuse;
         uniform sampler2D tNormal;
         uniform sampler2D tDepth;
 
@@ -95,8 +142,6 @@ const shader = {
         varying vec2 vUv;
 
         ${sobelOperator}
-
-        
 
         void main() {
             float sobelValue = combinedSobelValue();
@@ -153,6 +198,7 @@ export class OutlinePass extends Pass {
 
         this.outlineMaterial = new ShaderMaterial({
             uniforms: {
+                tDiffuse: { value: null },
                 tNormal: { value: this.normalRenderTarget.texture },
                 tDepth: { value: this.normalRenderTarget.depthTexture },
                 uResolution: { value: new Vector2(this.width, this.height) }
@@ -174,13 +220,18 @@ export class OutlinePass extends Pass {
         )
     }
 
-    override render(renderer: WebGLRenderer, writeBuffer: WebGLRenderTarget) {
+    override render(
+        renderer: WebGLRenderer,
+        writeBuffer: WebGLRenderTarget,
+        readBuffer: WebGLRenderTarget
+    ) {
         this.renderOverride(
             renderer,
             this.normalMaterial,
             this.normalRenderTarget
         )
 
+        this.outlineMaterial.uniforms["tDiffuse"].value = readBuffer.texture
         if (this.renderToScreen) {
             renderer.setRenderTarget(null)
         } else {
