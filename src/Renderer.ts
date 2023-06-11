@@ -11,6 +11,7 @@ import paperTextureUrl from "./paper2k.png?url"
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js"
 import { paintFragment } from "./render/shaders/paint"
 import { simpleVertex } from "./render/shaders/simple"
+import chroma from "chroma-js"
 
 export class Renderer {
     camera: Three.OrthographicCamera
@@ -28,20 +29,7 @@ export class Renderer {
     outlinePass: SketchPass
     fxaaPass: ShaderPass
 
-    paintMaterial = new Three.ShaderMaterial({
-        defines: {
-            NUM_OCTAVES: 4
-        },
-        uniforms: {
-            time: new Three.Uniform(0),
-            scale: new Three.Uniform(0.5),
-            speed: new Three.Uniform(0.01),
-            color1: new Three.Uniform(new Three.Color("#43baaa")),
-            color2: new Three.Uniform(new Three.Color("#77496a"))
-        },
-        vertexShader: simpleVertex,
-        fragmentShader: paintFragment
-    })
+    paintMaterial: Three.ShaderMaterial
 
     constructor() {
         this.camera = new Three.OrthographicCamera()
@@ -53,14 +41,32 @@ export class Renderer {
         this.scene = new Three.Scene()
 
         this.player = new Player(new Three.Vector3(0, 0, 0))
-        this.scene.add(this.player.mesh)
+        // this.scene.add(this.player.mesh)
 
         this.scene.add(this.ambientLight)
         this.scene.add(this.sun)
 
+        this.paintMaterial = new Three.ShaderMaterial({
+            defines: {
+                NUM_OCTAVES: 4
+            },
+            uniforms: {
+                time: new Three.Uniform(0),
+                scale: new Three.Uniform(2),
+                speed: new Three.Uniform(0.01),
+                baseColor: new Three.Uniform(new Three.Color("#536B78")),
+                color1: new Three.Uniform(new Three.Color("#CEE5F2")),
+                color2: new Three.Uniform(new Three.Color("#ACCBE1")),
+                color3: new Three.Uniform(new Three.Color("#7C98B3")),
+                color4: new Three.Uniform(new Three.Color("#637081"))
+            },
+            vertexShader: simpleVertex,
+            fragmentShader: paintFragment
+        })
+
         const plane = new Three.Mesh(
             new Three.PlaneGeometry(),
-            new Three.MeshStandardMaterial()
+            this.paintMaterial
         )
         this.scene.add(plane)
 
@@ -74,7 +80,7 @@ export class Renderer {
         const renderPass = new RenderPass(
             this.scene,
             this.camera,
-            this.paintMaterial,
+            undefined,
             new Three.Color("blue")
         )
         this.composer.addPass(renderPass)
