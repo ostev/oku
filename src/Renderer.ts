@@ -5,10 +5,12 @@ import { RenderPass } from "three/addons/postprocessing/RenderPass.js"
 import { FXAAShader } from "three/addons/shaders/FXAAShader.js"
 
 import { Player } from "./Player"
-import { OutlinePass } from "./render/OutlinePass"
+import { SketchPass } from "./render/SketchPass"
 
 import paperTextureUrl from "./paper2k.png?url"
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js"
+import { paintFragment } from "./render/shaders/paint"
+import { simpleVertex } from "./render/shaders/simple"
 
 export class Renderer {
     camera: Three.OrthographicCamera
@@ -23,8 +25,23 @@ export class Renderer {
     renderer: Three.WebGLRenderer
     composer: EffectComposer
 
-    outlinePass: OutlinePass
+    outlinePass: SketchPass
     fxaaPass: ShaderPass
+
+    paintMaterial = new Three.ShaderMaterial({
+        defines: {
+            NUM_OCTAVES: 4
+        },
+        uniforms: {
+            time: new Three.Uniform(0),
+            scale: new Three.Uniform(0.5),
+            speed: new Three.Uniform(0.01),
+            color1: new Three.Uniform(new Three.Color("#43baaa")),
+            color2: new Three.Uniform(new Three.Color("#77496a"))
+        },
+        vertexShader: simpleVertex,
+        fragmentShader: paintFragment
+    })
 
     constructor() {
         this.camera = new Three.OrthographicCamera()
@@ -57,13 +74,13 @@ export class Renderer {
         const renderPass = new RenderPass(
             this.scene,
             this.camera,
-            undefined,
+            this.paintMaterial,
             new Three.Color("blue")
         )
         this.composer.addPass(renderPass)
 
-        this.outlinePass = new OutlinePass(this.scene, this.camera, 1, 1)
-        this.composer.addPass(this.outlinePass)
+        this.outlinePass = new SketchPass(this.scene, this.camera, 1, 1)
+        // this.composer.addPass(this.outlinePass)
 
         this.fxaaPass = new ShaderPass(FXAAShader)
         // this.composer.addPass(this.fxaaPass)
@@ -109,6 +126,9 @@ export class Renderer {
     }
 
     animate = (delta: number) => {
+        this.paintMaterial.uniforms["time"].value = performance.now() / 1000
+        this.player.mesh.rotation.y = (performance.now() / 1000) * 0.5
+
         this.composer.render(delta)
 
         requestAnimationFrame(this.animate)
