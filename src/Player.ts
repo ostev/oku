@@ -11,8 +11,8 @@ export class Player {
             // new Three.BoxGeometry(0.2, 0.2, 0.2),
             new Three.TorusGeometry(0.2, 0.1),
             // new Three.SphereGeometry(0.2),
-            // new Three.MeshBasicMaterial({ color: "#F9FBFF" })
-            new Three.MeshPhysicalMaterial({ color: "orange" })
+            new Three.MeshBasicMaterial({ color: "orange" })
+            // new Three.MeshPhysicalMaterial({ color: "orange" })
         )
     }
 }

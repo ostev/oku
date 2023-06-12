@@ -68,7 +68,7 @@ export class Renderer {
             new Three.PlaneGeometry(),
             this.paintMaterial
         )
-        this.scene.add(plane)
+        // this.scene.add(plane)
 
         this.renderer = new Three.WebGLRenderer({
             powerPreference: "high-performance"

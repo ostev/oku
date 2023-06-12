@@ -91,7 +91,7 @@ const sobelOperator = `
         float noiseValue = 5.0 * (noise(gl_FragCoord.xy) * 2.0 - 1.0);
         float cutoff = 50.0;
         float offset = 0.3 / cutoff;
-        float cloudNoiseValue = clamp(texture(tClouds, vUv).r, 0.0, cutoff) / cutoff - offset;
+        float cloudNoiseValue = clamp(texture(tClouds, vUv * 1.0).r, 0.0, cutoff) / cutoff - offset;
 
         // return depthValue(x, y) + normalValue(x, y) * noiseValue;
         // return depthValue(x, y);
