@@ -1,5 +1,5 @@
 export const $ = (selector: string) =>
-    document.body.querySelector(selector) as Element
+    document.body.querySelector(selector) as HTMLElement
 
 export function withDefault<T>(value: T | undefined, default_: T): T {
     if (value !== undefined) {

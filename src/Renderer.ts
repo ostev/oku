@@ -4,6 +4,8 @@ import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js"
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js"
 import { FXAAShader } from "three/addons/shaders/FXAAShader.js"
 
+import { OrbitControls } from "three/addons/controls/OrbitControls.js"
+
 import { Player } from "./Player"
 import { SketchPass } from "./render/SketchPass"
 
@@ -12,6 +14,7 @@ import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js"
 import { paintFragment } from "./render/shaders/paint"
 import { simpleVertex } from "./render/shaders/simple"
 import chroma from "chroma-js"
+import { $ } from "./helpers"
 
 export class Renderer {
     camera: Three.OrthographicCamera
@@ -27,16 +30,14 @@ export class Renderer {
     composer: EffectComposer
 
     outlinePass: SketchPass
-    fxaaPass: ShaderPass
+    // fxaaPass: ShaderPass
 
     paintMaterial: Three.ShaderMaterial
 
+    orbitControls: OrbitControls
+
     constructor() {
         this.camera = new Three.OrthographicCamera()
-        this.camera.position.z = 1
-        this.camera.rotation.order = "YXZ"
-        this.camera.rotation.y = Math.PI / 4
-        this.camera.rotation.x = Math.atan(-1 / Math.sqrt(2))
 
         this.scene = new Three.Scene()
 
@@ -88,8 +89,28 @@ export class Renderer {
         this.outlinePass = new SketchPass(this.scene, this.camera, 1, 1)
         this.composer.addPass(this.outlinePass)
 
-        this.fxaaPass = new ShaderPass(FXAAShader)
+        // this.fxaaPass = new ShaderPass(FXAAShader)
         // this.composer.addPass(this.fxaaPass)
+
+        // const sphericalTarget = new Three.Spherical(
+        //     1,
+        //     Math.PI / 2 - Math.atan(-1 / Math.sqrt(2)),
+        //     Math.PI / 4
+        // )
+        // const target = new Three.Vector3().setFromSpherical(sphericalTarget)
+
+        this.orbitControls = new OrbitControls(
+            this.camera,
+            this.renderer.domElement
+        )
+        // this.orbitControls.enableDamping = true
+        // this.orbitControls.dampingFactor = 0.2
+        this.orbitControls.minPolarAngle = -Math.atan(-1 / Math.sqrt(2))
+        this.orbitControls.maxPolarAngle = -Math.atan(-1 / Math.sqrt(2))
+        this.camera.position.x = -1
+        this.camera.position.z = 1
+        this.orbitControls.saveState()
+        this.orbitControls.update()
     }
 
     // load = async () => {
@@ -125,15 +146,21 @@ export class Renderer {
         this.camera.updateProjectionMatrix()
 
         this.outlinePass.setSize(width, height)
-        this.fxaaPass.material.uniforms["resolution"].value.x =
-            1 / (width * pixelRatio)
-        this.fxaaPass.material.uniforms["resolution"].value.y =
-            1 / (height * pixelRatio)
+        // this.fxaaPass.material.uniforms["resolution"].value.x =
+        //     1 / (width * pixelRatio)
+        // this.fxaaPass.material.uniforms["resolution"].value.y =
+        //     1 / (height * pixelRatio)
     }
 
     animate = (delta: number) => {
         this.paintMaterial.uniforms["time"].value = performance.now() / 1000
         // this.player.mesh.rotation.y = (performance.now() / 1000) * 0.5
+
+        // this.camera.position.setZ(this.camera.position.z + delta * 0.01)
+        this.orbitControls.update()
+        $(
+            "#pos"
+        ).textContent = `${this.camera.position.x}, ${this.camera.position.y}, ${this.camera.position.z}`
 
         this.composer.render(delta)
 
