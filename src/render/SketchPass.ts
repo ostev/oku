@@ -19,9 +19,11 @@ import {
 } from "three"
 import { FullScreenQuad, Pass } from "three/examples/jsm/postprocessing/Pass.js"
 
-import cloudTextureUrl from "./clouds.png?url"
 import { gradientNoise } from "./shaders/noise"
 import { simpleVertex } from "./shaders/simple"
+
+import cloudTextureUrl from "./clouds.png?url"
+import paperTextureUrl from "./paper2k.png?url"
 
 const decodeDepth = `
 float getDepth( const in vec2 screenPosition ) {
@@ -143,6 +145,7 @@ const shader = {
         uniform sampler2D tNormal;
         uniform sampler2D tDepth;
         uniform sampler2D tClouds;
+        uniform sampler2D tPaper;
 
         uniform vec2 uResolution;
 
@@ -161,6 +164,7 @@ const shader = {
             if (sobelValue > 0.1) {
                 gl_FragColor = lineColor;
             } else {
+                // gl_FragColor = vec4(texture2D(tPaper, vUv).xyz, 1.0);
                 gl_FragColor = vec4(1.0);
             }
         }
@@ -210,6 +214,7 @@ export class SketchPass extends Pass {
         this.outlineMaterial = new ShaderMaterial({
             uniforms: {
                 tClouds: { value: this.loader.load(cloudTextureUrl) },
+                tPaper: { value: this.loader.load(paperTextureUrl) },
                 tDiffuse: { value: null },
                 tNormal: { value: this.normalRenderTarget.texture },
                 tDepth: { value: this.normalRenderTarget.depthTexture },
