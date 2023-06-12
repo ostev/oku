@@ -133,7 +133,7 @@ export class Renderer {
 
     animate = (delta: number) => {
         this.paintMaterial.uniforms["time"].value = performance.now() / 1000
-        this.player.mesh.rotation.y = (performance.now() / 1000) * 0.5
+        // this.player.mesh.rotation.y = (performance.now() / 1000) * 0.5
 
         this.composer.render(delta)
 
