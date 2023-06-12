@@ -6,22 +6,21 @@ import { FXAAShader } from "three/addons/shaders/FXAAShader.js"
 
 import { OrbitControls } from "three/addons/controls/OrbitControls.js"
 
-import { Player } from "./Player"
 import { SketchPass } from "./render/SketchPass"
 
-import paperTextureUrl from "./paper2k.png?url"
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js"
 import { paintFragment } from "./render/shaders/paint"
 import { simpleVertex } from "./render/shaders/simple"
 import chroma from "chroma-js"
 import { $ } from "./helpers"
+import { World } from "./World"
 
-export class Renderer {
+export class View {
     camera: Three.OrthographicCamera
     orthographicScale: number = 0.005
 
+    world: World
     scene: Three.Scene
-    player: Player
 
     ambientLight = new Three.AmbientLight()
     sun = new Three.DirectionalLight()
@@ -36,13 +35,15 @@ export class Renderer {
 
     orbitControls: OrbitControls
 
-    constructor() {
+    constructor(world: World) {
+        this.world = world
+
         this.camera = new Three.OrthographicCamera()
 
         this.scene = new Three.Scene()
 
-        this.player = new Player(new Three.Vector3(0, 0, 0))
-        this.scene.add(this.player.mesh)
+        // this.player = new Player(new Three.Vector3(0, 0, 0))
+        // this.scene.add(this.player.mesh)
 
         this.scene.add(this.ambientLight)
         this.scene.add(this.sun)
@@ -65,10 +66,10 @@ export class Renderer {
             fragmentShader: paintFragment
         })
 
-        const plane = new Three.Mesh(
-            new Three.PlaneGeometry(),
-            this.paintMaterial
-        )
+        // const plane = new Three.Mesh(
+        //     new Three.PlaneGeometry(),
+        //     this.paintMaterial
+        // )
         // this.scene.add(plane)
 
         this.renderer = new Three.WebGLRenderer({

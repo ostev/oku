@@ -1,4 +1,6 @@
 import * as Rapier from "@dimforge/rapier3d"
+import * as Three from "three"
+
 import { withDefault } from "./helpers"
 
 export class World {
@@ -84,10 +86,15 @@ export interface Entity {
 }
 export type EntityId = number
 
-export type ComponentKind = "rigidBody"
-export type Component = RigidBody
+export type ComponentKind = "rigidBody" | "mesh"
+export type Component = RigidBody | Mesh
 
 export interface RigidBody {
     kind: "rigidBody"
     descriptor: Rapier.RigidBodyDesc
+}
+
+export interface Mesh {
+    kind: "mesh"
+    mesh: Three.Mesh
 }
