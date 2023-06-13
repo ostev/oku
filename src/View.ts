@@ -19,7 +19,6 @@ export class View {
     camera: Three.OrthographicCamera
     orthographicScale: number = 0.005
 
-    world: World
     scene: Three.Scene
 
     ambientLight = new Three.AmbientLight()
@@ -35,9 +34,7 @@ export class View {
 
     orbitControls: OrbitControls
 
-    constructor(world: World) {
-        this.world = world
-
+    constructor() {
         this.camera = new Three.OrthographicCamera()
 
         this.scene = new Three.Scene()

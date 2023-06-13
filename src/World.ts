@@ -2,6 +2,7 @@ import * as Rapier from "@dimforge/rapier3d"
 import * as Three from "three"
 
 import { withDefault } from "./helpers"
+import { View } from "./View"
 
 export class World {
     private physics: Rapier.World
@@ -9,8 +10,11 @@ export class World {
     private componentLookupTable: Map<ComponentKind, Set<EntityId>> = new Map()
     private idCount: EntityId = 0
 
-    constructor(gravity: Rapier.Vector3) {
+    view: View
+
+    constructor(gravity: Rapier.Vector3, view: View) {
         this.physics = new Rapier.World(gravity)
+        this.view = view
     }
 
     addEntity = (components: Set<Component>): Readonly<Entity> => {
@@ -22,6 +26,8 @@ export class World {
         this.entities.set(id, entity)
 
         for (const component of components) {
+            this.initComponent(entity, component)
+
             const ids = this.componentLookupTable.get(component.kind)
             if (ids !== undefined) {
                 ids.add(id)
@@ -43,6 +49,8 @@ export class World {
         const entity = this.entities.get(id) as Entity
         entity.components.add(component)
 
+        this.initComponent(entity, component)
+
         const ids = this.componentLookupTable.get(component.kind)
         if (ids !== undefined) {
             ids.add(id)
@@ -58,6 +66,8 @@ export class World {
     private initComponent = (_entity: Entity, component: Component) => {
         if (component.kind === "rigidBody") {
             this.physics.createRigidBody(component.descriptor)
+        } else if (component.kind === "mesh") {
+            this.view.scene.add(component.mesh)
         }
     }
 
@@ -78,6 +88,8 @@ export class World {
     fixedStep = () => {
         this.physics.step()
     }
+
+    step = () => {}
 }
 
 export interface Entity {

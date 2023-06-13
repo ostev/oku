@@ -4,10 +4,10 @@ import { View } from "./View"
 import { World } from "./World"
 import { $ } from "./helpers"
 
-const world = new World({ x: 0.0, y: -9.81, z: 0.0 })
-addPlayer(world)
+const renderer = new View()
 
-const renderer = new View(world)
+const world = new World({ x: 0.0, y: -9.81, z: 0.0 }, renderer)
+addPlayer(world)
 
 renderer.setSize(window.innerWidth, window.innerHeight)
 // renderer.load()
