@@ -6,6 +6,8 @@ import { addPlayer } from "./Player"
 import { View } from "./View"
 import { RigidBody, World } from "./World"
 import { $ } from "./helpers"
+import { diff } from "./level/view/diff"
+import { Dimensions } from "./level"
 
 const renderer = new View()
 
@@ -43,5 +45,19 @@ const editor = new Editor($("#editor"), $("#executionContext"), world)
     console.log(`Running ${editor.script}`)
     editor.run()
 })
+
+console.log(
+    diff(
+        [
+            { kind: "block", dimensions: new Dimensions(3, 3) },
+            { kind: "block", dimensions: new Dimensions(3, 3) }
+        ],
+        [
+            { kind: "block", dimensions: new Dimensions(2, 2) },
+            { kind: "block", dimensions: new Dimensions(3, 3) },
+            { kind: "container", children: [] }
+        ]
+    )
+)
 
 world.start()
