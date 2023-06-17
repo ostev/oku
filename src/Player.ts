@@ -34,7 +34,7 @@ export const addPlayer = (world: World): Entity => {
                 kind: "rigidBodyDesc",
                 rigidBodyDesc: Rapier.RigidBodyDesc.dynamic()
                     .setGravityScale(1)
-                    .setAdditionalMass(1),
+                    .setAdditionalMass(2),
                 colliderDesc: Rapier.ColliderDesc.cuboid(0.1, 0.1, 0.1)
             }
         ])

@@ -156,9 +156,9 @@ export class View {
 
         // this.camera.position.setZ(this.camera.position.z + delta * 0.01)
         this.orbitControls.update()
-        $(
-            "#cameraPos"
-        ).textContent = `${this.camera.position.x}, ${this.camera.position.y}, ${this.camera.position.z}`
+        // $(
+        //     "#cameraPos"
+        // ).textContent = `${this.camera.position.x}, ${this.camera.position.y}, ${this.camera.position.z}`
 
         this.composer.render(delta)
     }

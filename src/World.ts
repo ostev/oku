@@ -1,7 +1,7 @@
 import * as Rapier from "@dimforge/rapier3d"
 import * as Three from "three"
 
-import { $, error, withDefault } from "./helpers"
+import { $, error, range, withDefault } from "./helpers"
 import { intersection } from "./setHelpers"
 import { View } from "./View"
 
@@ -13,8 +13,9 @@ export class World {
     private entities: Map<EntityId, Entity> = new Map()
     private componentLookupTable: Map<ComponentKind, Set<EntityId>> = new Map()
     private idCount: EntityId = 0
-    private intervalHandle: number | undefined
+    // private intervalHandle: number | undefined
     private animRequestHandle: number | undefined
+    private time = 0
 
     view: View
     physics: Rapier.World
@@ -34,7 +35,7 @@ export class World {
             this.keys[ev.key] = false
         })
 
-        this.intervalHandle = setInterval(this.fixedStep, 1 / 60)
+        // this.intervalHandle = setInterval(this.fixedStep, 1 / 60)
         this.animate(0)
     }
 
@@ -44,8 +45,8 @@ export class World {
         } else {
             console.warn("Not currently animating.")
         }
-        clearInterval(this.intervalHandle)
-        this.intervalHandle = undefined
+        // clearInterval(this.intervalHandle)
+        // this.intervalHandle = undefined
     }
 
     addEntity = (components: ReadonlySet<Component>): Entity => {
@@ -175,6 +176,8 @@ export class World {
             const rigidBody = (entity.components.get("rigidBody") as RigidBody)
                 .rigidBody
 
+            const position = rigidBody.translation()
+
             if (this.keys["w"]) {
                 rigidBody.applyImpulse(new Three.Vector3(0.5, 0, 0), true)
             }
@@ -191,18 +194,26 @@ export class World {
                 rigidBody.applyImpulse(new Three.Vector3(0, 1, 0), true)
             }
 
-            const position = rigidBody.translation()
             mesh.position.set(position.x, position.y, position.z)
-            // this.view.camera.position.set(0, position.y, 0)
             $(
                 "#playerPos"
             ).textContent = `Player position: ${position.x}, ${position.y}, ${position.z}`
-            // console.log(entity.id)
         }
     }
 
-    private animate = (delta: number) => {
+    private animate = (time: number) => {
+        const delta = time - this.time
+        this.time = time
+
+        for (const _i of range(
+            0,
+            Math.max(Math.floor(delta / (this.physics.timestep * 1000)), 1)
+        )) {
+            this.fixedStep()
+        }
+
         this.step(delta)
+
         this.view.render(delta)
 
         this.animRequestHandle = requestAnimationFrame(this.animate)

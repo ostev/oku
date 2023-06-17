@@ -9,6 +9,9 @@ export function withDefault<T>(value: T | undefined, default_: T): T {
     }
 }
 
+export const range = (start: number, end: number): number[] =>
+    [...Array(end).keys()].map((i) => i + start)
+
 export const error = (name: string) => {
     return class extends Error {
         name = name
