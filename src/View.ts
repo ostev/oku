@@ -150,18 +150,16 @@ export class View {
         //     1 / (height * pixelRatio)
     }
 
-    animate = (delta: number) => {
+    render = (delta: number) => {
         this.paintMaterial.uniforms["time"].value = performance.now() / 1000
         // this.player.mesh.rotation.y = (performance.now() / 1000) * 0.5
 
         // this.camera.position.setZ(this.camera.position.z + delta * 0.01)
         this.orbitControls.update()
         $(
-            "#pos"
+            "#cameraPos"
         ).textContent = `${this.camera.position.x}, ${this.camera.position.y}, ${this.camera.position.z}`
 
         this.composer.render(delta)
-
-        requestAnimationFrame(this.animate)
     }
 }

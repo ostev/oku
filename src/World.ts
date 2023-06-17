@@ -1,33 +1,85 @@
 import * as Rapier from "@dimforge/rapier3d"
 import * as Three from "three"
 
-import { withDefault } from "./helpers"
+import { $, error, withDefault } from "./helpers"
+import { intersection } from "./setHelpers"
 import { View } from "./View"
 
+export const MeshComponentNotFoundInThreeJSSceneError = error(
+    "MeshComponentNotFoundInThreeJSSceneError"
+)
+
 export class World {
-    private physics: Rapier.World
     private entities: Map<EntityId, Entity> = new Map()
     private componentLookupTable: Map<ComponentKind, Set<EntityId>> = new Map()
     private idCount: EntityId = 0
+    private intervalHandle: number | undefined
+    private animRequestHandle: number | undefined
 
     view: View
+    physics: Rapier.World
+    keys: Record<string, boolean> = {}
 
-    constructor(gravity: Rapier.Vector3, view: View) {
+    constructor(gravity: Readonly<Rapier.Vector3>, view: View) {
         this.physics = new Rapier.World(gravity)
         this.view = view
     }
 
-    addEntity = (components: Set<Component>): Readonly<Entity> => {
+    start = () => {
+        window.addEventListener("keydown", (ev) => {
+            this.keys[ev.key] = true
+        })
+
+        window.addEventListener("keyup", (ev) => {
+            this.keys[ev.key] = false
+        })
+
+        this.intervalHandle = setInterval(this.fixedStep, 1 / 60)
+        this.animate(0)
+    }
+
+    stop = () => {
+        if (this.animRequestHandle !== undefined) {
+            cancelAnimationFrame(this.animRequestHandle)
+        } else {
+            console.warn("Not currently animating.")
+        }
+        clearInterval(this.intervalHandle)
+        this.intervalHandle = undefined
+    }
+
+    addEntity = (components: ReadonlySet<Component>): Entity => {
         this.idCount += 1
 
         const id = this.idCount
-        const entity = { id, components }
+        const uninitialisedEntity = {
+            id,
+            components: Array.from(components).reduce(
+                (accumulator: Map<ComponentKind, Component>, component) => {
+                    accumulator.set(component.kind, component)
+                    return accumulator
+                },
+                new Map()
+            )
+        }
+
+        const entity = {
+            id,
+            components: new Map()
+        }
+
+        for (const [kind, component] of uninitialisedEntity.components) {
+            const finalisedComponent = this.initComponent(
+                uninitialisedEntity,
+                component
+            )
+
+            entity.components.set(finalisedComponent.kind, finalisedComponent)
+        }
 
         this.entities.set(id, entity)
 
-        for (const component of components) {
-            this.initComponent(entity, component)
-
+        for (const [_kind, component] of entity.components) {
             const ids = this.componentLookupTable.get(component.kind)
             if (ids !== undefined) {
                 ids.add(id)
@@ -41,40 +93,58 @@ export class World {
         return entity
     }
 
-    getEntity = (id: EntityId): Readonly<Entity> | undefined => {
+    getEntity = (id: Readonly<EntityId>): Readonly<Entity> | undefined => {
         return this.entities.get(id)
     }
 
-    addComponentToEntity = (id: EntityId, component: Component) => {
+    addComponentToEntity = (
+        id: Readonly<EntityId>,
+        component: Readonly<Component>
+    ) => {
         const entity = this.entities.get(id) as Entity
-        entity.components.add(component)
 
-        this.initComponent(entity, component)
+        const finalisedComponent = this.initComponent(entity, component)
 
-        const ids = this.componentLookupTable.get(component.kind)
+        entity.components.set(finalisedComponent.kind, finalisedComponent)
+
+        const ids = this.componentLookupTable.get(finalisedComponent.kind)
         if (ids !== undefined) {
             ids.add(id)
         } else {
             const ids: Set<EntityId> = new Set()
             ids.add(id)
-            this.componentLookupTable.set(component.kind, ids)
+            this.componentLookupTable.set(finalisedComponent.kind, ids)
         }
-
-        this.initComponent(entity, component)
     }
 
-    private initComponent = (_entity: Entity, component: Component) => {
-        if (component.kind === "rigidBody") {
-            this.physics.createRigidBody(component.descriptor)
+    private initComponent = (
+        entity: Readonly<Entity>,
+        component: Readonly<Component>
+    ): Component => {
+        if (component.kind === "rigidBodyDesc") {
+            const rigidBody = this.physics.createRigidBody(
+                component.rigidBodyDesc
+            )
+            const collider = this.physics.createCollider(
+                component.colliderDesc,
+                rigidBody
+            )
+
+            return { kind: "rigidBody", rigidBody, collider }
         } else if (component.kind === "mesh") {
+            component.mesh.name = entity.id.toString()
             this.view.scene.add(component.mesh)
+
+            return component
+        } else {
+            return component
         }
     }
 
     getEntities = (
-        componentKind: ComponentKind
+        componentKind: Readonly<ComponentKind>
     ): ReadonlySet<Readonly<Entity>> => {
-        const entities = new Set<Readonly<Entity>>()
+        const entities = new Set<Entity>()
         for (const entityId of withDefault(
             this.componentLookupTable.get(componentKind),
             new Set()
@@ -89,21 +159,74 @@ export class World {
         this.physics.step()
     }
 
-    step = () => {}
+    step = (delta: number) => {
+        for (const entity of intersection(
+            this.getEntities("rigidBody"),
+            this.getEntities("mesh")
+        )) {
+            // if (mesh === undefined) {
+            //     throw new MeshComponentNotFoundInThreeJSSceneError(
+            //         `Entity ${entity.id}'s mesh component was not found in the ThreeJS scene.`
+            //     )
+            // }
+            // console.log(entity.components)
+
+            const mesh = (entity.components.get("mesh") as Mesh).mesh
+            const rigidBody = (entity.components.get("rigidBody") as RigidBody)
+                .rigidBody
+
+            if (this.keys["w"]) {
+                rigidBody.applyImpulse(new Three.Vector3(0.5, 0, 0), true)
+            }
+            if (this.keys["s"]) {
+                rigidBody.applyImpulse(new Three.Vector3(-0.5, 0, 0), true)
+            }
+            if (this.keys["a"]) {
+                rigidBody.applyImpulse(new Three.Vector3(0, 0, -0.5), true)
+            }
+            if (this.keys["d"]) {
+                rigidBody.applyImpulse(new Three.Vector3(0, 0, 0.5), true)
+            }
+            if (this.keys[" "]) {
+                rigidBody.applyImpulse(new Three.Vector3(0, 1, 0), true)
+            }
+
+            const position = rigidBody.translation()
+            mesh.position.set(position.x, position.y, position.z)
+            // this.view.camera.position.set(0, position.y, 0)
+            $(
+                "#playerPos"
+            ).textContent = `Player position: ${position.x}, ${position.y}, ${position.z}`
+            // console.log(entity.id)
+        }
+    }
+
+    private animate = (delta: number) => {
+        this.step(delta)
+        this.view.render(delta)
+
+        this.animRequestHandle = requestAnimationFrame(this.animate)
+    }
 }
 
 export interface Entity {
     id: EntityId
-    components: Set<Component>
+    components: Map<ComponentKind, Component>
 }
 export type EntityId = number
 
-export type ComponentKind = "rigidBody" | "mesh"
-export type Component = RigidBody | Mesh
+export type ComponentKind = "rigidBody" | "mesh" | "rigidBodyDesc"
+export type Component = RigidBodyDesc | Mesh | RigidBody
 
+export interface RigidBodyDesc {
+    kind: "rigidBodyDesc"
+    rigidBodyDesc: Rapier.RigidBodyDesc
+    colliderDesc: Rapier.ColliderDesc
+}
 export interface RigidBody {
     kind: "rigidBody"
-    descriptor: Rapier.RigidBodyDesc
+    rigidBody: Rapier.RigidBody
+    collider: Rapier.Collider
 }
 
 export interface Mesh {

@@ -8,3 +8,13 @@ export function withDefault<T>(value: T | undefined, default_: T): T {
         return default_
     }
 }
+
+export const error = (name: string) => {
+    return class extends Error {
+        name = name
+
+        constructor(message: string | undefined) {
+            super(message)
+        }
+    }
+}

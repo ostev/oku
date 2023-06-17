@@ -1,6 +1,7 @@
 import * as Three from "three"
 import { createLitMaterial } from "./lighting"
-import { World } from "./World"
+import { Entity, World } from "./World"
+import * as Rapier from "@dimforge/rapier3d"
 
 // export class Player {
 //     position: Three.Vector3
@@ -18,15 +19,23 @@ import { World } from "./World"
 //     }
 // }
 
-export const addPlayer = (world: World) => {
-    world.addEntity(
+export const addPlayer = (world: World): Entity => {
+    return world.addEntity(
         new Set([
             {
                 kind: "mesh",
                 mesh: new Three.Mesh(
                     new Three.BoxGeometry(0.2, 0.2, 0.2),
+                    // new Three.TorusKnotGeometry(0.2, 0.1),
                     new Three.MeshBasicMaterial({ color: "orange" })
                 )
+            },
+            {
+                kind: "rigidBodyDesc",
+                rigidBodyDesc: Rapier.RigidBodyDesc.dynamic()
+                    .setGravityScale(1)
+                    .setAdditionalMass(1),
+                colliderDesc: Rapier.ColliderDesc.cuboid(0.1, 0.1, 0.1)
             }
         ])
     )

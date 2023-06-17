@@ -1,3 +1,4 @@
+import { error } from "../helpers"
 import { FnBindings } from "./bindings"
 import userExecutionContextIFrameScriptUrl from "./userExecutionContextIFrame?url"
 
@@ -66,9 +67,6 @@ export class UserExecutionContext {
     }
 }
 
-export class InvalidMessageReceivedFromUserExecutionContextError extends Error {
-    constructor(message?: string | undefined) {
-        super(message)
-        this.name = "InvalidMessageReceivedFromExecutionContext"
-    }
-}
+export const InvalidMessageReceivedFromUserExecutionContextError = error(
+    "InvalidMessageReceivedFromExecutionContext"
+)

@@ -1,5 +1,10 @@
+import { error } from "../helpers"
 import { Bindings } from "./bindings"
 import UserExecutionContextWorker from "./userExecutionContextWorker?worker"
+
+export const InvalidMessageReceivedFromHostApplicationError = error(
+    "InvalidMessageReceivedFromHostApplicationError"
+)
 
 class UserExecutionContext {
     bindings: Bindings
@@ -93,13 +98,8 @@ window.addEventListener("message", (e) => {
             (error) => window.top?.postMessage(["error", error])
         )
     } else {
-        throw new InvalidMessageReceivedFromHostApplicationError()
+        throw new InvalidMessageReceivedFromHostApplicationError(
+            "Invalid message received from host application."
+        )
     }
 })
-
-class InvalidMessageReceivedFromHostApplicationError extends Error {
-    constructor(message?: string | undefined) {
-        super(message)
-        this.name = "InvalidMessageReceivedFromHostApplication"
-    }
-}
