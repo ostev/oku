@@ -44,6 +44,4 @@ const editor = new Editor($("#editor"), $("#executionContext"), world)
     editor.run()
 })
 
-console.log(world.entities)
-
 world.start()

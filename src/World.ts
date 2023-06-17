@@ -165,13 +165,6 @@ export class World {
             this.getEntities("rigidBody"),
             this.getEntities("mesh")
         )) {
-            // if (mesh === undefined) {
-            //     throw new MeshComponentNotFoundInThreeJSSceneError(
-            //         `Entity ${entity.id}'s mesh component was not found in the ThreeJS scene.`
-            //     )
-            // }
-            // console.log(entity.components)
-
             const mesh = (entity.components.get("mesh") as Mesh).mesh
             const rigidBody = (entity.components.get("rigidBody") as RigidBody)
                 .rigidBody
@@ -195,9 +188,6 @@ export class World {
             }
 
             mesh.position.set(position.x, position.y, position.z)
-            $(
-                "#playerPos"
-            ).textContent = `Player position: ${position.x}, ${position.y}, ${position.z}`
         }
     }
 
