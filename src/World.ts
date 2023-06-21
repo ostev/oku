@@ -9,6 +9,8 @@ export const MeshComponentNotFoundInThreeJSSceneError = error(
     "MeshComponentNotFoundInThreeJSSceneError"
 )
 
+export const ComponentNotFoundError = error("ComponentNotFoundError")
+
 export class World {
     private entities: Map<EntityId, Entity> = new Map()
     private componentLookupTable: Map<ComponentKind, Set<EntityId>> = new Map()
@@ -49,7 +51,10 @@ export class World {
         // this.intervalHandle = undefined
     }
 
-    addEntity = (components: ReadonlySet<Component>): Entity => {
+    addEntity = (
+        transform: Transform,
+        components: ReadonlySet<Component>
+    ): Entity => {
         this.idCount += 1
 
         const id = this.idCount
@@ -61,12 +66,14 @@ export class World {
                     return accumulator
                 },
                 new Map()
-            )
+            ),
+            transform
         }
 
-        const entity = {
+        const entity: Entity = {
             id,
-            components: new Map()
+            components: new Map(),
+            transform
         }
 
         for (const [kind, component] of uninitialisedEntity.components) {
@@ -91,11 +98,32 @@ export class World {
             }
         }
 
+        console.log(components)
+
         return entity
     }
 
     getEntity = (id: Readonly<EntityId>): Readonly<Entity> | undefined => {
         return this.entities.get(id)
+    }
+
+    getComponent = <Kind extends ComponentKind>(
+        entity: Readonly<Entity>,
+        kind: Kind
+    ): Component => {
+        const component = entity.components.get(kind)
+
+        if (component === undefined) {
+            throw new ComponentNotFoundError(
+                `Component ${kind} not found in entity ${entity.id}`
+            )
+        } else {
+            if (component.kind === kind) {
+                return component
+            }
+        }
+
+        return undefined as any
     }
 
     addComponentToEntity = (
@@ -129,6 +157,15 @@ export class World {
             const collider = this.physics.createCollider(
                 component.colliderDesc,
                 rigidBody
+            )
+
+            rigidBody.setTranslation(
+                new Rapier.Vector3(
+                    entity.transform.translation.x,
+                    entity.transform.translation.y,
+                    entity.transform.translation.z
+                ),
+                false
             )
 
             return { kind: "rigidBody", rigidBody, collider }
@@ -210,9 +247,14 @@ export class World {
     }
 }
 
+export interface Transform {
+    translation: Vec3
+}
+
 export interface Entity {
     id: EntityId
     components: Map<ComponentKind, Component>
+    transform: Transform
 }
 export type EntityId = number
 
@@ -233,4 +275,26 @@ export interface RigidBody {
 export interface Mesh {
     kind: "mesh"
     mesh: Three.Mesh
+}
+
+export class Vec2 {
+    x: number
+    y: number
+
+    constructor(x: number, y: number) {
+        this.x = x
+        this.y = y
+    }
+}
+
+export class Vec3 {
+    x: number
+    y: number
+    z: number
+
+    constructor(x: number, y: number, z: number) {
+        this.x = x
+        this.y = y
+        this.z = z
+    }
 }

@@ -4,32 +4,38 @@ import * as Three from "three"
 import { Editor } from "./Editor"
 import { addPlayer } from "./Player"
 import { View } from "./View"
-import { RigidBody, World } from "./World"
+import { RigidBody, Vec3, World } from "./World"
 import { $ } from "./helpers"
-import { diff } from "./level/view/diff"
-import { Dimensions } from "./level"
+import { addBox } from "./level"
 
 const renderer = new View()
 
 const world = new World({ x: 0.0, y: -9.81, z: 0.0 }, renderer)
 const player = addPlayer(world)
-world.addEntity(
-    new Set([
-        {
-            kind: "rigidBodyDesc",
-            rigidBodyDesc: Rapier.RigidBodyDesc.fixed()
-                .setTranslation(0, -1.5, 0)
-                .setAdditionalMass(1),
-            colliderDesc: Rapier.ColliderDesc.cuboid(0.5, 0.5, 0.5)
-        },
-        {
-            kind: "mesh",
-            mesh: new Three.Mesh(
-                new Three.BoxGeometry(1, 1, 1),
-                new Three.MeshBasicMaterial({ color: "blue" })
-            )
-        }
-    ])
+// world.addEntity(
+//     new Set([
+//         {
+//             kind: "rigidBodyDesc",
+//             rigidBodyDesc: Rapier.RigidBodyDesc.fixed()
+//                 .setTranslation(0, -1.5, 0)
+//                 .setAdditionalMass(1),
+//             colliderDesc: Rapier.ColliderDesc.cuboid(0.5, 0.5, 0.5)
+//         },
+//         {
+//             kind: "mesh",
+//             mesh: new Three.Mesh(
+//                 new Three.BoxGeometry(1, 1, 1),
+//                 new Three.MeshBasicMaterial({ color: "blue" })
+//             )
+//         },
+//     ])
+// )
+
+addBox(
+    world,
+    { translation: new Vec3(0, -1.5, 0) },
+    { width: 1, height: 1, depth: 1 },
+    Rapier.RigidBodyDesc.fixed().setAdditionalMass(1)
 )
 
 renderer.setSize(window.innerWidth, window.innerHeight)
@@ -46,18 +52,18 @@ const editor = new Editor($("#editor"), $("#executionContext"), world)
     editor.run()
 })
 
-console.log(
-    diff(
-        [
-            { kind: "block", dimensions: new Dimensions(3, 3) },
-            { kind: "block", dimensions: new Dimensions(3, 3) }
-        ],
-        [
-            { kind: "block", dimensions: new Dimensions(2, 2) },
-            { kind: "block", dimensions: new Dimensions(3, 3) },
-            { kind: "container", children: [] }
-        ]
-    )
-)
+// console.log(
+//     diff(
+//         [
+//             { kind: "block", dimensions: new Dimensions(3, 3) },
+//             { kind: "block", dimensions: new Dimensions(3, 3) }
+//         ],
+//         [
+//             { kind: "block", dimensions: new Dimensions(2, 2) },
+//             { kind: "block", dimensions: new Dimensions(3, 3) },
+//             { kind: "container", children: [] }
+//         ]
+//     )
+// )
 
 world.start()

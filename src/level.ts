@@ -1,54 +1,71 @@
-export interface Level<Model> {
-    update: (time: number, player: Player) => Model
-    view: (model: Model) => LevelNode[]
-}
+import * as Rapier from "@dimforge/rapier3d"
+import * as Three from "three"
+import { Transform, World } from "./World"
 
-export type LevelNode = Container | Block
+// export interface Level<Model> {
+//     update: (time: number, player: Player) => Model
+//     view: (model: Model) => LevelNode[]
+// }
 
-export interface Container {
-    kind: "container"
-    children: LevelNode[]
-}
+// export type LevelNode = Group | Block
 
-export interface Block {
-    kind: "block"
-    dimensions: Dimensions
-}
+// export const enum LevelNodeKind {
+//     Group = 0,
+//     Block = 1
+// }
 
-export class Dimensions {
+// export type Group = [LevelNodeKind.Group, LevelNode[]]
+
+// export type Block = [LevelNodeKind.Block, Dimensions]
+
+export interface Dimensions {
     width: number
     height: number
-
-    constructor(width: number, height: number) {
-        this.width = width
-        this.height = height
-    }
+    depth: number
 }
 
-export class Vec2 {
-    x: number
-    y: number
-
-    constructor(x: number, y: number) {
-        this.x = x
-        this.y = y
-    }
-}
-
-export class Vec3 {
-    x: number
-    y: number
-    z: number
-
-    constructor(x: number, y: number, z: number) {
-        this.x = x
-        this.y = y
-        this.z = z
-    }
-}
-
-export interface Player {
-    position: Vec3
+export const addBox = (
+    world: World,
+    transform: Transform,
+    dimensions: Dimensions,
+    rigidBodyDesc: Rapier.RigidBodyDesc
+) => {
+    return world.addEntity(
+        transform,
+        new Set([
+            {
+                kind: "rigidBodyDesc",
+                rigidBodyDesc,
+                colliderDesc: new Rapier.ColliderDesc(
+                    new Rapier.Cuboid(
+                        dimensions.width / 2,
+                        dimensions.height / 2,
+                        dimensions.depth / 2
+                    )
+                )
+            },
+            {
+                kind: "mesh",
+                mesh: new Three.Mesh(
+                    new Three.BoxGeometry(
+                        dimensions.width,
+                        dimensions.height,
+                        dimensions.depth
+                    ),
+                    new Three.MeshBasicMaterial({
+                        color: new Three.Color(
+                            Math.min(
+                                dimensions.width *
+                                    dimensions.height *
+                                    dimensions.depth,
+                                0xfffffffe
+                            )
+                        )
+                    })
+                )
+            }
+        ])
+    )
 }
 
 // export interface Inputs {

@@ -1,6 +1,6 @@
 import * as Three from "three"
 import { createLitMaterial } from "./lighting"
-import { Entity, World } from "./World"
+import { Entity, Vec3, World } from "./World"
 import * as Rapier from "@dimforge/rapier3d"
 
 // export class Player {
@@ -21,6 +21,7 @@ import * as Rapier from "@dimforge/rapier3d"
 
 export const addPlayer = (world: World): Entity => {
     return world.addEntity(
+        { translation: new Vec3(0, 0, 0) },
         new Set([
             {
                 kind: "mesh",
