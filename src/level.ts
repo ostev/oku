@@ -28,7 +28,8 @@ export const addBox = (
     world: World,
     transform: Transform,
     dimensions: Dimensions,
-    rigidBodyDesc: Rapier.RigidBodyDesc
+    rigidBodyDesc: Rapier.RigidBodyDesc,
+    color: Three.ColorRepresentation
 ) => {
     return world.addEntity(
         transform,
@@ -53,14 +54,7 @@ export const addBox = (
                         dimensions.depth
                     ),
                     new Three.MeshBasicMaterial({
-                        color: new Three.Color(
-                            Math.min(
-                                dimensions.width *
-                                    dimensions.height *
-                                    dimensions.depth,
-                                0xfffffffe
-                            )
-                        )
+                        color
                     })
                 )
             }

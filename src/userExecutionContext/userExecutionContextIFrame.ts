@@ -87,7 +87,7 @@ class UserExecutionContext {
 }
 
 const context = new UserExecutionContext(
-    { helloThere: { delay: 5000 } },
+    { helloThere: { delay: 0 }, forward: { delay: "parameterSeconds" } },
     (message) => window.top?.postMessage(message)
 )
 

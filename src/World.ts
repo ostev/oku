@@ -11,17 +11,36 @@ export const MeshComponentNotFoundInThreeJSSceneError = error(
 
 export const ComponentNotFoundError = error("ComponentNotFoundError")
 
+export const getComponent = <Kind extends ComponentKind>(
+    entity: Readonly<Entity>,
+    kind: Kind
+): Component => {
+    const component = entity.components.get(kind)
+
+    if (component === undefined) {
+        throw new ComponentNotFoundError(
+            `Component ${kind} not found in entity ${entity.id}`
+        )
+    } else {
+        if (component.kind === kind) {
+            return component
+        }
+    }
+
+    return undefined as any
+}
+
 export class World {
     private entities: Map<EntityId, Entity> = new Map()
     private componentLookupTable: Map<ComponentKind, Set<EntityId>> = new Map()
     private idCount: EntityId = 0
-    // private intervalHandle: number | undefined
+    private intervalHandle: number | undefined
     private animRequestHandle: number | undefined
     private time = 0
 
     view: View
     physics: Rapier.World
-    keys: Record<string, boolean> = {}
+    // keys: Record<string, boolean> = {}
 
     constructor(gravity: Readonly<Rapier.Vector3>, view: View) {
         this.physics = new Rapier.World(gravity)
@@ -29,15 +48,15 @@ export class World {
     }
 
     start = () => {
-        window.addEventListener("keydown", (ev) => {
-            this.keys[ev.key] = true
-        })
+        // window.addEventListener("keydown", (ev) => {
+        //     this.keys[ev.key] = true
+        // })
 
-        window.addEventListener("keyup", (ev) => {
-            this.keys[ev.key] = false
-        })
+        // window.addEventListener("keyup", (ev) => {
+        //     this.keys[ev.key] = false
+        // })
 
-        // this.intervalHandle = setInterval(this.fixedStep, 1 / 60)
+        this.intervalHandle = setInterval(this.fixedStep, 1 / 60)
         this.animate(0)
     }
 
@@ -47,8 +66,8 @@ export class World {
         } else {
             console.warn("Not currently animating.")
         }
-        // clearInterval(this.intervalHandle)
-        // this.intervalHandle = undefined
+        clearInterval(this.intervalHandle)
+        this.intervalHandle = undefined
     }
 
     addEntity = (
@@ -105,25 +124,6 @@ export class World {
 
     getEntity = (id: Readonly<EntityId>): Readonly<Entity> | undefined => {
         return this.entities.get(id)
-    }
-
-    getComponent = <Kind extends ComponentKind>(
-        entity: Readonly<Entity>,
-        kind: Kind
-    ): Component => {
-        const component = entity.components.get(kind)
-
-        if (component === undefined) {
-            throw new ComponentNotFoundError(
-                `Component ${kind} not found in entity ${entity.id}`
-            )
-        } else {
-            if (component.kind === kind) {
-                return component
-            }
-        }
-
-        return undefined as any
     }
 
     addComponentToEntity = (
@@ -208,21 +208,21 @@ export class World {
 
             const position = rigidBody.translation()
 
-            if (this.keys["w"]) {
-                rigidBody.applyImpulse(new Three.Vector3(0.5, 0, 0), true)
-            }
-            if (this.keys["s"]) {
-                rigidBody.applyImpulse(new Three.Vector3(-0.5, 0, 0), true)
-            }
-            if (this.keys["a"]) {
-                rigidBody.applyImpulse(new Three.Vector3(0, 0, -0.5), true)
-            }
-            if (this.keys["d"]) {
-                rigidBody.applyImpulse(new Three.Vector3(0, 0, 0.5), true)
-            }
-            if (this.keys[" "]) {
-                rigidBody.applyImpulse(new Three.Vector3(0, 1, 0), true)
-            }
+            // if (this.keys["w"]) {
+            //     rigidBody.applyImpulse(new Three.Vector3(0.5, 0, 0), true)
+            // }
+            // if (this.keys["s"]) {
+            //     rigidBody.applyImpulse(new Three.Vector3(-0.5, 0, 0), true)
+            // }
+            // if (this.keys["a"]) {
+            //     rigidBody.applyImpulse(new Three.Vector3(0, 0, -0.5), true)
+            // }
+            // if (this.keys["d"]) {
+            //     rigidBody.applyImpulse(new Three.Vector3(0, 0, 0.5), true)
+            // }
+            // if (this.keys[" "]) {
+            //     rigidBody.applyImpulse(new Three.Vector3(0, 1, 0), true)
+            // }
 
             mesh.position.set(position.x, position.y, position.z)
         }
@@ -232,12 +232,12 @@ export class World {
         const delta = time - this.time
         this.time = time
 
-        for (const _i of range(
-            0,
-            Math.max(Math.floor(delta / (this.physics.timestep * 1000)), 1)
-        )) {
-            this.fixedStep()
-        }
+        // for (const _i of range(
+        //     0,
+        //     Math.max(Math.floor(delta / (this.physics.timestep * 1000)), 1)
+        // )) {
+        // this.fixedStep()
+        // }
 
         this.step(delta)
 
@@ -256,10 +256,11 @@ export interface Entity {
     components: Map<ComponentKind, Component>
     transform: Transform
 }
+
 export type EntityId = number
 
-export type ComponentKind = "rigidBody" | "mesh" | "rigidBodyDesc"
-export type Component = RigidBodyDesc | Mesh | RigidBody
+export type ComponentKind = "rigidBody" | "mesh" | "rigidBodyDesc" | "joint"
+export type Component = RigidBodyDesc | Mesh | RigidBody | Joint
 
 export interface RigidBodyDesc {
     kind: "rigidBodyDesc"
@@ -270,6 +271,11 @@ export interface RigidBody {
     kind: "rigidBody"
     rigidBody: Rapier.RigidBody
     collider: Rapier.Collider
+}
+
+export interface Joint {
+    kind: "joint"
+    joint: Rapier.ImpulseJoint
 }
 
 export interface Mesh {

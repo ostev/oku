@@ -105,8 +105,8 @@ export class View {
         // this.orbitControls.dampingFactor = 0.2
         this.orbitControls.minPolarAngle = -Math.atan(-1 / Math.sqrt(2))
         this.orbitControls.maxPolarAngle = -Math.atan(-1 / Math.sqrt(2))
-        this.camera.position.x = -1
-        this.camera.position.z = 1
+        this.camera.position.x = -20
+        this.camera.position.z = 20
         this.orbitControls.saveState()
         this.orbitControls.update()
     }

@@ -65,7 +65,7 @@ const sobelOperator = `
     }
 
     float diffuseValue(int x, int y, float noiseValue) {
-        return valueAtPoint(tDiffuse, vUv + noiseValue, vec2(1.0 / uResolution.x, 1.0 / uResolution.y), vec2(x, y)) * 0.6;
+        return valueAtPoint(tDiffuse, vUv + noiseValue, vec2(1.0 / uResolution.x, 1.0 / uResolution.y), vec2(x, y)) * 2.0;
     }
 
     float depthValue(int x, int y) {
@@ -167,6 +167,8 @@ const shader = {
                 // gl_FragColor = vec4(texture2D(tPaper, vUv).xyz, 1.0);
                 gl_FragColor = vec4(1.0);
             }
+
+            // gl_FragColor = texture2D(tDiffuse, vUv);
         }
     `
 }

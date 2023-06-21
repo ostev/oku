@@ -35,7 +35,8 @@ export class UserExecutionContext {
         window.addEventListener("message", (e) => {
             // Check that we received an array and that the program finished
             if (typeof e.data === "object" && e.data[0] === "result") {
-                console.log("Code finished running.")
+                // console.log("Code finished running.")
+                // Nothing for now
             } else if (typeof e.data === "object" && e.data[0] === "error") {
                 console.error("Your code has an error! 😲 Here it is:")
                 console.error(e.data[1])

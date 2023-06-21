@@ -101,16 +101,23 @@ onmessage = (e) => {
                 source: `
 // === Library code ===
 ${Object.entries(executionContextBindings as Bindings)
-    .map(
-        ([name, syncInfo]) =>
-            `function ${name}(...args) {
-    console.log("Calling function ${name}...")
+    .map(([name, syncInfo]) => {
+        if (syncInfo.delay === 0) {
+            return `function ${name}(...args) {
+    self.postMessage(["${name}", ...args])
+}`
+        } else if (syncInfo.delay === "parameterSeconds") {
+            return `function ${name}(delay, ...args) {
+    self.postMessage(["${name}", delay, ...args])
+    Atomics.wait(__syncArray__, 0, 0, delay * 1000)
+}`
+        } else {
+            return `function ${name}(...args) {
     self.postMessage(["${name}", ...args])
     Atomics.wait(__syncArray__, 0, 0, ${syncInfo.delay})
-    console.log(__syncArray__[0])
-    console.log("Finished waiting.")
 }`
-    )
+        }
+    })
     .join("\n")}
 \n
 // === User code ===

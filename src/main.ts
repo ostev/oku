@@ -11,7 +11,7 @@ import { addBox } from "./level"
 const renderer = new View()
 
 const world = new World({ x: 0.0, y: -9.81, z: 0.0 }, renderer)
-const player = addPlayer(world)
+// const player = addPlayer(world)
 // world.addEntity(
 //     new Set([
 //         {
@@ -35,7 +35,16 @@ addBox(
     world,
     { translation: new Vec3(0, -1.5, 0) },
     { width: 1, height: 1, depth: 1 },
-    Rapier.RigidBodyDesc.fixed().setAdditionalMass(1)
+    Rapier.RigidBodyDesc.fixed().setAdditionalMass(1),
+    "purple"
+)
+
+addBox(
+    world,
+    { translation: new Vec3(0, -3, 0) },
+    { width: 80, height: 1, depth: 80 },
+    Rapier.RigidBodyDesc.fixed().setAdditionalMass(1),
+    "green"
 )
 
 renderer.setSize(window.innerWidth, window.innerHeight)

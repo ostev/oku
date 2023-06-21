@@ -7,7 +7,7 @@ export interface FnBindingInfo {
 export type Bindings = Record<string, SyncInfo>
 
 export interface SyncInfo {
-    delay: number | "arg"
+    delay: number | "parameterSeconds"
 }
 
 // export const stripFn = (fnBindings: FnBindings): Bindings => {
