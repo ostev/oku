@@ -33,18 +33,26 @@ const world = new World({ x: 0.0, y: -9.81, z: 0.0 }, renderer)
 
 addBox(
     world,
-    { translation: new Vec3(0, -1.5, 0) },
-    { width: 1, height: 1, depth: 1 },
+    { translation: new Vec3(0, -3, 0) },
+    { width: 5, height: 5, depth: 5 },
     Rapier.RigidBodyDesc.fixed().setAdditionalMass(1),
     "purple"
 )
 
 addBox(
     world,
-    { translation: new Vec3(0, -3, 0) },
-    { width: 80, height: 1, depth: 80 },
+    { translation: new Vec3(0, -20, 0) },
+    { width: 30, height: 2, depth: 30 },
     Rapier.RigidBodyDesc.fixed().setAdditionalMass(1),
     "green"
+)
+
+addBox(
+    world,
+    { translation: new Vec3(0, -4, 0) },
+    { width: 20, height: 2, depth: 20 },
+    Rapier.RigidBodyDesc.fixed().setAdditionalMass(1),
+    "red"
 )
 
 renderer.setSize(window.innerWidth, window.innerHeight)

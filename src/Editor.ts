@@ -4,7 +4,14 @@ import { EditorView, basicSetup } from "codemirror"
 import { javascript } from "@codemirror/lang-javascript"
 
 import { UserExecutionContext } from "./userExecutionContext/UserExecutionContext"
-import { Entity, Joint, RigidBody, World, getComponent } from "./World"
+import {
+    CharacterController,
+    Entity,
+    Joint,
+    RigidBody,
+    World,
+    getComponent
+} from "./World"
 import { addPlayer } from "./Player"
 
 export class Editor {
@@ -13,15 +20,21 @@ export class Editor {
 
     world: World
     player: Entity
-    playerRigidBody: RigidBody
+    playerCharacterController: Rapier.KinematicCharacterController
+    playerRigidBody: Rapier.RigidBody
 
     constructor(parent: Element, executionParent: Element, world: World) {
         this.world = world
         this.player = addPlayer(world)
-        this.playerRigidBody = getComponent(
-            this.player,
-            "rigidBody"
-        ) as RigidBody
+        this.playerRigidBody = (
+            getComponent(this.player, "rigidBody") as RigidBody
+        ).rigidBody
+        this.playerCharacterController = (
+            getComponent(
+                this.player,
+                "characterController"
+            ) as CharacterController
+        ).characterController
 
         this.view = new EditorView({
             extensions: [basicSetup, javascript()],
@@ -32,24 +45,32 @@ export class Editor {
             forward: {
                 fn: (duration: number) => {
                     // this.playerRigidBody.rigidBody.addForce(
-                    //     new Rapier.Vector3(50, 0, 0),
+                    //     new Rapier.Vector3(25, 0, 0),
                     //     true
                     // )
-
                     // setTimeout(
                     //     () => this.playerRigidBody.rigidBody.resetForces(true),
                     //     duration * 1000
                     // )
-
-                    const joint = (getComponent(this.player, "joint") as Joint)
-                        .joint as Rapier.RevoluteImpulseJoint
-
-                    joint.configureMotorVelocity(20, 0.5)
-
+                    // const joint = (getComponent(this.player, "joint") as Joint)
+                    //     .joint as Rapier.RevoluteImpulseJoint
+                    // joint.configureMotorVelocity(20, 0.5)
                     // setTimeout(
                     //     () => joint.configureMotorVelocity(0, 0.5),
                     //     duration * 1000
                     // )
+
+                    this.world.playerMovementVector = new Rapier.Vector3(
+                        0.1,
+                        0,
+                        0
+                    )
+                    setTimeout(
+                        () =>
+                            (this.world.playerMovementVector =
+                                new Rapier.Vector3(0, 0, 0)),
+                        duration * 1000
+                    )
                 }
             }
         })

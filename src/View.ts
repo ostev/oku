@@ -2,6 +2,7 @@ import * as Three from "three"
 
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js"
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js"
+import { SSAOPass } from "three/addons/postprocessing/SSAOPass.js"
 import { FXAAShader } from "three/addons/shaders/FXAAShader.js"
 
 import { OrbitControls } from "three/addons/controls/OrbitControls.js"
@@ -24,10 +25,14 @@ export class View {
     ambientLight = new Three.AmbientLight()
     sun = new Three.DirectionalLight()
 
+    width = 0
+    height = 0
+
     renderer: Three.WebGLRenderer
     composer: EffectComposer
 
     outlinePass: SketchPass
+    // ssaoPass: SSAOPass
     // fxaaPass: ShaderPass
 
     paintMaterial: Three.ShaderMaterial
@@ -36,6 +41,7 @@ export class View {
 
     constructor() {
         this.camera = new Three.OrthographicCamera()
+        // this.camera = new Three.PerspectiveCamera()
 
         this.scene = new Three.Scene()
 
@@ -87,6 +93,15 @@ export class View {
         this.outlinePass = new SketchPass(this.scene, this.camera, 1, 1)
         this.composer.addPass(this.outlinePass)
 
+        // this.ssaoPass = new SSAOPass(
+        //     this.scene,
+        //     this.camera,
+        //     this.width,
+        //     this.height
+        // )
+        // this.ssaoPass.kernelRadius = 16
+        // this.composer.addPass(this.ssaoPass);
+
         // this.fxaaPass = new ShaderPass(FXAAShader)
         // this.composer.addPass(this.fxaaPass)
 
@@ -125,6 +140,9 @@ export class View {
     }
 
     setSize = (width: number, height: number) => {
+        this.width = width
+        this.height = height
+
         const pixelRatio = window.devicePixelRatio
 
         this.renderer.setSize(width, height)
@@ -144,6 +162,7 @@ export class View {
         this.camera.updateProjectionMatrix()
 
         this.outlinePass.setSize(width, height)
+        // this.ssaoPass.setSize(width, height)
         // this.fxaaPass.material.uniforms["resolution"].value.x =
         //     1 / (width * pixelRatio)
         // this.fxaaPass.material.uniforms["resolution"].value.y =

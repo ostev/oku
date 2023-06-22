@@ -38,6 +38,8 @@ export class World {
     private animRequestHandle: number | undefined
     private time = 0
 
+    playerMovementVector = new Rapier.Vector3(0, 0, 0)
+
     view: View
     physics: Rapier.World
     // keys: Record<string, boolean> = {}
@@ -55,6 +57,20 @@ export class World {
         // window.addEventListener("keyup", (ev) => {
         //     this.keys[ev.key] = false
         // })
+
+        // for (const entity of intersection(
+        //     this.getEntities("rigidBody"),
+        //     this.getEntities("hover")
+        // )) {
+        //     const rigidBody = (getComponent(entity, "rigidBody") as RigidBody)
+        //         .rigidBody
+        //     const targetAltitude = (getComponent(entity, "rigidBody") as Hover)
+        //         .altitude
+
+        //     console.log("hover")
+
+        //     rigidBody.addForce({ x: 0, y: 40, z: 0 }, true)
+        // }
 
         this.intervalHandle = setInterval(this.fixedStep, 1 / 60)
         this.animate(0)
@@ -117,8 +133,6 @@ export class World {
             }
         }
 
-        console.log(components)
-
         return entity
     }
 
@@ -179,9 +193,7 @@ export class World {
         }
     }
 
-    getEntities = (
-        componentKind: Readonly<ComponentKind>
-    ): ReadonlySet<Readonly<Entity>> => {
+    getEntities = (componentKind: Readonly<ComponentKind>): Set<Entity> => {
         const entities = new Set<Entity>()
         for (const entityId of withDefault(
             this.componentLookupTable.get(componentKind),
@@ -207,6 +219,7 @@ export class World {
                 .rigidBody
 
             const position = rigidBody.translation()
+            const rotation = rigidBody.rotation()
 
             // if (this.keys["w"]) {
             //     rigidBody.applyImpulse(new Three.Vector3(0.5, 0, 0), true)
@@ -225,6 +238,52 @@ export class World {
             // }
 
             mesh.position.set(position.x, position.y, position.z)
+            mesh.rotation.set(rotation.x, rotation.y, rotation.z)
+        }
+
+        this.updatePlayer()
+
+        // for (const entity of intersection(
+        //     this.getEntities("rigidBody"),
+        //     this.getEntities("hover")
+        // )) {
+        //     const rigidBody = (getComponent(entity, "rigidBody") as RigidBody)
+        //         .rigidBody
+        //     const targetAltitude = (getComponent(entity, "rigidBody") as Hover)
+        //         .altitude
+        // }
+    }
+
+    updatePlayer = () => {
+        if (
+            this.playerMovementVector.x !== 0 ||
+            this.playerMovementVector.y !== 0 ||
+            this.playerMovementVector.z !== 0
+        ) {
+            const entity = Array.from(this.getEntities("player"))[0]
+            const characterController = (
+                getComponent(
+                    entity,
+                    "characterController"
+                ) as CharacterController
+            ).characterController
+            const rigidBody = (getComponent(entity, "rigidBody") as RigidBody)
+                .rigidBody
+
+            characterController.computeColliderMovement(
+                rigidBody.collider(0),
+                this.playerMovementVector
+            )
+
+            const correctedMovement = characterController.computedMovement()
+            const currentPosition = rigidBody.translation()
+            rigidBody.setNextKinematicTranslation(
+                new Rapier.Vector3(
+                    currentPosition.x + correctedMovement.x,
+                    currentPosition.y + correctedMovement.y,
+                    currentPosition.z + correctedMovement.z
+                )
+            )
         }
     }
 
@@ -259,8 +318,28 @@ export interface Entity {
 
 export type EntityId = number
 
-export type ComponentKind = "rigidBody" | "mesh" | "rigidBodyDesc" | "joint"
-export type Component = RigidBodyDesc | Mesh | RigidBody | Joint
+export type ComponentKind =
+    | "rigidBody"
+    | "mesh"
+    | "rigidBodyDesc"
+    | "joint"
+    | "hover"
+    | "characterController"
+    | "collider"
+    | "player"
+
+export type Component =
+    | RigidBodyDesc
+    | Mesh
+    | RigidBody
+    | Joint
+    | Hover
+    | CharacterController
+    | Player
+
+export interface Player {
+    kind: "player"
+}
 
 export interface RigidBodyDesc {
     kind: "rigidBodyDesc"
@@ -273,6 +352,15 @@ export interface RigidBody {
     collider: Rapier.Collider
 }
 
+export interface Collider {
+    kind: "collider"
+    collider: Rapier.Collider
+}
+export interface CharacterController {
+    kind: "characterController"
+    characterController: Rapier.KinematicCharacterController
+}
+
 export interface Joint {
     kind: "joint"
     joint: Rapier.ImpulseJoint
@@ -281,6 +369,15 @@ export interface Joint {
 export interface Mesh {
     kind: "mesh"
     mesh: Three.Mesh
+}
+
+/**
+ * Component to cause the entity to hover `altitude` units above
+ * the nearest surface. Requires `RigidBody` to function.
+ */
+export interface Hover {
+    kind: "hover"
+    altitude: number
 }
 
 export class Vec2 {
