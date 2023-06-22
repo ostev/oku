@@ -60,17 +60,11 @@ export class Editor {
                     //     duration * 1000
                     // )
 
-                    this.world.playerMovementVector = new Rapier.Vector3(
-                        0.1,
-                        0,
-                        0
-                    )
-                    setTimeout(
-                        () =>
-                            (this.world.playerMovementVector =
-                                new Rapier.Vector3(0, 0, 0)),
-                        duration * 1000
-                    )
+                    this.world.playerMovementVector.x += 0.1
+
+                    setTimeout(() => {
+                        this.world.playerMovementVector.x -= 0.1
+                    }, duration * 1000)
                 }
             }
         })

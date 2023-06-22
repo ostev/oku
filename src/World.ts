@@ -4,6 +4,7 @@ import * as Three from "three"
 import { $, error, range, withDefault } from "./helpers"
 import { intersection } from "./setHelpers"
 import { View } from "./View"
+import { distance } from "./maths"
 
 export const MeshComponentNotFoundInThreeJSSceneError = error(
     "MeshComponentNotFoundInThreeJSSceneError"
@@ -34,7 +35,7 @@ export class World {
     private entities: Map<EntityId, Entity> = new Map()
     private componentLookupTable: Map<ComponentKind, Set<EntityId>> = new Map()
     private idCount: EntityId = 0
-    private intervalHandle: number | undefined
+    // private intervalHandle: number | undefined
     private animRequestHandle: number | undefined
     private time = 0
 
@@ -72,7 +73,7 @@ export class World {
         //     rigidBody.addForce({ x: 0, y: 40, z: 0 }, true)
         // }
 
-        this.intervalHandle = setInterval(this.fixedStep, 1 / 60)
+        // this.intervalHandle = setInterval(this.fixedStep, 1 / 60)
         this.animate(0)
     }
 
@@ -82,8 +83,8 @@ export class World {
         } else {
             console.warn("Not currently animating.")
         }
-        clearInterval(this.intervalHandle)
-        this.intervalHandle = undefined
+        // clearInterval(this.intervalHandle)
+        // this.intervalHandle = undefined
     }
 
     addEntity = (
@@ -206,6 +207,7 @@ export class World {
     }
 
     fixedStep = () => {
+        this.fixedStepPlayer()
         this.physics.step()
     }
 
@@ -241,8 +243,6 @@ export class World {
             mesh.rotation.set(rotation.x, rotation.y, rotation.z)
         }
 
-        this.updatePlayer()
-
         // for (const entity of intersection(
         //     this.getEntities("rigidBody"),
         //     this.getEntities("hover")
@@ -254,49 +254,66 @@ export class World {
         // }
     }
 
-    updatePlayer = () => {
-        if (
-            this.playerMovementVector.x !== 0 ||
-            this.playerMovementVector.y !== 0 ||
-            this.playerMovementVector.z !== 0
-        ) {
-            const entity = Array.from(this.getEntities("player"))[0]
-            const characterController = (
-                getComponent(
-                    entity,
-                    "characterController"
-                ) as CharacterController
-            ).characterController
-            const rigidBody = (getComponent(entity, "rigidBody") as RigidBody)
-                .rigidBody
+    fixedStepPlayer = () => {
+        // if (
+        //     this.playerMovementVector.x !== 0 ||
+        //     this.playerMovementVector.y !== 0 ||
+        //     this.playerMovementVector.z !== 0
+        // ) {
+        const entity = Array.from(this.getEntities("player"))[0]
+        const characterController = (
+            getComponent(entity, "characterController") as CharacterController
+        ).characterController
+        const rigidBody = (getComponent(entity, "rigidBody") as RigidBody)
+            .rigidBody
 
-            characterController.computeColliderMovement(
-                rigidBody.collider(0),
-                this.playerMovementVector
-            )
+        const currentPosition = rigidBody.translation()
 
-            const correctedMovement = characterController.computedMovement()
-            const currentPosition = rigidBody.translation()
-            rigidBody.setNextKinematicTranslation(
-                new Rapier.Vector3(
-                    currentPosition.x + correctedMovement.x,
-                    currentPosition.y + correctedMovement.y,
-                    currentPosition.z + correctedMovement.z
-                )
-            )
+        const ray = new Rapier.Ray(
+            {
+                x: currentPosition.x,
+                y: currentPosition.y - 0.4,
+                z: currentPosition.z
+            },
+            { x: 0, y: -1, z: 0 }
+        )
+
+        const hit = this.physics.castRay(ray, 20, true)
+
+        if (hit !== null) {
+            const hitPoint = ray.pointAt(hit.toi)
+            const altitude = distance(currentPosition, hitPoint)
+            if (altitude > 0.2) {
+                this.playerMovementVector.y -= 0.0001
+            }
         }
+
+        characterController.computeColliderMovement(
+            rigidBody.collider(0),
+            this.playerMovementVector
+        )
+
+        const correctedMovement = characterController.computedMovement()
+        rigidBody.setNextKinematicTranslation(
+            new Rapier.Vector3(
+                currentPosition.x + correctedMovement.x,
+                currentPosition.y + correctedMovement.y,
+                currentPosition.z + correctedMovement.z
+            )
+        )
+        // }
     }
 
     private animate = (time: number) => {
         const delta = time - this.time
         this.time = time
 
-        // for (const _i of range(
-        //     0,
-        //     Math.max(Math.floor(delta / (this.physics.timestep * 1000)), 1)
-        // )) {
-        // this.fixedStep()
-        // }
+        for (const _i of range(
+            0,
+            Math.max(Math.floor(delta / (this.physics.timestep * 1000)), 1)
+        )) {
+            this.fixedStep()
+        }
 
         this.step(delta)
 
