@@ -60,10 +60,10 @@ export class Editor {
                     //     duration * 1000
                     // )
 
-                    this.world.playerMovementVector.x += 0.1
+                    this.world.playerMovementVector.y += 0.1
 
                     setTimeout(() => {
-                        this.world.playerMovementVector.x -= 0.1
+                        this.world.playerMovementVector.y -= 0.1
                     }, duration * 1000)
                 }
             }

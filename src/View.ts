@@ -18,7 +18,7 @@ import { World } from "./World"
 
 export class View {
     camera: Three.OrthographicCamera
-    orthographicScale: number = 0.005
+    orthographicScale: number = 0.05
 
     scene: Three.Scene
 

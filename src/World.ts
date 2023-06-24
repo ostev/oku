@@ -4,7 +4,7 @@ import * as Three from "three"
 import { $, error, range, withDefault } from "./helpers"
 import { intersection } from "./setHelpers"
 import { View } from "./View"
-import { distance } from "./maths"
+import { distance, easeInOutQuad, easeInOutSine, easeOutSine } from "./maths"
 
 export const MeshComponentNotFoundInThreeJSSceneError = error(
     "MeshComponentNotFoundInThreeJSSceneError"
@@ -206,8 +206,8 @@ export class World {
         return entities
     }
 
-    fixedStep = () => {
-        this.fixedStepPlayer()
+    fixedStep = (delta: number) => {
+        this.fixedStepPlayer(delta)
         this.physics.step()
     }
 
@@ -254,7 +254,7 @@ export class World {
         // }
     }
 
-    fixedStepPlayer = () => {
+    fixedStepPlayer = (delta: number) => {
         // if (
         //     this.playerMovementVector.x !== 0 ||
         //     this.playerMovementVector.y !== 0 ||
@@ -272,7 +272,7 @@ export class World {
         const ray = new Rapier.Ray(
             {
                 x: currentPosition.x,
-                y: currentPosition.y - 0.4,
+                y: currentPosition.y - 0.51,
                 z: currentPosition.z
             },
             { x: 0, y: -1, z: 0 }
@@ -280,12 +280,21 @@ export class World {
 
         const hit = this.physics.castRay(ray, 20, true)
 
+        const fallSpeed = 0.0001
+        const riseSpeed = 0.005
+
         if (hit !== null) {
             const hitPoint = ray.pointAt(hit.toi)
             const altitude = distance(currentPosition, hitPoint)
-            if (altitude > 0.2) {
-                this.playerMovementVector.y -= 0.0001
-            }
+            $("#playerPos").textContent = altitude
+            // if (altitude > 1) {
+            //     this.playerMovementVector.y -= fallSpeed * delta
+            // }
+            // if (altitude < 0.8) {
+            //     this.playerMovementVector.y += riseSpeed * delta
+            // }
+        } else {
+            this.playerMovementVector.y -= fallSpeed * delta
         }
 
         characterController.computeColliderMovement(
@@ -293,11 +302,23 @@ export class World {
             this.playerMovementVector
         )
 
+        const animationDuration = 10_000
+        let isEvenCycle = Math.floor(this.time / animationDuration) % 2 == 0
+        const absoluteAnimationProgress =
+            ((this.time % animationDuration) / animationDuration) * 2 - 1
+        const animationProgress = isEvenCycle
+            ? -absoluteAnimationProgress
+            : absoluteAnimationProgress
+
+        const bobbingAnim = (easeInOutQuad(animationProgress) * 2 - 1) * 0.001
+        // console.log(bobbingAnim)
+        // const bobbingAnim = 0
+
         const correctedMovement = characterController.computedMovement()
         rigidBody.setNextKinematicTranslation(
             new Rapier.Vector3(
                 currentPosition.x + correctedMovement.x,
-                currentPosition.y + correctedMovement.y,
+                currentPosition.y + correctedMovement.y + bobbingAnim,
                 currentPosition.z + correctedMovement.z
             )
         )
@@ -308,12 +329,12 @@ export class World {
         const delta = time - this.time
         this.time = time
 
-        for (const _i of range(
-            0,
-            Math.max(Math.floor(delta / (this.physics.timestep * 1000)), 1)
-        )) {
-            this.fixedStep()
-        }
+        // for (const _i of range(
+        //     0,
+        //     Math.max(Math.floor(delta / (this.physics.timestep * 1000)), 1)
+        // )) {
+        this.fixedStep(delta)
+        // }
 
         this.step(delta)
 

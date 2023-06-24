@@ -9,6 +9,7 @@ import {
     NearestFilter,
     NoBlending,
     Renderer,
+    RepeatWrapping,
     Scene,
     ShaderMaterial,
     TextureLoader,
@@ -21,6 +22,7 @@ import { FullScreenQuad, Pass } from "three/examples/jsm/postprocessing/Pass.js"
 
 import { gradientNoise } from "./shaders/noise"
 import { simpleVertex } from "./shaders/simple"
+import { viewSpacePositionShader } from "./shaders/viewSpacePosition"
 
 import cloudTextureUrl from "./clouds.png?url"
 import paperTextureUrl from "./paper2k.png?url"
@@ -68,17 +70,17 @@ const sobelOperator = `
         return valueAtPoint(tDiffuse, vUv + noiseValue, vec2(1.0 / uResolution.x, 1.0 / uResolution.y), vec2(x, y)) * 2.0;
     }
 
-    float depthValue(int x, int y) {
-        float cutoff = 50.0;
-        float offset = 0.3 / cutoff;
-        float noiseValue = clamp(texture(tClouds, vUv).r, 0.0, cutoff) / cutoff - offset;
+    // float depthValue(int x, int y, vec2 uv) {
+    //     float cutoff = 50.0;
+    //     float offset = 0.3 / cutoff;
+    //     float noiseValue = clamp(texture(tClouds, uv).r, 0.0, cutoff) / cutoff - offset;
 
-        return depthValueAtPoint(
-            vUv + noiseValue,
-            vec2(1.0 / uResolution.x, 1.0 / uResolution.y),
-            vec2(x, y)
-        ) * 0.3;
-    }
+    //     return depthValueAtPoint(
+    //         vUv + noiseValue,
+    //         vec2(1.0 / uResolution.x, 1.0 / uResolution.y),
+    //         vec2(x, y)
+    //     ) * 0.3;
+    // }
 
     float normalValue(int x, int y, float noiseValue) {
         return valueAtPoint(
@@ -89,18 +91,18 @@ const sobelOperator = `
         ) * 0.3;
     }
 
-    float getValue(int x, int y) {
+    float getValue(int x, int y, vec2 uv) {
         float noiseValue = 5.0 * (noise(gl_FragCoord.xy) * 2.0 - 1.0);
         float cutoff = 50.0;
         float offset = 0.3 / cutoff;
-        float cloudNoiseValue = clamp(texture(tClouds, vUv * 1.0).r, 0.0, cutoff) / cutoff - offset;
+        float cloudNoiseValue = clamp(texture(tClouds, uv * 1.0).r, 0.0, cutoff) / cutoff - offset;
 
         // return depthValue(x, y) + normalValue(x, y) * noiseValue;
         // return depthValue(x, y);
         return diffuseValue(x, y, cloudNoiseValue) + normalValue(x, y, cloudNoiseValue) * noiseValue;
     }
 
-    float combinedSobelValue() {
+    float combinedSobelValue(vec2 uv) {
         // kernel definition (in glsl matrices are filled in column-major order)
         const mat3 Gx = mat3(-1, -2, -1, 0, 0, 0, 1, 2, 1);// x direction kernel
         const mat3 Gy = mat3(-1, 0, 1, -2, 0, 2, -1, 0, 1);// y direction kernel
@@ -108,19 +110,19 @@ const sobelOperator = `
         // fetch the 3x3 neighbourhood of a fragment
 
         // first column
-        float tx0y0 = getValue(-1, -1);
-        float tx0y1 = getValue(-1, 0);
-        float tx0y2 = getValue(-1, 1);
+        float tx0y0 = getValue(-1, -1, uv);
+        float tx0y1 = getValue(-1, 0, uv);
+        float tx0y2 = getValue(-1, 1, uv);
 
         // second column
-        float tx1y0 = getValue(0, -1);
-        float tx1y1 = getValue(0, 0);
-        float tx1y2 = getValue(0, 1);
+        float tx1y0 = getValue(0, -1, uv);
+        float tx1y1 = getValue(0, 0, uv);
+        float tx1y2 = getValue(0, 1, uv);
 
         // third column
-        float tx2y0 = getValue(1, -1);
-        float tx2y1 = getValue(1, 0);
-        float tx2y2 = getValue(1, 1);
+        float tx2y0 = getValue(1, -1, uv);
+        float tx2y1 = getValue(1, 0, uv);
+        float tx2y2 = getValue(1, 1, uv);
 
         // gradient value in x direction
         float valueGx = Gx[0][0] * tx0y0 + Gx[1][0] * tx1y0 + Gx[2][0] * tx2y0 +
@@ -139,15 +141,30 @@ const sobelOperator = `
     `
 
 const shader = {
+    // vertexShader: `
+    //     varying vec2 vUv;
+
+    //     void main() {
+    //         vec4 worldPos = vec4(uv, 1, 1) * inverse(projectionMatrix * viewMatrix);
+    //         vUv = (worldPos / worldPos.w).xy;
+
+    //         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    //     }
+    // `,
     vertexShader: simpleVertex,
+
     fragmentShader: `
         uniform sampler2D tDiffuse;
         uniform sampler2D tNormal;
         uniform sampler2D tDepth;
         uniform sampler2D tClouds;
         uniform sampler2D tPaper;
+        uniform sampler2D tViewSpacePosition;
 
         uniform vec2 uResolution;
+
+        uniform mat4 uViewMatrixInverse;
+        uniform mat4 uProjectionMatrix;
 
         varying vec2 vUv;
 
@@ -156,7 +173,11 @@ const shader = {
         ${sobelOperator}
 
         void main() {
-            float sobelValue = combinedSobelValue();
+            vec4 viewSpacePosition = texture2D(tViewSpacePosition, vUv);
+            vec4 worldSpacePosition = viewSpacePosition * uViewMatrixInverse;
+            vec2 uv = (viewSpacePosition * uProjectionMatrix).xy;
+
+            float sobelValue = combinedSobelValue(uv);
             sobelValue = smoothstep(0.01, 0.03, sobelValue);
 
             vec4 lineColor = vec4(0.32, 0.12, 0.2, 1.0);
@@ -164,11 +185,15 @@ const shader = {
             if (sobelValue > 0.1) {
                 gl_FragColor = lineColor;
             } else {
-                // gl_FragColor = vec4(texture2D(tPaper, vUv).xyz, 1.0);
-                gl_FragColor = vec4(1.0);
+                gl_FragColor = vec4(texture2D(tPaper, uv).xyz, 1.0);
+                // gl_FragColor = vec4(1.0);
             }
 
+            gl_FragColor = vec4((viewSpacePosition.xyz + cameraPosition).x / 1000.0, 0.0, 0.0, 1.0);
+
+
             // gl_FragColor = texture2D(tDiffuse, vUv);
+            // gl_FragColor = vec4(vUv,0,1);
         }
     `
 }
@@ -178,6 +203,7 @@ export class SketchPass extends Pass {
     private camera: Camera
 
     private normalRenderTarget: WebGLRenderTarget
+    private viewSpacePositionRenderTarget: WebGLRenderTarget
 
     private width: number
     private height: number
@@ -186,6 +212,7 @@ export class SketchPass extends Pass {
     private normalMaterial: MeshNormalMaterial = new MeshNormalMaterial({
         blending: NoBlending
     })
+    private viewSpacePositionMaterial: ShaderMaterial
 
     private fullscreenQuad = new FullScreenQuad()
 
@@ -212,14 +239,39 @@ export class SketchPass extends Pass {
                 depthTexture
             }
         )
+        this.viewSpacePositionRenderTarget = new WebGLRenderTarget(
+            this.width,
+            this.height,
+            {
+                minFilter: NearestFilter,
+                magFilter: NearestFilter,
+                type: HalfFloatType,
+                depthTexture
+            }
+        )
+
+        const paperTexture = this.loader.load(paperTextureUrl)
+        paperTexture.wrapS = RepeatWrapping
+        paperTexture.wrapT = RepeatWrapping
+
+        const cloudNoiseTexture = this.loader.load(cloudTextureUrl)
+        cloudNoiseTexture.wrapS = RepeatWrapping
+        cloudNoiseTexture.wrapT = RepeatWrapping
 
         this.outlineMaterial = new ShaderMaterial({
             uniforms: {
-                tClouds: { value: this.loader.load(cloudTextureUrl) },
-                tPaper: { value: this.loader.load(paperTextureUrl) },
+                tClouds: { value: cloudNoiseTexture },
+                tPaper: { value: paperTexture },
                 tDiffuse: { value: null },
                 tNormal: { value: this.normalRenderTarget.texture },
                 tDepth: { value: this.normalRenderTarget.depthTexture },
+                tViewSpacePosition: {
+                    value: this.viewSpacePositionRenderTarget.texture
+                },
+                uViewMatrixInverse: {
+                    value: this.camera.matrixWorld.invert().transpose().invert()
+                },
+                uProjectionMatrix: { value: this.camera.projectionMatrix },
                 uResolution: { value: new Vector2(this.width, this.height) }
             },
             defines: {
@@ -228,6 +280,10 @@ export class SketchPass extends Pass {
             vertexShader: shader.vertexShader,
             fragmentShader: shader.fragmentShader
         })
+        this.viewSpacePositionMaterial = new ShaderMaterial(
+            viewSpacePositionShader
+        )
+
         this.fullscreenQuad.material = this.outlineMaterial
     }
 
@@ -236,10 +292,18 @@ export class SketchPass extends Pass {
         this.height = height
 
         this.normalRenderTarget.setSize(this.width, this.height)
+        this.viewSpacePositionRenderTarget.setSize(this.width, this.height)
         this.outlineMaterial.uniforms.uResolution.value = new Vector2(
             this.width,
             this.height
         )
+
+        this.viewSpacePositionMaterial.uniforms.uViewMatrixInverse = {
+            value: this.camera.matrixWorld.invert().transpose().invert()
+        }
+        this.viewSpacePositionMaterial.uniforms.uProjectionMatrix = {
+            value: this.camera.projectionMatrix
+        }
     }
 
     override render(
@@ -251,6 +315,11 @@ export class SketchPass extends Pass {
             renderer,
             this.normalMaterial,
             this.normalRenderTarget
+        )
+        this.renderOverride(
+            renderer,
+            this.viewSpacePositionMaterial,
+            this.viewSpacePositionRenderTarget
         )
 
         this.outlineMaterial.uniforms["tDiffuse"].value = readBuffer.texture

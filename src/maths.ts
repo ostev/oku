@@ -11,3 +11,15 @@ export function distance(v1: Rapier.Vector3, v2: Rapier.Vector3): number {
 
     return Math.sqrt(dx * dx + dy * dy + dz * dz)
 }
+
+export function easeInOutQuad(x: number): number {
+    return x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2
+}
+
+export function easeInOutSine(x: number): number {
+    return -(Math.cos(Math.PI * x) - 1) / 2
+}
+
+export function easeOutSine(x: number): number {
+    return Math.sin((x * Math.PI) / 2)
+}
