@@ -4,7 +4,7 @@ import * as Three from "three"
 import { $, error, range, withDefault } from "./helpers"
 import { intersection } from "./setHelpers"
 import { View } from "./View"
-import { distance, easeInOutQuad, easeInOutSine, easeOutSine } from "./maths"
+import { distance, easeInOutQuad } from "./maths"
 
 export const MeshComponentNotFoundInThreeJSSceneError = error(
     "MeshComponentNotFoundInThreeJSSceneError"
@@ -38,6 +38,8 @@ export class World {
     // private intervalHandle: number | undefined
     private animRequestHandle: number | undefined
     private time = 0
+
+    objectLoader = new Three.ObjectLoader()
 
     playerMovementVector = new Rapier.Vector3(0, 0, 0)
 
@@ -286,7 +288,7 @@ export class World {
         if (hit !== null) {
             const hitPoint = ray.pointAt(hit.toi)
             const altitude = distance(currentPosition, hitPoint)
-            $("#playerPos").textContent = altitude
+            $("#playerPos").textContent = altitude.toString()
             // if (altitude > 1) {
             //     this.playerMovementVector.y -= fallSpeed * delta
             // }
@@ -328,6 +330,8 @@ export class World {
     private animate = (time: number) => {
         const delta = time - this.time
         this.time = time
+
+        $("#fps").textContent = Math.round(1000 / delta).toString()
 
         // for (const _i of range(
         //     0,

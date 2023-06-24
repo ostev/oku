@@ -3,7 +3,8 @@ import * as Three from "three"
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js"
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js"
 import { SSAOPass } from "three/addons/postprocessing/SSAOPass.js"
-import { FXAAShader } from "three/addons/shaders/FXAAShader.js"
+// import { FXAAShader } from "three/addons/shaders/FXAAShader.js"
+import { SMAAPass } from "three/addons/postprocessing/SMAAPass.js"
 
 import { OrbitControls } from "three/addons/controls/OrbitControls.js"
 
@@ -34,6 +35,7 @@ export class View {
     outlinePass: SketchPass
     // ssaoPass: SSAOPass
     // fxaaPass: ShaderPass
+    smaaPass: SMAAPass
 
     paintMaterial: Three.ShaderMaterial
 
@@ -86,7 +88,7 @@ export class View {
             this.scene,
             this.camera,
             undefined,
-            new Three.Color("blue")
+            new Three.Color("white")
         )
         this.composer.addPass(renderPass)
 
@@ -104,6 +106,9 @@ export class View {
 
         // this.fxaaPass = new ShaderPass(FXAAShader)
         // this.composer.addPass(this.fxaaPass)
+
+        this.smaaPass = new SMAAPass(this.width, this.height)
+        this.composer.addPass(this.smaaPass)
 
         // const sphericalTarget = new Three.Spherical(
         //     1,
@@ -167,6 +172,7 @@ export class View {
         //     1 / (width * pixelRatio)
         // this.fxaaPass.material.uniforms["resolution"].value.y =
         //     1 / (height * pixelRatio)
+        this.smaaPass.setSize(width, height)
     }
 
     render = (delta: number) => {

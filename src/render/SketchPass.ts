@@ -61,26 +61,23 @@ const sobelOperator = `
     }
 
     float depthValueAtPoint(vec2 coord, vec2 texel, vec2 point) {
-        vec3 luma = vec3(0.299, 0.587, 0.114);
+        // vec3 luma = vec3(0.299, 0.587, 0.114);
 
-        return getLinearDepth( coord + texel * point);
+        // return getLinearDepth(coord + texel * point);
+        return getLinearDepth(coord + texel * point) * 20.0;
     }
 
     float diffuseValue(int x, int y, float noiseValue) {
         return valueAtPoint(tDiffuse, vUv + noiseValue, vec2(1.0 / uResolution.x, 1.0 / uResolution.y), vec2(x, y)) * 2.0;
     }
 
-    // float depthValue(int x, int y, vec2 uv) {
-    //     float cutoff = 50.0;
-    //     float offset = 0.3 / cutoff;
-    //     float noiseValue = clamp(texture(tClouds, uv).r, 0.0, cutoff) / cutoff - offset;
-
-    //     return depthValueAtPoint(
-    //         vUv + noiseValue,
-    //         vec2(1.0 / uResolution.x, 1.0 / uResolution.y),
-    //         vec2(x, y)
-    //     ) * 0.3;
-    // }
+    float depthValue(int x, int y, float noiseValue) {
+        return depthValueAtPoint(
+            vUv + noiseValue,
+            vec2(1.0 / uResolution.x, 1.0 / uResolution.y),
+            vec2(x, y)
+        ) * 2.0;
+    }
 
     float normalValue(int x, int y, float noiseValue) {
         return valueAtPoint(
@@ -92,14 +89,15 @@ const sobelOperator = `
     }
 
     float getValue(int x, int y, vec2 uv) {
-        float noiseValue = 5.0 * (noise(gl_FragCoord.xy) * 2.0 - 1.0);
-        float cutoff = 50.0;
-        float offset = 0.3 / cutoff;
-        float cloudNoiseValue = clamp(texture(tClouds, uv * 1.0).r, 0.0, cutoff) / cutoff - offset;
+        // float noiseValue = 5.0 * (noise(gl_FragCoord.xy) * 2.0 - 1.0);
+        // float cutoff = 50.0;
+        // float offset = 0.3 / cutoff;
+        // float cloudNoiseValue = clamp(texture(tClouds, uv * 1.0).r, 0.0, cutoff) / cutoff - offset;
 
         // return depthValue(x, y) + normalValue(x, y) * noiseValue;
         // return depthValue(x, y);
-        return diffuseValue(x, y, cloudNoiseValue) + normalValue(x, y, cloudNoiseValue) * noiseValue;
+        return diffuseValue(x, y, 0.0) + depthValue(x, y, 0.0) + normalValue(x, y, 0.0);
+        // return depthValue(x,y,0.0);
     }
 
     float combinedSobelValue(vec2 uv) {
@@ -157,9 +155,9 @@ const shader = {
         uniform sampler2D tDiffuse;
         uniform sampler2D tNormal;
         uniform sampler2D tDepth;
-        uniform sampler2D tClouds;
-        uniform sampler2D tPaper;
-        uniform sampler2D tViewSpacePosition;
+        // uniform sampler2D tClouds;
+        // uniform sampler2D tPaper;
+        // uniform sampler2D tViewSpacePosition;
 
         uniform vec2 uResolution;
 
@@ -173,9 +171,10 @@ const shader = {
         ${sobelOperator}
 
         void main() {
-            vec4 viewSpacePosition = texture2D(tViewSpacePosition, vUv);
-            vec4 worldSpacePosition = viewSpacePosition * uViewMatrixInverse;
-            vec2 uv = (viewSpacePosition * uProjectionMatrix).xy;
+            // vec4 viewSpacePosition = texture2D(tViewSpacePosition, vUv);
+            // vec4 worldSpacePosition = viewSpacePosition * uViewMatrixInverse;
+            // vec2 uv = (viewSpacePosition * uProjectionMatrix).xy;
+            vec2 uv = vUv;
 
             float sobelValue = combinedSobelValue(uv);
             sobelValue = smoothstep(0.01, 0.03, sobelValue);
@@ -185,11 +184,15 @@ const shader = {
             if (sobelValue > 0.1) {
                 gl_FragColor = lineColor;
             } else {
-                gl_FragColor = vec4(texture2D(tPaper, uv).xyz, 1.0);
+                gl_FragColor = vec4(texture2D(tDiffuse, uv).xyz, 1.0);
+                if (gl_FragColor == vec4(0.0,0.0,0.0,1.0)) {
+                    gl_FragColor = vec4(1.0);
+                }
                 // gl_FragColor = vec4(1.0);
             }
 
-            gl_FragColor = vec4((viewSpacePosition.xyz + cameraPosition).x / 1000.0, 0.0, 0.0, 1.0);
+            // gl_FragColor = vec4((viewSpacePosition.xyz + cameraPosition).x / 1000.0, 0.0, 0.0, 1.0);
+            // gl_FragColor = vec4(vec3(pow(getLinearDepth(vUv) * 20.0, 2.0)), 1.0);
 
 
             // gl_FragColor = texture2D(tDiffuse, vUv);
@@ -203,7 +206,7 @@ export class SketchPass extends Pass {
     private camera: Camera
 
     private normalRenderTarget: WebGLRenderTarget
-    private viewSpacePositionRenderTarget: WebGLRenderTarget
+    // private viewSpacePositionRenderTarget: WebGLRenderTarget
 
     private width: number
     private height: number
@@ -212,7 +215,7 @@ export class SketchPass extends Pass {
     private normalMaterial: MeshNormalMaterial = new MeshNormalMaterial({
         blending: NoBlending
     })
-    private viewSpacePositionMaterial: ShaderMaterial
+    // private viewSpacePositionMaterial: ShaderMaterial
 
     private fullscreenQuad = new FullScreenQuad()
 
@@ -239,35 +242,35 @@ export class SketchPass extends Pass {
                 depthTexture
             }
         )
-        this.viewSpacePositionRenderTarget = new WebGLRenderTarget(
-            this.width,
-            this.height,
-            {
-                minFilter: NearestFilter,
-                magFilter: NearestFilter,
-                type: HalfFloatType,
-                depthTexture
-            }
-        )
+        // this.viewSpacePositionRenderTarget = new WebGLRenderTarget(
+        //     this.width,
+        //     this.height,
+        //     {
+        //         minFilter: NearestFilter,
+        //         magFilter: NearestFilter,
+        //         type: HalfFloatType,
+        //         depthTexture
+        //     }
+        // )
 
-        const paperTexture = this.loader.load(paperTextureUrl)
-        paperTexture.wrapS = RepeatWrapping
-        paperTexture.wrapT = RepeatWrapping
+        // const paperTexture = this.loader.load(paperTextureUrl)
+        // paperTexture.wrapS = RepeatWrapping
+        // paperTexture.wrapT = RepeatWrapping
 
-        const cloudNoiseTexture = this.loader.load(cloudTextureUrl)
-        cloudNoiseTexture.wrapS = RepeatWrapping
-        cloudNoiseTexture.wrapT = RepeatWrapping
+        // const cloudNoiseTexture = this.loader.load(cloudTextureUrl)
+        // cloudNoiseTexture.wrapS = RepeatWrapping
+        // cloudNoiseTexture.wrapT = RepeatWrapping
 
         this.outlineMaterial = new ShaderMaterial({
             uniforms: {
-                tClouds: { value: cloudNoiseTexture },
-                tPaper: { value: paperTexture },
+                // tClouds: { value: cloudNoiseTexture },
+                // tPaper: { value: paperTexture },
                 tDiffuse: { value: null },
                 tNormal: { value: this.normalRenderTarget.texture },
                 tDepth: { value: this.normalRenderTarget.depthTexture },
-                tViewSpacePosition: {
-                    value: this.viewSpacePositionRenderTarget.texture
-                },
+                // tViewSpacePosition: {
+                //     value: this.viewSpacePositionRenderTarget.texture
+                // },
                 uViewMatrixInverse: {
                     value: this.camera.matrixWorld.invert().transpose().invert()
                 },
@@ -280,9 +283,9 @@ export class SketchPass extends Pass {
             vertexShader: shader.vertexShader,
             fragmentShader: shader.fragmentShader
         })
-        this.viewSpacePositionMaterial = new ShaderMaterial(
-            viewSpacePositionShader
-        )
+        // this.viewSpacePositionMaterial = new ShaderMaterial(
+        //     viewSpacePositionShader
+        // )
 
         this.fullscreenQuad.material = this.outlineMaterial
     }
@@ -292,18 +295,18 @@ export class SketchPass extends Pass {
         this.height = height
 
         this.normalRenderTarget.setSize(this.width, this.height)
-        this.viewSpacePositionRenderTarget.setSize(this.width, this.height)
+        // this.viewSpacePositionRenderTarget.setSize(this.width, this.height)
         this.outlineMaterial.uniforms.uResolution.value = new Vector2(
             this.width,
             this.height
         )
 
-        this.viewSpacePositionMaterial.uniforms.uViewMatrixInverse = {
-            value: this.camera.matrixWorld.invert().transpose().invert()
-        }
-        this.viewSpacePositionMaterial.uniforms.uProjectionMatrix = {
-            value: this.camera.projectionMatrix
-        }
+        // this.viewSpacePositionMaterial.uniforms.uViewMatrixInverse = {
+        //     value: this.camera.matrixWorld.invert().transpose().invert()
+        // }
+        // this.viewSpacePositionMaterial.uniforms.uProjectionMatrix = {
+        //     value: this.camera.projectionMatrix
+        // }
     }
 
     override render(
@@ -316,11 +319,11 @@ export class SketchPass extends Pass {
             this.normalMaterial,
             this.normalRenderTarget
         )
-        this.renderOverride(
-            renderer,
-            this.viewSpacePositionMaterial,
-            this.viewSpacePositionRenderTarget
-        )
+        // this.renderOverride(
+        //     renderer,
+        //     this.viewSpacePositionMaterial,
+        //     this.viewSpacePositionRenderTarget
+        // )
 
         this.outlineMaterial.uniforms["tDiffuse"].value = readBuffer.texture
         if (this.renderToScreen) {
