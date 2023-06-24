@@ -19,22 +19,24 @@ export class Editor {
     private userExecutionContext: UserExecutionContext
 
     world: World
-    player: Entity
-    playerCharacterController: Rapier.KinematicCharacterController
-    playerRigidBody: Rapier.RigidBody
+    player: Entity | undefined
+    playerCharacterController: Rapier.KinematicCharacterController | undefined
+    playerRigidBody: Rapier.RigidBody | undefined
 
     constructor(parent: Element, executionParent: Element, world: World) {
         this.world = world
-        this.player = addPlayer(world)
-        this.playerRigidBody = (
-            getComponent(this.player, "rigidBody") as RigidBody
-        ).rigidBody
-        this.playerCharacterController = (
-            getComponent(
-                this.player,
-                "characterController"
-            ) as CharacterController
-        ).characterController
+        addPlayer(world).then((player) => {
+            this.player = player
+            this.playerRigidBody = (
+                getComponent(this.player, "rigidBody") as RigidBody
+            ).rigidBody
+            this.playerCharacterController = (
+                getComponent(
+                    this.player,
+                    "characterController"
+                ) as CharacterController
+            ).characterController
+        })
 
         this.view = new EditorView({
             extensions: [basicSetup, javascript()],

@@ -3,6 +3,10 @@ import { createLitMaterial } from "./lighting"
 import { Entity, RigidBody, Vec3, World, getComponent } from "./World"
 import * as Rapier from "@dimforge/rapier3d"
 
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js"
+
+import okuModelUrl from "./assets/oku.gltf?url"
+
 // export class Player {
 //     position: Three.Vector3
 //     readonly mesh: Three.Mesh
@@ -19,7 +23,7 @@ import * as Rapier from "@dimforge/rapier3d"
 //     }
 // }
 
-export const addPlayer = (world: World): Entity => {
+export const addPlayer = async (world: World): Promise<Entity> => {
     const characterController = world.physics.createCharacterController(0.0001)
     const rigidBody = world.physics.createRigidBody(
         Rapier.RigidBodyDesc.kinematicPositionBased().setAdditionalMass(1)
@@ -29,16 +33,19 @@ export const addPlayer = (world: World): Entity => {
         rigidBody
     )
 
+    const gltfLoader = new GLTFLoader()
+
+    const mesh = (await gltfLoader.loadAsync(okuModelUrl)).scene
+
     const playerEntity = world.addEntity(
         { translation: new Vec3(0, 0, 0) },
         new Set([
             {
                 kind: "mesh",
-                mesh: new Three.Mesh(
-                    new Three.BoxGeometry(1, 1, 1),
-                    // new Three.TorusKnotGeometry(0.2, 0.1),
-                    new Three.MeshBasicMaterial({ color: "orange" })
-                )
+                mesh
+                // new Three.TorusKnotGeometry(0.2, 0.1),
+                //     new Three.MeshBasicMaterial({ color: "orange" })
+                // )
             },
             {
                 kind: "characterController",

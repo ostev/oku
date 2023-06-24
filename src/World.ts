@@ -39,7 +39,7 @@ export class World {
     private animRequestHandle: number | undefined
     private time = 0
 
-    objectLoader = new Three.ObjectLoader()
+    // objectLoader = new Three.ObjectLoader()
 
     playerMovementVector = new Rapier.Vector3(0, 0, 0)
 
@@ -263,68 +263,74 @@ export class World {
         //     this.playerMovementVector.z !== 0
         // ) {
         const entity = Array.from(this.getEntities("player"))[0]
-        const characterController = (
-            getComponent(entity, "characterController") as CharacterController
-        ).characterController
-        const rigidBody = (getComponent(entity, "rigidBody") as RigidBody)
-            .rigidBody
 
-        const currentPosition = rigidBody.translation()
+        if (entity !== undefined) {
+            const characterController = (
+                getComponent(
+                    entity,
+                    "characterController"
+                ) as CharacterController
+            ).characterController
+            const rigidBody = (getComponent(entity, "rigidBody") as RigidBody)
+                .rigidBody
 
-        const ray = new Rapier.Ray(
-            {
-                x: currentPosition.x,
-                y: currentPosition.y - 0.51,
-                z: currentPosition.z
-            },
-            { x: 0, y: -1, z: 0 }
-        )
+            const currentPosition = rigidBody.translation()
 
-        const hit = this.physics.castRay(ray, 20, true)
-
-        const fallSpeed = 0.0001
-        const riseSpeed = 0.005
-
-        if (hit !== null) {
-            const hitPoint = ray.pointAt(hit.toi)
-            const altitude = distance(currentPosition, hitPoint)
-            $("#playerPos").textContent = altitude.toString()
-            // if (altitude > 1) {
-            //     this.playerMovementVector.y -= fallSpeed * delta
-            // }
-            // if (altitude < 0.8) {
-            //     this.playerMovementVector.y += riseSpeed * delta
-            // }
-        } else {
-            this.playerMovementVector.y -= fallSpeed * delta
-        }
-
-        characterController.computeColliderMovement(
-            rigidBody.collider(0),
-            this.playerMovementVector
-        )
-
-        const animationDuration = 10_000
-        let isEvenCycle = Math.floor(this.time / animationDuration) % 2 == 0
-        const absoluteAnimationProgress =
-            ((this.time % animationDuration) / animationDuration) * 2 - 1
-        const animationProgress = isEvenCycle
-            ? -absoluteAnimationProgress
-            : absoluteAnimationProgress
-
-        const bobbingAnim = (easeInOutQuad(animationProgress) * 2 - 1) * 0.001
-        // console.log(bobbingAnim)
-        // const bobbingAnim = 0
-
-        const correctedMovement = characterController.computedMovement()
-        rigidBody.setNextKinematicTranslation(
-            new Rapier.Vector3(
-                currentPosition.x + correctedMovement.x,
-                currentPosition.y + correctedMovement.y + bobbingAnim,
-                currentPosition.z + correctedMovement.z
+            const ray = new Rapier.Ray(
+                {
+                    x: currentPosition.x,
+                    y: currentPosition.y - 0.51,
+                    z: currentPosition.z
+                },
+                { x: 0, y: -1, z: 0 }
             )
-        )
-        // }
+
+            const hit = this.physics.castRay(ray, 20, true)
+
+            const fallSpeed = 0.0001
+            const riseSpeed = 0.005
+
+            if (hit !== null) {
+                const hitPoint = ray.pointAt(hit.toi)
+                const altitude = distance(currentPosition, hitPoint)
+                $("#playerPos").textContent = altitude.toString()
+                // if (altitude > 1) {
+                //     this.playerMovementVector.y -= fallSpeed * delta
+                // }
+                // if (altitude < 0.8) {
+                //     this.playerMovementVector.y += riseSpeed * delta
+                // }
+            } else {
+                this.playerMovementVector.y -= fallSpeed * delta
+            }
+
+            characterController.computeColliderMovement(
+                rigidBody.collider(0),
+                this.playerMovementVector
+            )
+
+            const animationDuration = 10_000
+            let isEvenCycle = Math.floor(this.time / animationDuration) % 2 == 0
+            const absoluteAnimationProgress =
+                ((this.time % animationDuration) / animationDuration) * 2 - 1
+            const animationProgress = isEvenCycle
+                ? -absoluteAnimationProgress
+                : absoluteAnimationProgress
+
+            const bobbingAnim =
+                (easeInOutQuad(animationProgress) * 2 - 1) * 0.001
+            // console.log(bobbingAnim)
+            // const bobbingAnim = 0
+
+            const correctedMovement = characterController.computedMovement()
+            rigidBody.setNextKinematicTranslation(
+                new Rapier.Vector3(
+                    currentPosition.x + correctedMovement.x,
+                    currentPosition.y + correctedMovement.y + bobbingAnim,
+                    currentPosition.z + correctedMovement.z
+                )
+            )
+        }
     }
 
     private animate = (time: number) => {
@@ -410,7 +416,7 @@ export interface Joint {
 
 export interface Mesh {
     kind: "mesh"
-    mesh: Three.Mesh
+    mesh: Three.Object3D
 }
 
 /**
