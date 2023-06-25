@@ -31,6 +31,19 @@ export const addBox = (
     rigidBodyDesc: Rapier.RigidBodyDesc,
     color: Three.ColorRepresentation
 ) => {
+    const mesh = new Three.Mesh(
+        new Three.BoxGeometry(
+            dimensions.width,
+            dimensions.height,
+            dimensions.depth
+        ),
+        new Three.MeshToonMaterial({
+            color
+        })
+    )
+
+    mesh.receiveShadow = true
+
     return world.addEntity(
         transform,
         new Set([
@@ -47,16 +60,7 @@ export const addBox = (
             },
             {
                 kind: "mesh",
-                mesh: new Three.Mesh(
-                    new Three.BoxGeometry(
-                        dimensions.width,
-                        dimensions.height,
-                        dimensions.depth
-                    ),
-                    new Three.MeshBasicMaterial({
-                        color
-                    })
-                )
+                mesh
             }
         ])
     )

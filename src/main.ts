@@ -36,7 +36,7 @@ addBox(
     { translation: new Vec3(0, -4, 0) },
     { width: 5, height: 5, depth: 5 },
     Rapier.RigidBodyDesc.fixed().setAdditionalMass(1),
-    "white"
+    "#A7D49B"
 )
 
 addBox(

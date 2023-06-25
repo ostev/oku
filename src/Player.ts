@@ -37,6 +37,13 @@ export const addPlayer = async (world: World): Promise<Entity> => {
 
     const mesh = (await gltfLoader.loadAsync(okuModelUrl)).scene
 
+    mesh.traverse((object) => {
+        const mesh = object as Three.Mesh
+        if (mesh.isMesh) {
+            mesh.material = new Three.MeshToonMaterial({ color: "#049ef4" })
+        }
+    })
+
     const playerEntity = world.addEntity(
         { translation: new Vec3(0, 0, 0) },
         new Set([

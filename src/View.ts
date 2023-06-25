@@ -50,6 +50,8 @@ export class View {
         // this.player = new Player(new Three.Vector3(0, 0, 0))
         // this.scene.add(this.player.mesh)
 
+        this.sun.castShadow = true
+
         this.scene.add(this.ambientLight)
         this.scene.add(this.sun)
 
