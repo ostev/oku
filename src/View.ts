@@ -131,6 +131,8 @@ export class View {
         this.camera.position.z = 20
         this.orbitControls.saveState()
         this.orbitControls.update()
+
+        console.log("View initialised.")
     }
 
     // load = async () => {
@@ -144,6 +146,13 @@ export class View {
 
     appendToElement = (element: Element) => {
         element.appendChild(this.renderer.domElement)
+    }
+
+    destroy = () => {
+        this.renderer.dispose()
+        this.renderer.domElement.remove()
+
+        console.log("View destroyed.")
     }
 
     setSize = (width: number, height: number) => {
