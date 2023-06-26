@@ -1,4 +1,4 @@
-import { MutableRef, useEffect, useRef } from "preact/hooks"
+import { MutableRef, useEffect, useMemo, useRef } from "preact/hooks"
 
 import * as Rapier from "@dimforge/rapier3d"
 
@@ -11,13 +11,26 @@ import { addBox } from "../level"
 
 export const App = () => {
     const viewParentRef: MutableRef<HTMLDivElement | null> = useRef(null)
-    const viewRef: MutableRef<View> = useRef(new View())
+    const viewRef: MutableRef<View | null> = useRef(null)
 
-    const worldRef = useRef(new World({ x: 0, y: -9.8, z: 0 }, viewRef.current))
+    const resizeObserverRef: MutableRef<ResizeObserver | null> = useRef(null)
+
+    const worldRef: MutableRef<World | null> = useRef(null)
 
     const bindings = {}
 
     useEffect(() => {
+        viewRef.current = new View()
+        worldRef.current = new World({ x: 0, y: -9.8, z: 0 }, viewRef.current)
+
+        resizeObserverRef.current = new ResizeObserver(([viewParentEntry]) => {
+            viewRef.current?.setSize(
+                viewParentEntry.contentRect.width,
+                viewParentEntry.contentRect.height
+            )
+        })
+        resizeObserverRef.current.observe(viewParentRef.current as Element)
+
         addPlayer(worldRef.current)
 
         addBox(
@@ -43,9 +56,7 @@ export const App = () => {
             Rapier.RigidBodyDesc.fixed().setAdditionalMass(1),
             "white"
         )
-    })
 
-    useEffect(() => {
         if (viewParentRef.current !== null) {
             viewRef.current.appendToElement(viewParentRef.current)
         } else {
@@ -54,8 +65,14 @@ export const App = () => {
             )
         }
 
+        worldRef.current.start()
+
         return () => {
-            viewRef.current.destroy()
+            viewRef.current?.destroy()
+            resizeObserverRef.current?.unobserve(
+                viewParentRef.current as Element
+            )
+            resizeObserverRef.current?.disconnect()
         }
     })
 
