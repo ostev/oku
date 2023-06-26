@@ -13,7 +13,12 @@
     "strictNullChecks": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    /* JSX */
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact",
+    "types": ["preact/jsx-runtime"]
   },
   "include": ["src"],
 }

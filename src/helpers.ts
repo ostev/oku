@@ -21,3 +21,5 @@ export const error = (name: string) => {
         }
     }
 }
+
+export const NotYetImplementedError = error("NotYetImplementedError")

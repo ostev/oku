@@ -4,6 +4,7 @@ import userExecutionContextIFrameScriptUrl from "./userExecutionContextIFrame?ur
 
 export class UserExecutionContext {
     private iframe: HTMLIFrameElement | undefined
+
     bindings: FnBindings
 
     constructor(parent: Element, bindings: FnBindings) {
@@ -32,32 +33,34 @@ export class UserExecutionContext {
 
         this.iframe.contentWindow?.document.close()
 
-        window.addEventListener("message", (e) => {
-            // Check that we received an array and that the program finished
-            if (typeof e.data === "object" && e.data[0] === "result") {
-                // console.log("Code finished running.")
-                // Nothing for now
-            } else if (typeof e.data === "object" && e.data[0] === "error") {
-                console.error("Your code has an error! 😲 Here it is:")
-                console.error(e.data[1])
-            } else if (
-                typeof e.data === "object" &&
-                typeof e.data[0] === "string" &&
-                !e.data[0].includes("proto") &&
-                this.bindings.hasOwnProperty(e.data[0])
-            ) {
-                const name = e.data[0] as string
-                const args = (e.data as any[]).slice(1)
-                const bindingInfo = this.bindings[name]
-                bindingInfo.fn(...args)
-            } else {
-                throw new InvalidMessageReceivedFromUserExecutionContextError(
-                    "The user execution context iframe posted an invalid response to the host application."
-                )
-            }
-        })
+        window.addEventListener("message", this.messageEventListener)
 
         // ;(this.iframe as HTMLIFrameElement).contentWindow?.postMessage([""], "*")
+    }
+
+    private messageEventListener = (e: MessageEvent<unknown>) => {
+        // Check that we received an array and that the program finished
+        if (Array.isArray(e.data) && e.data[0] === "result") {
+            // console.log("Code finished running.")
+            // Nothing for now
+        } else if (Array.isArray(e.data) && e.data[0] === "error") {
+            console.error("Your code has an error! 😲 Here it is:")
+            console.error(e.data[1])
+        } else if (
+            Array.isArray(e.data) &&
+            typeof e.data[0] === "string" &&
+            !e.data[0].includes("proto") &&
+            this.bindings.hasOwnProperty(e.data[0])
+        ) {
+            const name = e.data[0] as string
+            const args = (e.data as any[]).slice(1)
+            const bindingInfo = this.bindings[name]
+            bindingInfo.fn(...args)
+        } else {
+            throw new InvalidMessageReceivedFromUserExecutionContextError(
+                "The user execution context iframe posted an invalid response to the host application."
+            )
+        }
     }
 
     evalAsync = async (code: string) => {
@@ -65,6 +68,11 @@ export class UserExecutionContext {
             ["eval", code],
             "*"
         )
+    }
+
+    destroy = () => {
+        this.iframe?.remove()
+        window.removeEventListener("message", this.messageEventListener)
     }
 }
 
