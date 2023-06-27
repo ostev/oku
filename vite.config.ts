@@ -1,8 +1,11 @@
 import { defineConfig } from "vite"
+
 import wasm from "vite-plugin-wasm"
 import topLevelAwait from "vite-plugin-top-level-await"
 
 import preact from "@preact/preset-vite"
+
+import mdx from "@mdx-js/rollup"
 
 export default defineConfig({
     server: {
@@ -11,5 +14,5 @@ export default defineConfig({
             "Cross-Origin-Embedder-Policy": "require-corp"
         }
     },
-    plugins: [wasm(), topLevelAwait(), preact()]
+    plugins: [wasm(), topLevelAwait(), preact(), mdx()]
 })

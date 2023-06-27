@@ -52,6 +52,11 @@ export class World {
         this.view = view
     }
 
+    destroy = () => {
+        this.stop()
+        this.view.destroy()
+    }
+
     start = () => {
         // window.addEventListener("keydown", (ev) => {
         //     this.keys[ev.key] = true

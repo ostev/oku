@@ -78,8 +78,20 @@ export class Editor {
         // }
     }
 
-    public get script(): string {
+    get code(): string {
         return this.view.state.doc.toString()
+    }
+
+    set code(newCode: string) {
+        if (newCode !== this.code) {
+            this.view.dispatch({
+                changes: {
+                    from: 0,
+                    to: this.view.state.doc.length,
+                    insert: newCode
+                }
+            })
+        }
     }
 
     destroy = () => {
@@ -88,6 +100,6 @@ export class Editor {
     }
 
     run = async () => {
-        this.userExecutionContext.evalAsync(this.script)
+        this.userExecutionContext.evalAsync(this.code)
     }
 }

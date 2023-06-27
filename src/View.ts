@@ -147,7 +147,10 @@ export class View {
     }
 
     destroy = () => {
+        this.composer.dispose()
         this.renderer.dispose()
+        this.outlinePass.dispose()
+        this.smaaPass.dispose()
         this.renderer.domElement.remove()
     }
 

@@ -2,14 +2,46 @@ import { MutableRef, useEffect, useRef, useState } from "preact/hooks"
 import { Editor } from "../Editor"
 import { FnBindings } from "../userExecutionContext/bindings"
 import { NotYetImplementedError, error } from "../helpers"
+import { FunctionComponent } from "preact"
 
 const EditorRefsNotInitialisedError = error("EditorRefsNotInitialisedError")
 
-export interface EditorWrapperProps {
-    bindings: FnBindings
+export class EditorReader {
+    private editor: Editor | undefined
+
+    read = (): string => {
+        if (this.editor === undefined) {
+            return ""
+        } else {
+            return this.editor.code
+        }
+    }
+
+    setEditor = (editor: Editor) => {
+        this.editor = editor
+    }
 }
 
-export const EditorWrapper = ({ bindings }: EditorWrapperProps) => {
+export interface EditorWrapperProps {
+    bindings: FnBindings
+    initialCode: string
+    readerRef: MutableRef<EditorReader>
+}
+
+export const EditorToolbar: FunctionComponent = () => {
+    return (
+        <div class="relative flex rounded-md shadow-md bg-slate-200 bg-opacity-60 backdrop-blur-sm h-10 p-4 items-center justify-end">
+            <button class="mr-5">Run!</button>
+            <button class="mr-2">Prettify!</button>
+        </div>
+    )
+}
+
+export const EditorWrapper: FunctionComponent<EditorWrapperProps> = ({
+    bindings,
+    initialCode,
+    readerRef
+}) => {
     const editorParent: MutableRef<HTMLDivElement | null> = useRef(null)
     const executionContextParent: MutableRef<HTMLDivElement | null> =
         useRef(null)
@@ -26,6 +58,12 @@ export const EditorWrapper = ({ bindings }: EditorWrapperProps) => {
                 executionContextParent.current,
                 bindings
             )
+
+            editorRef.current.code = initialCode
+
+            if (readerRef !== undefined) {
+                readerRef.current.setEditor(editorRef.current)
+            }
         } else {
             throw new EditorRefsNotInitialisedError(
                 "Attempted to initialise editor before the component was mounted."
@@ -38,13 +76,22 @@ export const EditorWrapper = ({ bindings }: EditorWrapperProps) => {
     })
 
     // useEffect(() => {
+    //     if (editorRef.current !== null) {
+    //         editorRef.current.code = code
+    //     }
+    // }, [code])
+
+    // useEffect(() => {
     //     throw new NotYetImplementedError(
     //         "Updating bindings is not currently supported."
     //     )
     // }, [bindings])
 
     return (
-        <div>
+        <div class="w-full">
+            <div class="mb-2">
+                <EditorToolbar />
+            </div>
             <div ref={editorParent}></div>
             <div ref={executionContextParent}></div>
         </div>

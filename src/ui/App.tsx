@@ -1,4 +1,4 @@
-import { MutableRef, useEffect, useMemo, useRef } from "preact/hooks"
+import { MutableRef, useEffect, useMemo, useRef, useState } from "preact/hooks"
 
 import * as Rapier from "@dimforge/rapier3d"
 
@@ -8,6 +8,10 @@ import { View } from "../View"
 import { RefAccessedBeforeComponentMountedError } from "../helpers"
 import { addPlayer } from "../Player"
 import { addBox } from "../level"
+import { Heading } from "./Heading"
+import { Lesson, lessons } from "./Lesson"
+
+import HelloWorld from "../lessons/HelloWorld.mdx"
 
 export const App = () => {
     const viewParentRef: MutableRef<HTMLDivElement | null> = useRef(null)
@@ -68,7 +72,7 @@ export const App = () => {
         worldRef.current.start()
 
         return () => {
-            viewRef.current?.destroy()
+            worldRef?.current?.destroy()
             resizeObserverRef.current?.unobserve(
                 viewParentRef.current as Element
             )
@@ -76,14 +80,24 @@ export const App = () => {
         }
     })
 
+    const [width, setWidth] = useState(400)
+
     return (
-        <div class="columns-2">
-            <div class="border-r h-screen p-2">
-                <div class="">
-                    <EditorWrapper bindings={bindings} />
-                </div>
+        <div class="">
+            {/* <div class="border-r h-screen p-2"> */}
+            <div
+                class="h-full absolute top-0 left-0 z-10 m-3 p-5 bg-slate-100 bg-opacity-90 rounded-lg overflow-hidden shadow-lg backdrop-blur-lg"
+                style={{ width: width }}
+            >
+                <Lesson bindings={bindings} />
+                {/* <EditorWrapper bindings={bindings} /> */}
             </div>
-            <div class="border-l h-screen" ref={viewParentRef}></div>
+            {/* </div> */}
+            {/* <div class="border-l h-screen" ref={viewParentRef}></div> */}
+            <div
+                class="h-full w-full absolute top-0 left-0 z-0"
+                ref={viewParentRef}
+            ></div>
         </div>
     )
 }
