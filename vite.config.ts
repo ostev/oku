@@ -8,13 +8,15 @@ import preact from "@preact/preset-vite"
 import mdx from "@mdx-js/rollup"
 import smartypants from "remark-smartypants"
 import remarkMdxImages from "remark-mdx-images"
+import remarkMath from "remark-math"
+import rehypeKatex from "rehype-katex"
 
 export default defineConfig({
     server: {
         headers: {
             "Cross-Origin-Opener-Policy": "same-origin",
-            "Cross-Origin-Embedder-Policy": "require-corp"
-        }
+            "Cross-Origin-Embedder-Policy": "require-corp",
+        },
     },
     plugins: [
         wasm(),
@@ -22,7 +24,8 @@ export default defineConfig({
         preact(),
         mdx({
             providerImportSource: "@mdx-js/preact",
-            remarkPlugins: [smartypants, remarkMdxImages]
-        })
-    ]
+            remarkPlugins: [smartypants, remarkMdxImages, remarkMath],
+            rehypePlugins: [rehypeKatex],
+        }),
+    ],
 })

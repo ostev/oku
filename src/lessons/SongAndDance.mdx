@@ -2,24 +2,15 @@ export const title = "Song and dance 🎤"
 export const chapter = 1
 export const section = 3
 
-Now that we've made some friends, let's put on a show! Peggy is a very talented
-instrumentalist, so she'll be providing accompaniment to my amazing vocal
-talents!
+Now that we've made some friends, let's put on a show! Peggy is a very talented instrumentalist, so she'll be providing accompaniment to my amazing vocal talents!
 
 ```javascript
 say("La la la laaa!")
 ```
 
-I'm great, right? The trouble is, I'm not a very creative robot. I need some
-help thinking of apropriate lyrics and dance routines. And that is where you,
-pathetic human, come in. But there is another tool in my toolbox I need to teach
-you about first.
+I'm great, right? The trouble is, I'm not a very creative robot. I need some help thinking of apropriate lyrics and dance routines. And that is where you, pathetic human, come in. But there is another tool in my toolbox I need to teach you about first.
 
-While speaking and moving is all well and good, in order for a dance routine to
-be great, it needs to be carefully timed. The lyrics need to be one with the
-moves, and it needs to match the pace of the song. Sometimes, you might want to
-pause for dramatic effect, or wait until I've finished singing a line to start
-the next one. That's where <DocLink symbol="wait">`wait`</DocLink> comes in!
+While speaking and moving is all well and good, in order for a dance routine to be great, it needs to be carefully timed. The lyrics need to be one with the moves, and it needs to match the pace of the song. Sometimes, you might want to pause for dramatic effect, or wait until I've finished singing a line to start the next one. That's where <DocLink symbol="wait">`wait`</DocLink> comes in!
 
 ```javascript
 // Move forward for 1.5 seconds
@@ -30,13 +21,49 @@ wait(1)
 
 // The reveal...
 say("Ta-da!")
+
+// The chorus...
+say("I love singing!")
+wait(4)
+say("I love singing!")
+wait(4)
+say("I love singing every day!")
 ```
 
 <DocLink symbol="wait">`wait`</DocLink> takes one <DocLink symbol="parameter">
     parameter
 </DocLink>
 : the number of seconds I need to wait. Unlike a human, I don't get impatient, so
-I can wait as long as you want! (Within limits, of course.)
+I can wait as long as you want! (Within limits, of course.) I can even perform some
+calculations to figure out how long you want me to wait:
+
+```javascript
+// Wait for 2 + 3 = 5 seconds
+wait(2 + 3)
+
+// Wait for 9 - 4 = 5 seconds
+wait(9 - 4)
+```
+
+The symbols for the addition <DocLink symbol="operator">operators</DocLink> ($+$ and $-$) are the same as in normal maths. Division and multiplication use the symbols `/` and `*` instead of $\times$ and $\div$, since you won't find the last two on any normal keyboard!
+
+```javascript
+// Wait for 2 * 2.5 = 5 seconds
+wait(2 * 2.5)
+
+// Wait for 10 / 2 = 5 seconds
+wait(10 / 2)
+```
+
+You can also use <DocLink symbol="paranthesis">parantheses</DocLink>--`(` and `)`-- to group calculations, like in maths:
+
+```javascript
+// ❌ Wait for 5 - 2.5 * 2 = 0 seconds ❌
+wait(5 - 2.5 * 2)
+
+// ✅ Wait for (5 - 2.5) * 2 = 5 seconds ✅A
+wait((5 - 2.5) * 2)
+```
 
 <YourTurn>
 
@@ -44,6 +71,8 @@ I can wait as long as you want! (Within limits, of course.)
     Craft a dance routine involving singing using `say`, moving using `move` and
     waiting using `wait`.
 </Goal>
+
+<Challenge difficulty="easy">
 
 ```javascript
 

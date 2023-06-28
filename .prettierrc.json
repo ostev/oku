@@ -2,5 +2,5 @@
     "tabWidth": 4,
     "singleQuote": false,
     "semi": false,
-    "proseWrap": "always"
+    "proseWrap": "never"
 }

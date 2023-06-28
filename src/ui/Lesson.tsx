@@ -1,8 +1,8 @@
 import { MDXProvider } from "@mdx-js/preact"
 import { ComponentChild, FunctionComponent, FunctionalComponent } from "preact"
 
-import SongAndDance from "../lessons/SongAndDance.mdx"
-import * as SongAndDanceMetadata from "../lessons/SongAndDance.mdx"
+import PopConcert from "../lessons/PopConcert.mdx"
+import * as PopConcertMetadata from "../lessons/PopConcert.mdx"
 
 import { H1, Heading } from "./Heading"
 import { EditorReader, EditorWrapper } from "./EditorWrapper"
@@ -20,7 +20,7 @@ export const FunFact: FunctionalComponent = ({ children }) => (
 
 export const DocLink: FunctionalComponent<{ symbol: string }> = ({
     children,
-    symbol
+    symbol,
 }) => (
     <a href={`/${symbol}`}>
         <em>{children}</em> 📃
@@ -64,14 +64,14 @@ export const Goal: FunctionalComponent = ({ children }) => {
     )
 }
 
-export const lessons = [SongAndDance]
+export const lessons = [PopConcert]
 
 export interface LessonProps {
     bindings: FnBindings
 }
 
 export const Lesson: FunctionComponent<LessonProps> = ({
-    bindings
+    bindings,
 }: LessonProps) => {
     const pre: FunctionComponent = ({ children }) => {
         const readerRef = useRef(new EditorReader())
@@ -106,14 +106,14 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         YourTurn: YourTurn,
         Challenge,
         Goal,
-        Hint: Paragraph
+        Hint: Paragraph,
     }
 
     return (
         <article>
-            <H1 className="mb-4">{(SongAndDanceMetadata as any).title}</H1>
+            <H1 className="mb-4">{(PopConcertMetadata as any).title}</H1>
             <MDXProvider components={components}>
-                <SongAndDance />
+                <PopConcert />
             </MDXProvider>
         </article>
     )

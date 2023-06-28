@@ -11,9 +11,10 @@ import { $ } from "./helpers"
 import { addBox } from "./level"
 
 import "./index.css"
+import "katex/dist/katex.min.css"
 import { App } from "./ui/App"
 
-render(<App/>, $("#app"))
+render(<App />, $("#app"))
 
 // const renderer = new View()
 

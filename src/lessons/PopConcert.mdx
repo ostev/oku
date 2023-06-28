@@ -1,0 +1,59 @@
+export const title = "Pop concert"
+export const chapter = 2
+export const section = 1
+
+Let's extend our song and dance routine a little bit and add some more move variations. I'm going to introduce you to a new programming concept in this one, so hold tight.
+
+You may have noticed that both the example and your own code were highly repetitive. If you wanted to change something, you would have to find and replace every occurrence of it across the program! For instance, if I wanted to increase the dramatic pauses and change the lyrics of the chorus, I would have to replace `4` everywhere and painstakingly type out the lyrics again and again for each repetition. Isn't that annoying?
+
+Programmers like you have three core tools we use to address this problem:
+
+<DocLink symbol="variable">variables</DocLink>,
+<DocLink symbol="loop">loops</DocLink> and
+<DocLink symbol="function">functions</DocLink>. You've used
+<DocLink symbol="function">functions</DocLink> already--they're the commands
+used to make me sing and dance. <DocLink symbol="say">`say`</DocLink>,<DocLink symbol="move">
+    `move`
+</DocLink> and
+<DocLink symbol="wait">`wait`</DocLink> are all functions. In case you don't
+remember, you <DocLink symbol="functionCall">call</DocLink> a function by using
+the <DocLink symbol="paranthesis">parantheses</DocLink> and a list of parameters
+seperated by <DocLink symbol="comma">commas</DocLink>, like this:
+
+```javascript
+// Supply 50% power to left motor and 100% to right motor for 2 seconds
+move(0.5, 1, 2)
+```
+
+You'll learn how to make your own functions later on. We'll worry about loops later as well. They allow me to repeatedly perform tasks within you having to give me a new command each time, saving an inordinate amount of typing for you!
+
+For now, let's focus on the first of the triad:
+
+<DocLink symbol="variable">variables</DocLink>. Variables are values we can
+define and then reuse throughout our program. If you're familiar with algebra,
+they're kind of like the all the $x$s and $y$s you define when solving a
+problem.
+
+We declare a variable using the following code:
+
+```javascript
+let dramaticPauseDuration = 3
+```
+
+<DocLink symbol="let">`let`</DocLink> is an example of a <DocLink symbol="keyword">keyword</DocLink>--that's why it's highlighted purple. <DocLink symbol="keyword">keywords</DocLink> introduce certain <DocLink symbol="statement">statements</DocLink> like variable declarations. `dramaticPauseDuration` is the name of the <DocLink symbol="variable">variable</DocLink>, and the <DocLink symbol="assignmentOperator">equals sign (`=`)</DocLink> separates the name from its value. We can now refer to the <DocLink symbol="number">number</DocLink> `3` by the name `dramaticPauseDuration` instead of its value. That allows us to easily adjust the dramatic pause duration without changing every single occurrence of the number `3`!
+
+<Challenge difficulty="easy">Try changing the value of `dramaticPauseDuration` to something else and see how the program changes.</Challenge>
+<Challenge difficulty="medium"> Use maths operators like `+`, `-`, `*` and `/` to vary the dramatic pause duration.</Challenge>
+
+```javascript
+let dramaticPauseDuration = 3
+
+say("La la la!")
+wait(dramaticPauseDuration)
+
+say("La la la!")
+wait(dramaticPauseDuration)
+
+say("I love to sing!")
+wait(dramaticPauseDuration)
+```
