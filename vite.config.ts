@@ -6,6 +6,8 @@ import topLevelAwait from "vite-plugin-top-level-await"
 import preact from "@preact/preset-vite"
 
 import mdx from "@mdx-js/rollup"
+import smartypants from "remark-smartypants"
+import remarkMdxImages from "remark-mdx-images"
 
 export default defineConfig({
     server: {
@@ -14,5 +16,13 @@ export default defineConfig({
             "Cross-Origin-Embedder-Policy": "require-corp"
         }
     },
-    plugins: [wasm(), topLevelAwait(), preact(), mdx()]
+    plugins: [
+        wasm(),
+        topLevelAwait(),
+        preact(),
+        mdx({
+            providerImportSource: "@mdx-js/preact",
+            remarkPlugins: [smartypants, remarkMdxImages]
+        })
+    ]
 })

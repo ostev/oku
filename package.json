@@ -30,6 +30,8 @@
         "immutable": "^4.3.0",
         "mathjs": "^11.8.2",
         "preact": "^10.15.1",
+        "remark-mdx-images": "^2.0.0",
+        "remark-smartypants": "^2.0.0",
         "three": "^0.153.0"
     }
 }

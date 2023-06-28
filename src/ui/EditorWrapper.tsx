@@ -28,11 +28,23 @@ export interface EditorWrapperProps {
     readerRef: MutableRef<EditorReader>
 }
 
-export const EditorToolbar: FunctionComponent = () => {
+export interface EditorToolbarProps {
+    run: () => void
+    prettify: () => void
+}
+
+export const EditorToolbar: FunctionComponent<EditorToolbarProps> = ({
+    run,
+    prettify
+}) => {
     return (
         <div class="relative flex rounded-md shadow-md bg-slate-200 bg-opacity-60 backdrop-blur-sm h-10 p-4 items-center justify-end">
-            <button class="mr-5">Run!</button>
-            <button class="mr-2">Prettify!</button>
+            <button class="mr-5" onClick={run}>
+                Run!
+            </button>
+            <button class="mr-2" onClick={prettify}>
+                Prettify!
+            </button>
         </div>
     )
 }
@@ -49,6 +61,7 @@ export const EditorWrapper: FunctionComponent<EditorWrapperProps> = ({
     let editorRef: MutableRef<Editor | null> = useRef(null)
 
     useEffect(() => {
+        console.log("Update")
         if (
             editorParent.current !== null &&
             executionContextParent.current !== null
@@ -73,7 +86,7 @@ export const EditorWrapper: FunctionComponent<EditorWrapperProps> = ({
         return () => {
             editorRef.current?.destroy()
         }
-    })
+    }, [])
 
     // useEffect(() => {
     //     if (editorRef.current !== null) {
@@ -87,10 +100,14 @@ export const EditorWrapper: FunctionComponent<EditorWrapperProps> = ({
     //     )
     // }, [bindings])
 
+    const run = () => {
+        editorRef.current?.run()
+    }
+
     return (
         <div class="w-full">
             <div class="mb-2">
-                <EditorToolbar />
+                <EditorToolbar run={run} prettify={() => {}} />
             </div>
             <div ref={editorParent}></div>
             <div ref={executionContextParent}></div>

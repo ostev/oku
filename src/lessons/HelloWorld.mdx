@@ -1,5 +1,44 @@
-export const title = "Hello, world!"
+export const title = "Saying hello 👋"
+
+Welcome! _Bienvenue!_ _G'day!_
+
+I'm Oku, your friendly robotic companion on this programming journey! You can see me on the right side of the screen, bobbing up and down.
+
+Over the course of this adventure, you're going to learn how to write programs to solve puzzles, as well as help me understand some more idiosyncratic human behaviour. One thing I've never quite understood is how humans greet one another. Sometimes it's a handshake, othertimes a hug, sometimes a simple hello. It even varies by country and culture! How could a little robot like me hope to keep up?
+
+Well, that's where you come in! I can show you how to write the code to instruct me how to say hello, and you can provide the greeting. I've heard that this is the traditional first step for every new programmer--saying, "Hello, World!"
+
+As a robot, I have trouble understanding human language. I'm not quite as advanced as something like ChatGPT, and it's really a bit complicated for me. In order to talk to me, you need to speak a _programming language_. I speak JavaScript, which is perhaps the world's most popular programming language. It is primarily used to build websites, as well as some mobile apps and web servers.
+
+<FunFact>
+    This website was written in [TypeScript](https://www.typescriptlang.org/), a
+    variant of JavaScript.
+</FunFact>
+
+{/* At the most basic level, robots like me think in *commands*, lines of code that tell us what to do and how to do it. You can't just tell me to "Go fetch that ball over there." */}
+
+So how do you tell me to say something? Well, it's simple, really:
 
 ```javascript
-console.log("Hi!")
+say("I'm speaking to you right now.")
 ```
+
+The `say` bit lets me know what you're about to tell me to do: say something. The bit inside the <DocLink symbol="quotes">quote marks (`"`)</DocLink> tells me what to say. The <DocLink symbol="parantheses">parentheses</DocLink>--`(` and `)`--indicate that you're about to give me the _parameters_ to the command, which is, in this case, some text.
+
+Go ahead and click the "Run" button above that piece of code--if all goes to plan, you'll hear me speak.
+
+If you remove the quote marks and hit "Run" again, you'll get an error. Why is that? Well, I need those quote marks to differentiate human text from commands. Otherwise, I'd be very confused as to which was which. Is `say` part of some piece of text, or is it a command? Programmers call the text between the quotes a <DocLink symbol="string">string</DocLink>. Why?
+
+Well, robots like me think of text as a bunch of <DocLink symbol="character">characters</DocLink> strung together, kind of like baubles.
+
+![The letters of the word "hello" strung together like baubles.](string.svg)
+
+<YourTurn>
+So, now we've got all that out of the way, why don't you try and say "Hello!"
+
+```javascript
+// Hint: use the `say` command we discussed earlier.
+```
+
+<Challenge difficulty="easy">Change the greeting from "Hello!" to something custom.</Challenge>
+</YourTurn>

@@ -1,5 +1,5 @@
 import { error } from "../helpers"
-import { Bindings } from "./bindings"
+import { Bindings, bindingSyncInfo } from "./bindings"
 import UserExecutionContextWorker from "./userExecutionContextWorker?worker"
 
 export const InvalidMessageReceivedFromHostApplicationError = error(
@@ -86,9 +86,8 @@ class UserExecutionContext {
         })
 }
 
-const context = new UserExecutionContext(
-    { helloThere: { delay: 0 }, forward: { delay: "parameterSeconds" } },
-    (message) => window.top?.postMessage(message)
+const context = new UserExecutionContext(bindingSyncInfo, (message) =>
+    window.top?.postMessage(message)
 )
 
 window.addEventListener("message", (e) => {

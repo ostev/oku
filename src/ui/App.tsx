@@ -2,7 +2,7 @@ import { MutableRef, useEffect, useMemo, useRef, useState } from "preact/hooks"
 
 import * as Rapier from "@dimforge/rapier3d"
 
-import { EditorWrapper } from "./EditorWrapper"
+import { EditorReader, EditorWrapper } from "./EditorWrapper"
 import { Vec3, World } from "../World"
 import { View } from "../View"
 import { RefAccessedBeforeComponentMountedError } from "../helpers"
@@ -12,6 +12,7 @@ import { Heading } from "./Heading"
 import { Lesson, lessons } from "./Lesson"
 
 import HelloWorld from "../lessons/HelloWorld.mdx"
+import { FnBindings } from "../userExecutionContext/bindings"
 
 export const App = () => {
     const viewParentRef: MutableRef<HTMLDivElement | null> = useRef(null)
@@ -21,7 +22,19 @@ export const App = () => {
 
     const worldRef: MutableRef<World | null> = useRef(null)
 
-    const bindings = {}
+    const [linesSaid, setLinesSaid] = useState<string[]>([])
+
+    const bindings: FnBindings = {
+        wait: { fn: () => {} },
+        say: {
+            fn: (text: string) => {
+                const utterance = new SpeechSynthesisUtterance(text)
+                speechSynthesis.cancel()
+                speechSynthesis.speak(utterance)
+                setLinesSaid(linesSaid.concat([text]))
+            }
+        }
+    }
 
     useEffect(() => {
         viewRef.current = new View()
@@ -78,19 +91,22 @@ export const App = () => {
             )
             resizeObserverRef.current?.disconnect()
         }
-    })
+    }, [])
 
     const [width, setWidth] = useState(400)
+
+    const [x, setX] = useState(0)
+
+    useEffect(() => console.log("Hi!"), [])
 
     return (
         <div class="">
             {/* <div class="border-r h-screen p-2"> */}
             <div
-                class="h-full absolute top-0 left-0 z-10 m-3 p-5 bg-slate-100 bg-opacity-90 rounded-lg overflow-hidden shadow-lg backdrop-blur-lg"
+                class="h-full absolute top-0 left-0 z-10 m-3 p-5 bg-slate-100 bg-opacity-90 rounded-lg overflow-x-hidden shadow-lg backdrop-blur-lg"
                 style={{ width: width }}
             >
                 <Lesson bindings={bindings} />
-                {/* <EditorWrapper bindings={bindings} /> */}
             </div>
             {/* </div> */}
             {/* <div class="border-l h-screen" ref={viewParentRef}></div> */}
