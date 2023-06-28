@@ -8,6 +8,7 @@ smiling television a couple of metres in front of me.
 
 In order to go up to her and greet her, I need to introduce you to a new
 command: <DocLink symbol="move">`move`</DocLink>. Unlike
+
 <DocLink symbol="say">`say`</DocLink>, <DocLink symbol="move">`move`</DocLink>
 takes three <DocLink symbol="parameter">parameters</DocLink>, all of which are
 <DocLink symbol="number">numbers</DocLink>:
@@ -29,7 +30,23 @@ left. The third number indicates the amount of time in seconds you want me to
 move for. So, this example tells me to turn left for 3 seconds.
 
 Peggy is in front of me, so I need to move forward. I need to be within 1 metre
-of her to say hello.
+of her to say hello. You need to use both
+<DocLink symbol="move">`move`</DocLink> and
+<DocLink symbol="say">`say`</DocLink> in the same program. You can give me
+multiple commands by seperating them with newlines. Each one of these
+<DocLink symbol="statement">`statements`</DocLink> is kind of like a sentence,
+and newlines are kind of like full stops.
+
+```javascript
+// Laugh maniacally.
+say("Ha ha ha ha!")
+
+// Move backward for four seconds
+move(-1, -1, 4)
+
+// Laugh again
+say("Hee hee hee hee!")
+```
 
 <YourTurn>
 <Goal>Move within one metre of Peggy and speak to her.</Goal>
