@@ -1,8 +1,8 @@
 import { MDXProvider } from "@mdx-js/preact"
 import { ComponentChild, FunctionComponent, FunctionalComponent } from "preact"
 
-import GreetingOthers from "../lessons/GreetingOthers.mdx"
-import * as GreetingOthersMetadata from "../lessons/GreetingOthers.mdx"
+import SongAndDance from "../lessons/SongAndDance.mdx"
+import * as SongAndDanceMetadata from "../lessons/SongAndDance.mdx"
 
 import { H1, Heading } from "./Heading"
 import { EditorReader, EditorWrapper } from "./EditorWrapper"
@@ -64,7 +64,7 @@ export const Goal: FunctionalComponent = ({ children }) => {
     )
 }
 
-export const lessons = [GreetingOthers]
+export const lessons = [SongAndDance]
 
 export interface LessonProps {
     bindings: FnBindings
@@ -105,14 +105,15 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         DocLink: DocLink,
         YourTurn: YourTurn,
         Challenge,
-        Goal
+        Goal,
+        Hint: Paragraph
     }
 
     return (
         <article>
-            <H1 className="mb-4">{(GreetingOthersMetadata as any).title}</H1>
+            <H1 className="mb-4">{(SongAndDanceMetadata as any).title}</H1>
             <MDXProvider components={components}>
-                <GreetingOthers />
+                <SongAndDance />
             </MDXProvider>
         </article>
     )
