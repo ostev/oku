@@ -1,8 +1,8 @@
 import { MDXProvider } from "@mdx-js/preact"
 import { ComponentChild, FunctionComponent, FunctionalComponent } from "preact"
 
-import HelloWorld from "../lessons/HelloWorld.mdx"
-import * as HelloWorldMetadata from "../lessons/HelloWorld.mdx"
+import GreetingOthers from "../lessons/GreetingOthers.mdx"
+import * as GreetingOthersMetadata from "../lessons/GreetingOthers.mdx"
 
 import { H1, Heading } from "./Heading"
 import { EditorReader, EditorWrapper } from "./EditorWrapper"
@@ -55,7 +55,16 @@ export const Challenge: FunctionalComponent<{
     )
 }
 
-export const lessons = [HelloWorld]
+export const Goal: FunctionalComponent = ({ children }) => {
+    return (
+        <div class="my-4 ml-4">
+            <Heading level={3}>🎯 Goal</Heading>
+            {children}
+        </div>
+    )
+}
+
+export const lessons = [GreetingOthers]
 
 export interface LessonProps {
     bindings: FnBindings
@@ -76,7 +85,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         } else {
             initialCode = "⚠️ Invalid children ⚠️"
         }
-        initialCode += "\n\n\n\n"
+        initialCode += "\n"
 
         return (
             <EditorWrapper
@@ -95,14 +104,15 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         p: Paragraph,
         DocLink: DocLink,
         YourTurn: YourTurn,
-        Challenge
+        Challenge,
+        Goal
     }
 
     return (
         <article>
-            <H1 className="mb-4">{(HelloWorldMetadata as any).title}</H1>
+            <H1 className="mb-4">{(GreetingOthersMetadata as any).title}</H1>
             <MDXProvider components={components}>
-                <HelloWorld />
+                <GreetingOthers />
             </MDXProvider>
         </article>
     )
