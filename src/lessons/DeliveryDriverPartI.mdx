@@ -1,0 +1,44 @@
+export const title = "Delivery Driver: Part I"
+export const chapter = 2
+export const section = 2
+
+I've found a job! 🎉 Arnold said he'd employ me to deliver his dog food to his kennel. Isn't that simply fantastic!
+
+There's a catch, however. The back gate to Arnold's house won't be open all the time, and I don't have the human hands necessary to operate it. I also need to be able to pick up the parcel and place it down inside the door, which is why I have some shiny new upgrades! Do you spy that claw on the front of my chassis, as well as the distance sensor which looks kind of like a pair of eyes?
+
+In addition to all that, I have to cross a road to reach Arnold's kennel, and I don't particularly feel like being smashed into little pieces by an oncoming vehicle. What should I do?
+
+You know the drill by know--new functionality means new <DocLink symbol="function">functions</DocLink>! Let me introduce you to <DocLink symbol="readDistance">`readDistance`</DocLink>:
+
+```javascript
+let distance = readDistance()
+```
+
+Unlike the functions we've seen up to this point, <DocLink symbol="readDistance">`readDistance`</DocLink> doesn't take any parameters! Instead, it gives us some information about the world. Programmers say that <DocLink symbol="readDistance">`readDistance`</DocLink> <DocLink symbol="return">returns<DocLink> a value--in this case, a number indicating the distance in metres to the closest object in front of me. We can then use that number to perform other tasks. In this case, we <DocLink symbol="assignment">assign</DocLink> it to a <DocLink symbol="variable">variable</DocLink>, but we could also speak it out loud or move that distance:
+
+```javascript
+say(readDistance())
+
+forward(readDistance())
+```
+
+We still need the <DocLink symbol="parenthesis">parentheses</DocLink>--otherwise, we'll probably get an error.
+
+Picking up and placing objects is more straightforward: we simply use the <DocLink symbol="pickUp">`pickUp`</DocLink symbol="pickUp"> and <DocLink symbol="placeDown">`placeDown`</DocLink> functions when I'm in front of a parcel:
+
+```
+forward(1)
+pickUp()
+backward(1)
+placeDown()
+```
+
+Using this <DocLink symbol="function">function</DocLink>, we can tell the distance between me and the car--very handy for avoiding a collision! We'll actually deliver the parcel in <Ref chapter={2} section={3}>the next section</DocLink>, but for let's practise moving parcels around.
+
+<YourTurn>
+
+<Goal>
+Using the <DocLink symbol="readDistance">`readDistance`</DocLink>, <DocLink symbol="pickUp">`pickUp`</DocLink symbol="pickUp"> and <DocLink symbol="placeDown">`placeDown`</DocLink> functions, place the parcel in the receptacle. The position of the parcel relative to me will change each run, so you'll to find out the distance between me and the parcel and move forward that amount.
+</Goal>
+
+</YourTurn>

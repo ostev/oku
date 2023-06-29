@@ -7,32 +7,32 @@ someone to talk to? Let me introduce you to my good friend Peggy. She's the
 smiling television a couple of metres in front of me.
 
 In order to go up to her and greet her, I need to introduce you to a new
-command: <DocLink symbol="move">`move`</DocLink>. Unlike
-
-<DocLink symbol="say">`say`</DocLink>, <DocLink symbol="move">`move`</DocLink>
-takes three <DocLink symbol="parameter">parameters</DocLink>, all of which are
-<DocLink symbol="number">numbers</DocLink>:
+command: <DocLink symbol="move">`forward`</DocLink>. Unlike
+<DocLink symbol="say">`say`</DocLink>, <DocLink symbol="move">`forward`</DocLink>
+takes a <DocLink symbol="number">number</DocLink> a <DocLink symbol="parameter">parameter</DocLink>:
 
 ```javascript
-move(0.5, 1, 3)
+forward(2)
 ```
 
-Each of the three <DocLink symbol="parameter">parameters</DocLink> are
-sepearated by <DocLink symbol="comma">commas (`,`)</DocLink>--otherwise, I
+This number tells me how far to move forward in metres.
+
+{/* Each of the three <DocLink symbol="parameter">parameters</DocLink> are
+separated by <DocLink symbol="comma">commas (`,`)</DocLink>--otherwise, I
 wouldn't know where one parameter ends and the next begins! That would be
 awfully confusing. You'll get an error if you forget one of these commas, so
-remember to put them in.
+remember to put them in. */}
 
-The first two <DocLink symbol="number">numbers</DocLink> indicate the amount of
+{/* The first two <DocLink symbol="number">numbers</DocLink> indicate the amount of
 power to provide to my left and right engines, respectively. In this example, I
 would turn left since you are providing more power to the right engine than the
 left. The third number indicates the amount of time in seconds you want me to
-move for. So, this example tells me to turn left for 3 seconds.
+move for. So, this example tells me to turn left for 3 seconds. */}
 
-Peggy is in front of me, so I need to move forward. I need to be within 1 metre
+Peggy is 3 metres in front of me, but I need to be within 1 metre
 of her to say hello. You need to use both
-<DocLink symbol="move">`move`</DocLink> and
-<DocLink symbol="say">`say`</DocLink> in the same program. You can give me
+<DocLink symbol="move">`forward`</DocLink> and
+<DocLink symbol="say">`say`</DocLink> in the your program. You can give me
 multiple commands by seperating them with newlines. Each one of these
 <DocLink symbol="statement">`statements`</DocLink> is kind of like a sentence,
 and newlines are kind of like full stops.
@@ -41,22 +41,24 @@ and newlines are kind of like full stops.
 // Laugh maniacally.
 say("Ha ha ha ha!")
 
-// Move backward for four seconds
-move(-1, -1, 4)
+// Move backward metres
+backward(4)
 
 // Laugh again
 say("Hee hee hee hee!")
 ```
 
 <YourTurn>
-<Goal>Move within one metre of Peggy and speak to her.</Goal>
+<Goal>Move to within one metre of Peggy and speak to her.</Goal>
 
 ```javascript
-// Hint: use both the `move` and `say` functions
+// Hint: use both the `forward` and `say` functions
 ```
 
-<Challenge difficulty="medium">
-    Say hello to Arnold, the robot dog over in the corner.
-</Challenge>
+There are other movement commands beside <DocLink symbol="forward">`forward`</DocLink>: <DocLink symbol="left">`left`</DocLink>, <DocLink symbol="right">`right`</DocLink> and <DocLink symbol="backward">`backward`</DocLink>. You can use these to move in the four cardinal directions.
+
+<Goal>
+    Say hello to Arnold, the robot dog over in the corner, using these new commands.
+</Goal>
 
 </YourTurn>
