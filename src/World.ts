@@ -1,16 +1,20 @@
 import * as Rapier from "@dimforge/rapier3d"
 import * as Three from "three"
 
-import { $, error, range, withDefault } from "./helpers"
+import { $, error, range, uint32Range, withDefault } from "./helpers"
 import { intersection } from "./setHelpers"
 import { View } from "./View"
 import { distance, easeInOutQuad } from "./maths"
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
+import { toIndexedGeometry } from "./geometry"
 
 export const MeshComponentNotFoundInThreeJSSceneError = error(
     "MeshComponentNotFoundInThreeJSSceneError"
 )
 
 export const ComponentNotFoundError = error("ComponentNotFoundError")
+
+export const CannotCreateConvexHullError = error("CannotCreateConvexHullError")
 
 export const getComponent = <Kind extends ComponentKind>(
     entity: Readonly<Entity>,
@@ -92,6 +96,97 @@ export class World {
         }
         // clearInterval(this.intervalHandle)
         // this.intervalHandle = undefined
+    }
+
+    importGLTF = async (url: string) => {
+        const gltfLoader = new GLTFLoader()
+        const gltf = await gltfLoader.loadAsync(url)
+
+        // gltf.scene.traverse((object) => {
+        //     console.log(object.type)
+        // })
+
+        let i = 0
+
+        gltf.scene.traverse((object) => {
+            if (i !== 0) {
+                const position = object.getWorldPosition(new Three.Vector3())
+                const transform = {
+                    translation: {
+                        x: position.x,
+                        y: position.y,
+                        z: position.z,
+                    },
+                    rotation: object.getWorldQuaternion(new Three.Quaternion()),
+                    scale: object.getWorldScale(new Three.Vector3()),
+                }
+
+                const components = new Set<Component>()
+
+                if (object.type === "Mesh") {
+                    const mesh = object as Three.Mesh
+                    if (object.name.includes("convex_collider")) {
+                        const desc = Rapier.ColliderDesc.convexHull(
+                            new Float32Array(
+                                mesh.geometry.attributes.position.array
+                            )
+                        )
+
+                        if (desc === null) {
+                            throw new CannotCreateConvexHullError(
+                                `Unable to create convex hull for imported mesh of name ${mesh.name}`
+                            )
+                        }
+                        const collider = this.physics.createCollider(desc)
+
+                        collider.setTranslation(transform.translation)
+                        collider.setRotation(transform.rotation)
+
+                        components.add({ kind: "collider", collider })
+                        //         } else if (object.name.includes("trimesh_collider")) {
+                        //             // This currently crashes.
+
+                        //             console.log(mesh.geometry.attributes)
+
+                        //             const { vertices, indices } = toIndexedGeometry(
+                        //                 Float32Array.from(
+                        //                     mesh.geometry.getAttribute("position").array
+                        //                 )
+                        //             )
+
+                        //             console.log(vertices)
+                        //             console.log(indices)
+                        //             const desc = Rapier.ColliderDesc.trimesh(
+                        //                 new Float32Array(vertices),
+                        //                 // uint32Range(0, vertices.length)
+                        //                 new Uint32Array(indices)
+                        //             )
+
+                        //             if (desc === null) {
+                        //                 throw new CannotCreateConvexHullError(
+                        //                     `Unable to create convex hull for imported mesh of name ${mesh.name}`
+                        //                 )
+                        //             }
+                        //             const collider = this.physics.createCollider(desc)
+
+                        //             collider.setTranslation(transform.translation)
+                        //             collider.setRotation(transform.rotation)
+
+                        //             components.add({ kind: "collider", collider })
+                        //         }
+                    }
+
+                    components.add({ kind: "mesh", mesh })
+                }
+
+                console.log(components)
+
+                // This gives a strange error...
+                // this.addEntity(transform, components)
+            }
+
+            i++
+        })
     }
 
     addEntity = (
@@ -231,6 +326,13 @@ export class World {
             const position = rigidBody.translation()
             const rotation = rigidBody.rotation()
 
+            entity.transform.translation = position
+            entity.transform.rotation = new Three.Quaternion(
+                rotation.x,
+                rotation.y,
+                rotation.z
+            )
+
             // if (this.keys["w"]) {
             //     rigidBody.applyImpulse(new Three.Vector3(0.5, 0, 0), true)
             // }
@@ -249,6 +351,11 @@ export class World {
 
             mesh.position.set(position.x, position.y, position.z)
             mesh.rotation.set(rotation.x, rotation.y, rotation.z)
+            mesh.scale.set(
+                entity.transform.scale.x,
+                entity.transform.scale.y,
+                entity.transform.scale.z
+            )
         }
 
         // for (const entity of intersection(
@@ -362,7 +469,15 @@ export class World {
 
 export interface Transform {
     translation: Vec3
+    rotation: Three.Quaternion
+    scale: Vec3
 }
+
+export const translation = (translation: Vec3): Transform => ({
+    translation,
+    rotation: new Three.Quaternion(),
+    scale: new Vec3(1, 1, 1),
+})
 
 export interface Entity {
     id: EntityId
@@ -390,6 +505,7 @@ export type Component =
     | Hover
     | CharacterController
     | Player
+    | Collider
 
 export interface Player {
     kind: "player"
