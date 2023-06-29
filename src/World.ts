@@ -110,13 +110,13 @@ export class World {
                 },
                 new Map()
             ),
-            transform
+            transform,
         }
 
         const entity: Entity = {
             id,
             components: new Map(),
-            transform
+            transform,
         }
 
         for (const [kind, component] of uninitialisedEntity.components) {
@@ -203,11 +203,12 @@ export class World {
 
     getEntities = (componentKind: Readonly<ComponentKind>): Set<Entity> => {
         const entities = new Set<Entity>()
-        for (const entityId of withDefault(
-            this.componentLookupTable.get(componentKind),
-            new Set()
-        )) {
-            entities.add(this.entities.get(entityId) as Entity)
+        const entityIds = this.componentLookupTable.get(componentKind)
+
+        if (entityIds !== undefined) {
+            for (const entityId of entityIds) {
+                entities.add(this.entities.get(entityId) as Entity)
+            }
         }
 
         return entities
@@ -285,7 +286,7 @@ export class World {
                 {
                     x: currentPosition.x,
                     y: currentPosition.y - 0.51,
-                    z: currentPosition.z
+                    z: currentPosition.z,
                 },
                 { x: 0, y: -1, z: 0 }
             )
