@@ -37,23 +37,63 @@ problem.
 We declare a variable using the following code:
 
 ```javascript
-let dramaticPauseDuration = 3
+let speed = 3
 ```
 
-<DocLink symbol="let">`let`</DocLink> is an example of a <DocLink symbol="keyword">keyword</DocLink>--that's why it's highlighted purple. <DocLink symbol="keyword">keywords</DocLink> introduce certain <DocLink symbol="statement">statements</DocLink> like variable declarations. `dramaticPauseDuration` is the name of the <DocLink symbol="variable">variable</DocLink>, and the <DocLink symbol="assignmentOperator">equals sign (`=`)</DocLink> separates the name from its value. We can now refer to the <DocLink symbol="number">number</DocLink> `3` by the name `dramaticPauseDuration` instead of its value. That allows us to easily adjust the dramatic pause duration without changing every single occurrence of the number `3`!
+<DocLink symbol="let">`let`</DocLink> is an example of a <DocLink symbol="keyword">keyword</DocLink>--that's why it's highlighted purple. <DocLink symbol="keyword">keywords</DocLink> introduce certain <DocLink symbol="statement">statements</DocLink> like variable declarations. `speed` is the name of the <DocLink symbol="variable">variable</DocLink>, and the <DocLink symbol="assignmentOperator">equals sign (`=`)</DocLink> separates the name from its value. We can now refer to the <DocLink symbol="number">number</DocLink> `3` by the name `speed` instead of its value. That allows us to easily adjust the speed of the routine without changing every single occurrence of the number `3`! We can also use the mathematical operators we learned about earlier to adjust the duration of the pause.
 
-<Challenge difficulty="easy">Try changing the value of `dramaticPauseDuration` to something else and see how the program changes.</Challenge>
-<Challenge difficulty="medium"> Use maths operators like `+`, `-`, `*` and `/` to vary the dramatic pause duration.</Challenge>
+<Challenge difficulty="easy">Try changing the value of `speed` to something else and see how the program changes.</Challenge>
 
 ```javascript
-let dramaticPauseDuration = 3
+let speed = 3
 
 say("La la la!")
-wait(dramaticPauseDuration)
+wait(speed)
 
 say("La la la!")
-wait(dramaticPauseDuration)
+wait(speed + 1.5)
 
 say("I love to sing!")
-wait(dramaticPauseDuration)
+wait(speed * 2)
 ```
+
+<YourTurn>
+Programmers often spend time <DocLink symbol="refactor">refactoring</DocLink>--that is, they rewrite sections of already working code to make it cleaner and easier to maintain. Refactors can often help eliminate <DocLink symbol="bug">bugs</DocLink> and other problems with the code by making it easier to understand.
+
+<Goal>
+Refactor your existing program from <Ref chapter={1} section={3}>"Song and dance 🎤"</Ref> to integrate variables.
+</Goal>
+
+<Hint number={1}>Create a variable called `speed`.</Hint>
+<Hint number={2}>Use mathematical operators like `+`, `-`, `*` and `/` to derive the different wait times from `speed`</Hint>
+<Hint number={3}>
+Here's a scaffold:
+
+```javascript
+// static
+
+let speed = [insert speed here]
+
+say("I am going to sing some lyrics!")
+wait(speed * 2)
+
+say("It is really fun!")
+wait(speed * (5 / 3))
+```
+</Hint>
+
+<Challenge difficulty="medium">
+In <DocLink symbol="javascript">JavaScript</DocLink>, you can also add <DocLink symbol="string">strings</DocLink> together using the addition operator (`+`). Create a new variable called `baseLyrics` and add strings to it for the lines of the chorus, like this:
+
+```javascript
+let speed = 2
+let baseLyrics = "La la"
+
+say(baseLyrics + " loo!")
+wait(speed)
+say(baseLyrics + " whoo!")
+```
+</Challenge>
+
+
+</YourTurn>
