@@ -27,6 +27,12 @@ export const DocLink: FunctionalComponent<{ symbol: string }> = ({
     </a>
 )
 
+export const Ref: FunctionalComponent<{ chapter: number; section: number }> = ({
+    children,
+    chapter,
+    section,
+}) => <a href={`/${chapter}/${section}`}>{children}</a>
+
 export const YourTurn: FunctionalComponent = ({ children }) => (
     <div>
         <Heading level={2}>Your turn!</Heading>
@@ -107,6 +113,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         Challenge,
         Goal,
         Hint: Paragraph,
+        Ref,
     }
 
     return (
