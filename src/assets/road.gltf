@@ -29,7 +29,7 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"Terrain_trimesh_collider",
+			"name":"Terrain_convex_collider",
 			"rotation":[
 				0,
 				-1,
@@ -44,7 +44,7 @@
 		},
 		{
 			"mesh":1,
-			"name":"Road_trimesh_collider",
+			"name":"Road_convex_collider",
 			"rotation":[
 				0,
 				-1,
@@ -258,7 +258,7 @@
 		},
 		{
 			"mesh":13,
-			"name":"Plane_trimesh_collider",
+			"name":"Plane_convex_collider",
 			"rotation":[
 				0,
 				-1,
