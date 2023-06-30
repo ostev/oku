@@ -436,6 +436,12 @@
 		{
 			"name":"Leaves",
 			"pbrMetallicRoughness":{
+				"baseColorFactor":[
+					0.7991030216217041,
+					0.13286809623241425,
+					0.05612854287028313,
+					1
+				],
 				"metallicFactor":0,
 				"roughnessFactor":0.5
 			}
