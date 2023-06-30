@@ -23,7 +23,7 @@ export class View {
 
     scene: Three.Scene
 
-    ambientLight = new Three.AmbientLight()
+    ambientLight = new Three.AmbientLight("grey")
     sun = new Three.DirectionalLight()
 
     width = 0
@@ -32,10 +32,10 @@ export class View {
     renderer: Three.WebGLRenderer
     composer: EffectComposer
 
-    outlinePass: SketchPass
-    // ssaoPass: SSAOPass
+    // outlinePass: SketchPass
+    ssaoPass: SSAOPass
     // fxaaPass: ShaderPass
-    smaaPass: SMAAPass
+    // smaaPass: SMAAPass
 
     paintMaterial: Three.ShaderMaterial
 
@@ -50,14 +50,17 @@ export class View {
         // this.player = new Player(new Three.Vector3(0, 0, 0))
         // this.scene.add(this.player.mesh)
 
+        this.sun.position.set(-10, 10, -10)
         this.sun.castShadow = true
+        const helper = new Three.DirectionalLightHelper(this.sun, 5, "red")
 
         this.scene.add(this.ambientLight)
         this.scene.add(this.sun)
+        this.scene.add(helper)
 
         this.paintMaterial = new Three.ShaderMaterial({
             defines: {
-                NUM_OCTAVES: 4
+                NUM_OCTAVES: 4,
             },
             uniforms: {
                 time: new Three.Uniform(0),
@@ -67,10 +70,10 @@ export class View {
                 color1: new Three.Uniform(new Three.Color("#CEE5F2")),
                 color2: new Three.Uniform(new Three.Color("#ACCBE1")),
                 color3: new Three.Uniform(new Three.Color("#7C98B3")),
-                color4: new Three.Uniform(new Three.Color("#637081"))
+                color4: new Three.Uniform(new Three.Color("#637081")),
             },
             vertexShader: simpleVertex,
-            fragmentShader: paintFragment
+            fragmentShader: paintFragment,
         })
 
         // const plane = new Three.Mesh(
@@ -80,7 +83,8 @@ export class View {
         // this.scene.add(plane)
 
         this.renderer = new Three.WebGLRenderer({
-            powerPreference: "high-performance"
+            powerPreference: "high-performance",
+            antialias: true,
         })
         // this.renderer.setAnimationLoop(this.animation)
 
@@ -94,23 +98,25 @@ export class View {
         )
         this.composer.addPass(renderPass)
 
-        this.outlinePass = new SketchPass(this.scene, this.camera, 1, 1)
-        this.composer.addPass(this.outlinePass)
+        // this.outlinePass = new SketchPass(this.scene, this.camera, 1, 1)
+        // this.composer.addPass(this.outlinePass)
 
-        // this.ssaoPass = new SSAOPass(
-        //     this.scene,
-        //     this.camera,
-        //     this.width,
-        //     this.height
-        // )
-        // this.ssaoPass.kernelRadius = 16
-        // this.composer.addPass(this.ssaoPass);
+        this.ssaoPass = new SSAOPass(
+            this.scene,
+            this.camera,
+            this.width,
+            this.height
+        )
+        this.ssaoPass.kernelRadius = 32
+        this.ssaoPass.minDistance = 0.005
+        this.ssaoPass.maxDistance = 0.1
+        // this.composer.addPass(this.ssaoPass)
 
         // this.fxaaPass = new ShaderPass(FXAAShader)
         // this.composer.addPass(this.fxaaPass)
 
-        this.smaaPass = new SMAAPass(this.width, this.height)
-        this.composer.addPass(this.smaaPass)
+        // this.smaaPass = new SMAAPass(this.width, this.height)
+        // this.composer.addPass(this.smaaPass)
 
         // const sphericalTarget = new Three.Spherical(
         //     1,
@@ -149,8 +155,9 @@ export class View {
     destroy = () => {
         this.composer.dispose()
         this.renderer.dispose()
-        this.outlinePass.dispose()
-        this.smaaPass.dispose()
+        // this.outlinePass.dispose()
+        this.ssaoPass.dispose()
+        // this.smaaPass.dispose()
         this.renderer.domElement.remove()
     }
 
@@ -176,13 +183,13 @@ export class View {
 
         this.camera.updateProjectionMatrix()
 
-        this.outlinePass.setSize(width, height)
-        // this.ssaoPass.setSize(width, height)
+        // this.outlinePass.setSize(width, height)
+        this.ssaoPass.setSize(width, height)
         // this.fxaaPass.material.uniforms["resolution"].value.x =
         //     1 / (width * pixelRatio)
         // this.fxaaPass.material.uniforms["resolution"].value.y =
         //     1 / (height * pixelRatio)
-        this.smaaPass.setSize(width, height)
+        // this.smaaPass.setSize(width, height)
     }
 
     render = (delta: number) => {

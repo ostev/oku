@@ -106,87 +106,96 @@ export class World {
         //     console.log(object.type)
         // })
 
-        let i = 0
+        const entityDescriptions: {
+            transform: Transform
+            components: Set<Component>
+        }[] = []
 
         gltf.scene.traverse((object) => {
-            if (i !== 0) {
-                const position = object.getWorldPosition(new Three.Vector3())
-                const transform = {
-                    translation: {
-                        x: position.x,
-                        y: position.y,
-                        z: position.z,
-                    },
-                    rotation: object.getWorldQuaternion(new Three.Quaternion()),
-                    scale: object.getWorldScale(new Three.Vector3()),
+            entityDescriptions.push(this.importObject(object, true))
+        })
+
+        for (const { transform, components } of entityDescriptions) {
+            this.addEntity(transform, components)
+        }
+
+        console.log(entityDescriptions)
+    }
+
+    importObject = (
+        object: Three.Object3D,
+        useShadows: boolean
+    ): { transform: Transform; components: Set<Component> } => {
+        const position = object.getWorldPosition(new Three.Vector3())
+        const transform = {
+            translation: {
+                x: position.x,
+                y: position.y,
+                z: position.z,
+            },
+            rotation: object.getWorldQuaternion(new Three.Quaternion()),
+            scale: object.getWorldScale(new Three.Vector3()),
+        }
+
+        const components = new Set<Component>()
+
+        if (object.type === "Mesh") {
+            const mesh = object as Three.Mesh
+
+            mesh.castShadow = useShadows
+            mesh.receiveShadow = useShadows
+
+            if (object.name.includes("convex_collider")) {
+                const desc = Rapier.ColliderDesc.convexHull(
+                    new Float32Array(mesh.geometry.attributes.position.array)
+                )
+                if (desc === null) {
+                    throw new CannotCreateConvexHullError(
+                        `Unable to create convex hull for imported mesh of name ${mesh.name}`
+                    )
                 }
+                const collider = this.physics.createCollider(desc)
 
-                const components = new Set<Component>()
+                collider.setTranslation(transform.translation)
+                collider.setRotation(transform.rotation)
 
-                if (object.type === "Mesh") {
-                    const mesh = object as Three.Mesh
-                    if (object.name.includes("convex_collider")) {
-                        const desc = Rapier.ColliderDesc.convexHull(
-                            new Float32Array(
-                                mesh.geometry.attributes.position.array
-                            )
-                        )
+                components.add({ kind: "collider", collider })
+            } else if (object.name.includes("trimesh_collider")) {
+                // This currently crashes.
 
-                        if (desc === null) {
-                            throw new CannotCreateConvexHullError(
-                                `Unable to create convex hull for imported mesh of name ${mesh.name}`
-                            )
-                        }
-                        const collider = this.physics.createCollider(desc)
+                console.log(mesh.geometry.attributes)
 
-                        collider.setTranslation(transform.translation)
-                        collider.setRotation(transform.rotation)
+                const desc = Rapier.ColliderDesc.trimesh(
+                    new Float32Array(
+                        mesh.geometry.getAttribute("position").array
+                    ),
+                    // uint32Range(0, vertices.length)
+                    new Uint32Array(mesh.geometry.index.array)
+                )
 
-                        components.add({ kind: "collider", collider })
-                        //         } else if (object.name.includes("trimesh_collider")) {
-                        //             // This currently crashes.
-
-                        //             console.log(mesh.geometry.attributes)
-
-                        //             const { vertices, indices } = toIndexedGeometry(
-                        //                 Float32Array.from(
-                        //                     mesh.geometry.getAttribute("position").array
-                        //                 )
-                        //             )
-
-                        //             console.log(vertices)
-                        //             console.log(indices)
-                        //             const desc = Rapier.ColliderDesc.trimesh(
-                        //                 new Float32Array(vertices),
-                        //                 // uint32Range(0, vertices.length)
-                        //                 new Uint32Array(indices)
-                        //             )
-
-                        //             if (desc === null) {
-                        //                 throw new CannotCreateConvexHullError(
-                        //                     `Unable to create convex hull for imported mesh of name ${mesh.name}`
-                        //                 )
-                        //             }
-                        //             const collider = this.physics.createCollider(desc)
-
-                        //             collider.setTranslation(transform.translation)
-                        //             collider.setRotation(transform.rotation)
-
-                        //             components.add({ kind: "collider", collider })
-                        //         }
-                    }
-
-                    components.add({ kind: "mesh", mesh })
+                if (desc === null) {
+                    throw new CannotCreateConvexHullError(
+                        `Unable to create convex hull for imported mesh of name ${mesh.name}`
+                    )
                 }
+                const collider = this.physics.createCollider(desc)
 
-                console.log(components)
+                collider.setTranslation(transform.translation)
+                collider.setRotation(transform.rotation)
 
-                // This gives a strange error...
-                // this.addEntity(transform, components)
+                components.add({ kind: "collider", collider })
             }
 
-            i++
-        })
+            components.add({ kind: "mesh", mesh })
+        }
+
+        console.log(transform)
+        console.log(components)
+        console.log(object)
+
+        return { transform, components }
+
+        // console.log(this)
     }
 
     addEntity = (
@@ -219,7 +228,6 @@ export class World {
                 uninitialisedEntity,
                 component
             )
-
             entity.components.set(finalisedComponent.kind, finalisedComponent)
         }
 
@@ -287,9 +295,8 @@ export class World {
 
             return { kind: "rigidBody", rigidBody, collider }
         } else if (component.kind === "mesh") {
-            component.mesh.name = entity.id.toString()
+            // component.mesh.name = entity.id.toString()
             this.view.scene.add(component.mesh)
-
             return component
         } else {
             return component
