@@ -35,31 +35,36 @@ export const addPlayer = async (world: World): Promise<Entity> => {
 
     const gltfLoader = new GLTFLoader()
 
-    const mesh = (await gltfLoader.loadAsync(okuModelUrl)).scene
+    const scene = (await gltfLoader.loadAsync(okuModelUrl)).scene
 
-    mesh.traverse((object) => {
+    scene.traverse((object) => {
         const mesh = object as Three.Mesh
         if (mesh.isMesh) {
+            // console.log(mesh.geometry.attributes)
             mesh.material = new Three.MeshToonMaterial({ color: "#049ef4" })
         }
     })
 
     const playerEntity = world.addEntity(
-        { translation: new Vec3(0, 0, 0) },
+        {
+            translation: new Vec3(0, 5, 0),
+            rotation: new Three.Quaternion(),
+            scale: new Vec3(1, 1, 1),
+        },
         new Set([
             {
                 kind: "mesh",
-                mesh
+                mesh: scene,
                 // new Three.TorusKnotGeometry(0.2, 0.1),
                 //     new Three.MeshBasicMaterial({ color: "orange" })
                 // )
             },
             {
                 kind: "characterController",
-                characterController
+                characterController,
             },
             { kind: "rigidBody", rigidBody, collider },
-            { kind: "player" }
+            { kind: "player" },
         ])
     )
 

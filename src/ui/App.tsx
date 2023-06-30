@@ -1,18 +1,16 @@
 import { MutableRef, useEffect, useMemo, useRef, useState } from "preact/hooks"
 
-import * as Rapier from "@dimforge/rapier3d"
-
-import { EditorReader, EditorWrapper } from "./EditorWrapper"
-import { Vec3, World } from "../World"
+import { Vec3, World, translation } from "../World"
 import { View } from "../View"
 import { RefAccessedBeforeComponentMountedError } from "../helpers"
 import { addPlayer } from "../Player"
 import { addBox } from "../level"
-import { Heading } from "./Heading"
-import { Lesson, lessons } from "./Lesson"
+// import { Heading } from "./Heading"
+import { Lesson } from "./Lesson"
 
-import HelloWorld from "../lessons/HelloWorld.mdx"
 import { FnBindings } from "../userExecutionContext/bindings"
+
+import roadSceneUrl from "../assets/road.gltf?url"
 
 export const App = () => {
     const viewParentRef: MutableRef<HTMLDivElement | null> = useRef(null)
@@ -32,8 +30,8 @@ export const App = () => {
                 speechSynthesis.cancel()
                 speechSynthesis.speak(utterance)
                 setLinesSaid(linesSaid.concat([text]))
-            }
-        }
+            },
+        },
     }
 
     useEffect(() => {
@@ -50,29 +48,31 @@ export const App = () => {
 
         addPlayer(worldRef.current)
 
-        addBox(
-            worldRef.current,
-            { translation: new Vec3(0, -4, 0) },
-            { width: 5, height: 5, depth: 5 },
-            Rapier.RigidBodyDesc.fixed().setAdditionalMass(1),
-            "#A7D49B"
-        )
+        // addBox(
+        //     worldRef.current,
+        //     translation(new Vec3(0, -4, 0)),
+        //     { width: 5, height: 5, depth: 5 },
+        //     Rapier.RigidBodyDesc.fixed().setAdditionalMass(1),
+        //     "#A7D49B"
+        // )
 
-        addBox(
-            worldRef.current,
-            { translation: new Vec3(0, -20, 0) },
-            { width: 30, height: 2, depth: 30 },
-            Rapier.RigidBodyDesc.fixed().setAdditionalMass(1),
-            "white"
-        )
+        // addBox(
+        //     worldRef.current,
+        //     translation(new Vec3(0, -20, 0)),
+        //     { width: 30, height: 2, depth: 30 },
+        //     Rapier.RigidBodyDesc.fixed().setAdditionalMass(1),
+        //     "white"
+        // )
 
-        addBox(
-            worldRef.current,
-            { translation: new Vec3(0, -4, 0) },
-            { width: 20, height: 2, depth: 20 },
-            Rapier.RigidBodyDesc.fixed().setAdditionalMass(1),
-            "white"
-        )
+        // addBox(
+        //     worldRef.current,
+        //     translation(new Vec3(0, -4, 0)),
+        //     { width: 20, height: 2, depth: 20 },
+        //     Rapier.RigidBodyDesc.fixed().setAdditionalMass(1),
+        //     "white"
+        // )
+
+        worldRef.current.importGLTF(roadSceneUrl)
 
         if (viewParentRef.current !== null) {
             viewRef.current.appendToElement(viewParentRef.current)

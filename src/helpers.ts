@@ -12,6 +12,16 @@ export function withDefault<T>(value: T | undefined, default_: T): T {
 export const range = (start: number, end: number): number[] =>
     [...Array(end).keys()].map((i) => i + start)
 
+export const uint32Range = (start: number, end: number): Uint32Array => {
+    const array = new Uint32Array(end)
+
+    for (let i = 0; i < end; i++) {
+        array[i] = start + i
+    }
+
+    return array
+}
+
 export const error = (name: string) => {
     return class extends Error {
         name = name
