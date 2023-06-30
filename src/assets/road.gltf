@@ -79,7 +79,7 @@
 		},
 		{
 			"mesh":3,
-			"name":"LaneMarking.001",
+			"name":"LaneMarking001",
 			"rotation":[
 				-0.21311333775520325,
 				-0.9770274758338928,
@@ -99,7 +99,7 @@
 		},
 		{
 			"mesh":4,
-			"name":"LaneMarking.003",
+			"name":"LaneMarking003",
 			"rotation":[
 				-0.30019205808639526,
 				-0.9538788795471191,
@@ -333,7 +333,7 @@
 		},
 		{
 			"mesh":17,
-			"name":"LaneMarking.002",
+			"name":"LaneMarking002",
 			"rotation":[
 				0.17109057307243347,
 				-0.9852554202079773,
