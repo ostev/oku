@@ -118,9 +118,9 @@ export const App = () => {
     useEffect(() => console.log("Hi!"), [])
 
     const lessonInfo: LessonInfo = {
-        title: HelloWorld.title,
-        chapter: HelloWorld.chapter,
-        section: HelloWorld.section,
+        title: (HelloWorld as any).title,
+        chapter: (HelloWorld as any).chapter,
+        section: (HelloWorld as any).section,
         content: HelloWorld.default,
     }
 

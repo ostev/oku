@@ -477,7 +477,6 @@ export class World {
                     $("#playerPos").textContent = altitude.toString()
                 }
                 if (altitude > 1) {
-                    console.log("ha")
                     this.playerMovementVector.y -= fallSpeed * delta
                 }
                 if (altitude < 0.8) {

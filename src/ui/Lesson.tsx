@@ -18,21 +18,13 @@ import { Card } from "./Card"
 import { Paragraph } from "./Paragraph"
 import { Level } from "../level/Level"
 import { World } from "../World"
+import { DocLink } from "./Docs"
 
 export const FunFact: FunctionalComponent = ({ children }) => (
     <div class="bg-slate-200 bg-opacity-40 backdrop-blur-sm m-1 my-3 p-3 rounded-lg">
         <Heading level={3}>Fun fact! 💡</Heading>
         {children}
     </div>
-)
-
-export const DocLink: FunctionalComponent<{ symbol: string }> = ({
-    children,
-    symbol,
-}) => (
-    <a href={`/${symbol}`}>
-        <em>{children}</em> 📃
-    </a>
 )
 
 export const Ref: FunctionalComponent<{ chapter: number; section: number }> = ({
@@ -123,10 +115,10 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         h1: H1,
         pre,
         MainEditor: EditorWrapper,
-        FunFact: FunFact,
+        FunFact,
         p: Paragraph,
-        DocLink: DocLink,
-        YourTurn: YourTurn,
+        DocLink,
+        YourTurn,
         Challenge,
         Goal,
         Hint: Paragraph,
