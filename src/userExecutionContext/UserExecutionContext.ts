@@ -74,6 +74,13 @@ export class UserExecutionContext {
         this.iframe?.remove()
         window.removeEventListener("message", this.messageEventListener)
     }
+
+    sendMessage = (message: string) => {
+        ;(this.iframe as HTMLIFrameElement).contentWindow?.postMessage(
+            message,
+            "*"
+        )
+    }
 }
 
 export const InvalidMessageReceivedFromUserExecutionContextError = error(

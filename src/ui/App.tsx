@@ -42,6 +42,11 @@ export const App = () => {
                 setLinesSaid(linesSaid.concat([text]))
             },
         },
+        forward: {
+            fn: (distance: number) => {
+                console.log(`Move forward ${distance}`)
+            },
+        },
     }
 
     useEffect(() => {

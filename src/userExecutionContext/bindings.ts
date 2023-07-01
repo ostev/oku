@@ -7,12 +7,13 @@ export interface FnBindingInfo {
 export type Bindings = Record<string, SyncInfo>
 
 export interface SyncInfo {
-    delay: number | "parameterSeconds"
+    delay: number | "parameterSeconds" | { untilMessage: string }
 }
 
 export const bindingSyncInfo: Bindings = {
     say: { delay: 0 },
-    wait: { delay: "parameterSeconds" }
+    wait: { delay: "parameterSeconds" },
+    forward: { delay: { untilMessage: "binding_finishedForward" } },
 }
 
 // export const stripFn = (fnBindings: FnBindings): Bindings => {

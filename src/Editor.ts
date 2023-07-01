@@ -102,4 +102,8 @@ export class Editor {
     run = async () => {
         this.userExecutionContext.evalAsync(this.code)
     }
+
+    sendMessageToExecutionContext = (msg: string) => {
+        this.userExecutionContext.sendMessage(msg)
+    }
 }
