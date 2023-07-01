@@ -124,6 +124,19 @@ export class World {
         // this.intervalHandle = undefined
     }
 
+    activateAudioEvent = (event: AudioEvent) => {
+        const listenerEntities = this.getEntities("listener")
+
+        for (const listenerEntity of listenerEntities) {
+            const listener = getComponent(
+                listenerEntity,
+                "listener"
+            ) as Listener
+
+            listener.notify(event)
+        }
+    }
+
     // init = () => {
     //     for (const entity of this.getEntities("rigidBody")) {
     //         ;(
@@ -178,8 +191,8 @@ export class World {
         useShadows: boolean
     ): { transform: Transform; components: Set<Component> } => {
         const position = object.getWorldPosition(new Three.Vector3())
-        const transform = {
-            translation: {
+        const transform: Transform = {
+            position: {
                 x: position.x,
                 y: position.y,
                 z: position.z,
@@ -207,7 +220,7 @@ export class World {
                 }
                 const collider = this.physics.createCollider(desc)
 
-                collider.setTranslation(transform.translation)
+                collider.setTranslation(transform.position)
                 collider.setRotation(transform.rotation)
 
                 components.add({ kind: "collider", collider })
@@ -223,7 +236,7 @@ export class World {
 
                     const collider = this.physics.createCollider(desc)
 
-                    collider.setTranslation(transform.translation)
+                    collider.setTranslation(transform.position)
                     collider.setRotation(transform.rotation)
 
                     components.add({ kind: "collider", collider })
@@ -334,9 +347,9 @@ export class World {
 
             rigidBody.setTranslation(
                 new Rapier.Vector3(
-                    entity.transform.translation.x,
-                    entity.transform.translation.y,
-                    entity.transform.translation.z
+                    entity.transform.position.x,
+                    entity.transform.position.y,
+                    entity.transform.position.z
                 ),
                 false
             )
@@ -344,9 +357,9 @@ export class World {
             return { kind: "rigidBody", rigidBody, collider }
         } else if (component.kind === "mesh") {
             component.mesh.position.set(
-                entity.transform.translation.x,
-                entity.transform.translation.y,
-                entity.transform.translation.z
+                entity.transform.position.x,
+                entity.transform.position.y,
+                entity.transform.position.z
             )
 
             // component.mesh.name = entity.id.toString()
@@ -387,7 +400,7 @@ export class World {
             const position = rigidBody.translation()
             const rotation = rigidBody.rotation()
 
-            entity.transform.translation = position
+            entity.transform.position = position
             entity.transform.rotation = new Three.Quaternion(
                 rotation.x,
                 rotation.y,
@@ -430,6 +443,14 @@ export class World {
         //     const targetAltitude = (getComponent(entity, "rigidBody") as Hover)
         //         .altitude
         // }
+
+        for (const entity of this.getEntities("audioSource")) {
+            const audioSource = getComponent(
+                entity,
+                "audioSource"
+            ) as AudioSource
+            audioSource.position = entity.transform.position
+        }
 
         for (const fn of this.stepFunctions) {
             fn(delta, this.time, this)
@@ -537,13 +558,13 @@ export class World {
 }
 
 export interface Transform {
-    translation: Vec3
+    position: Vec3
     rotation: Three.Quaternion
     scale: Vec3
 }
 
 export const translation = (translation: Vec3): Transform => ({
-    translation,
+    position: translation,
     rotation: new Three.Quaternion(),
     scale: new Vec3(1, 1, 1),
 })
@@ -561,20 +582,22 @@ export type ComponentKind =
     | "mesh"
     | "rigidBodyDesc"
     | "joint"
-    | "hover"
     | "characterController"
     | "collider"
     | "player"
+    | "audioSource"
+    | "listener"
 
 export type Component =
     | RigidBodyDesc
     | Mesh
     | RigidBody
     | Joint
-    | Hover
     | CharacterController
     | Player
     | Collider
+    | AudioSource
+    | Listener
 
 export interface Player {
     kind: "player"
@@ -610,13 +633,27 @@ export interface Mesh {
     mesh: Three.Object3D
 }
 
-/**
- * Component to cause the entity to hover `altitude` units above
- * the nearest surface. Requires `RigidBody` to function.
- */
-export interface Hover {
-    kind: "hover"
-    altitude: number
+export type AudioEvent = SpeakingAudioEvent
+
+export interface SpeakingAudioEvent {
+    kind: "speaking"
+    text: string
+    source: AudioSource
+}
+
+export class AudioSource {
+    kind: "audioSource" = "audioSource"
+    position: Vec3
+
+    constructor(position: Vec3) {
+        this.position = position
+    }
+}
+
+export interface Listener {
+    kind: "listener"
+
+    notify: (event: AudioEvent) => void
 }
 
 export class Vec2 {

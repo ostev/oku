@@ -1,9 +1,12 @@
 import { MutableRef, useEffect, useMemo, useRef, useState } from "preact/hooks"
 
 import {
+    AudioSource,
+    Entity,
     NoIndicesFoundOnGeometryError,
     Vec3,
     World,
+    getComponent,
     translation,
 } from "../World"
 import { View } from "../View"
@@ -29,8 +32,9 @@ export const App = () => {
 
     const worldRef: MutableRef<World | null> = useRef(null)
     const levelRef: MutableRef<Level | null> = useRef(null)
+    const playerRef: MutableRef<Entity | null> = useRef(null)
 
-    const [linesSaid, setLinesSaid] = useState<string[]>([])
+    // const [linesSaid, setLinesSaid] = useState<string[]>([])
     const [levelCss, setLevelCss] = useState("")
 
     const bindings: FnBindings = {
@@ -40,7 +44,18 @@ export const App = () => {
                 const utterance = new SpeechSynthesisUtterance(text)
                 speechSynthesis.cancel()
                 speechSynthesis.speak(utterance)
-                setLinesSaid(linesSaid.concat([text]))
+
+                if (playerRef.current !== null && worldRef.current !== null) {
+                    console.log("Send out audio event")
+                    worldRef.current.activateAudioEvent({
+                        kind: "speaking",
+                        source: getComponent(
+                            playerRef.current,
+                            "audioSource"
+                        ) as AudioSource,
+                        text,
+                    })
+                }
             },
         },
         forward: {
@@ -62,8 +77,6 @@ export const App = () => {
             )
         })
         resizeObserverRef.current.observe(viewParentRef.current as Element)
-
-        addPlayer(worldRef.current)
 
         // addBox(
         //     worldRef.current,
@@ -91,30 +104,36 @@ export const App = () => {
 
         // worldRef.current.importGLTF(roadSceneUrl)
 
-        if (viewParentRef.current !== null) {
-            viewRef.current.appendToElement(viewParentRef.current)
-        } else {
-            throw new RefAccessedBeforeComponentMountedError(
-                "View parent ref is null"
-            )
-        }
+        addPlayer(worldRef.current).then((playerEntity) => {
+            playerRef.current = playerEntity
 
-        const level = new (HelloWorld as any).Level()
+            const level = new (HelloWorld as any).Level()
 
-        worldRef.current.registerStepFunction(level.step)
-        level.init(worldRef.current).then(() => {
-            worldRef.current?.start()
+            worldRef.current?.registerStepFunction(level.step)
+            level.init(worldRef.current).then(() => {
+                if (viewParentRef.current !== null) {
+                    viewRef.current?.appendToElement(viewParentRef.current)
+                } else {
+                    throw new RefAccessedBeforeComponentMountedError(
+                        "View parent ref is null"
+                    )
+                }
+
+                levelRef.current = level
+
+                setLevelCss(level.css)
+
+                worldRef.current?.start()
+            })
         })
-
-        levelRef.current = level
-
-        setLevelCss(level.css)
 
         // worldRef.current.init()
 
         return () => {
-            worldRef.current?.unregisterStepFunction(level.step)
-            worldRef?.current?.destroy()
+            if (levelRef.current !== null) {
+                worldRef.current?.unregisterStepFunction(levelRef.current.step)
+            }
+            worldRef.current?.destroy()
             resizeObserverRef.current?.unobserve(
                 viewParentRef.current as Element
             )

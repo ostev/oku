@@ -12,47 +12,58 @@ import * as Rapier from "@dimforge/rapier3d"
 
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js"
 
-import okuModelUrl from "./assets/oku.glb?url"
-
-// export class Player {
-//     position: Three.Vector3
-//     readonly mesh: Three.Mesh
-
-//     constructor(position: Three.Vector3) {
-//         this.position = position
-//         this.mesh = new Three.Mesh(
-//             new Three.BoxGeometry(0.2, 0.2, 0.2),
-//             // new Three.TorusGeometry(0.2, 0.1),
-//             // new Three.SphereGeometry(0.2),
-//             new Three.MeshBasicMaterial({ color: "orange" })
-//             // new Three.MeshPhysicalMaterial({ color: "orange" })
-//         )
-//     }
-// }
-
-export const addPlayer = async (world: World): Promise<Entity> => {
+export const addCharacter = async (
+    world: World,
+    url: string
+): Promise<Entity> => {
     const characterController = world.physics.createCharacterController(0.0001)
     const rigidBody = world.physics.createRigidBody(
         Rapier.RigidBodyDesc.kinematicPositionBased().setAdditionalMass(1)
     )
-    const collider = world.physics.createCollider(
-        Rapier.ColliderDesc.cuboid(0.5, 0.5, 0.5),
-        rigidBody
-    )
 
     const gltfLoader = new GLTFLoader()
 
-    const scene = (await gltfLoader.loadAsync(okuModelUrl)).scene
+    const scene = (await gltfLoader.loadAsync(url)).scene
+
+    const meshes: Three.Mesh[] = []
 
     scene.traverse((object) => {
         const mesh = object as Three.Mesh
         if (mesh.isMesh) {
             // console.log(mesh.geometry.attributes)
             // mesh.material = new Three.MeshToonMaterial({ color: "#049ef4" })
-            mesh.castShadow = true
-            mesh.receiveShadow = true
+            meshes.push(mesh)
         }
     })
+
+    const vertexArrays: Float32Array[] = []
+
+    for (const mesh of meshes) {
+        mesh.receiveShadow = true
+        mesh.castShadow = true
+        vertexArrays.push(
+            new Float32Array(mesh.geometry.getAttribute("position").array)
+        )
+    }
+
+    const vertices = new Float32Array(
+        vertexArrays.reduce(
+            (totalLength, array) => totalLength + array.length,
+            0
+        )
+    )
+
+    for (let j = 0; j < vertexArrays.length; j++) {
+        const array = vertexArrays[j]
+        for (let k = 0; k < array.length; k++) {
+            vertices[j * k] = array[k]
+        }
+    }
+
+    const collider = world.physics.createCollider(
+        Rapier.ColliderDesc.convexHull(vertices) as Rapier.ColliderDesc,
+        rigidBody
+    )
 
     const playerEntity = world.addEntity(
         {

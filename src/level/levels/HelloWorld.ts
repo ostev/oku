@@ -2,6 +2,7 @@ import { Vec3, World } from "../../World"
 import { Level } from "../Level"
 
 import roadUrl from "../../assets/road.gltf?url"
+import { addPeggy } from "../../characters/peggy"
 
 export class HelloWorld implements Level {
     //     css = `
@@ -43,6 +44,7 @@ export class HelloWorld implements Level {
     `
 
     init = async (world: World) => {
+        await addPeggy(world)
         await world.importGLTF(roadUrl, new Vec3(0, -5, 0))
     }
 
