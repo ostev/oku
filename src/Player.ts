@@ -5,7 +5,7 @@ import * as Rapier from "@dimforge/rapier3d"
 
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js"
 
-import okuModelUrl from "./assets/oku.gltf?url"
+import okuModelUrl from "./assets/oku.glb?url"
 
 // export class Player {
 //     position: Three.Vector3
