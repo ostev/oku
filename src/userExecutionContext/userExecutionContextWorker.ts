@@ -88,6 +88,7 @@ onmessage = (e) => {
         //     console.log(__syncArray__)
         // }, 2000)
     } else if (e.data[0] === "eval" && typeof e.data[1] === "string") {
+        // console.log("eval", e)
         // console.log(__syncArray__?.buffer)
 
         let workerResult = undefined
@@ -111,6 +112,11 @@ ${Object.entries(executionContextBindings as Bindings)
     self.postMessage(["${name}", delay, ...args])
     Atomics.wait(__syncArray__, 0, 0, delay * 1000)
 }`
+        } else if (syncInfo.delay === "untilResume") {
+            return `function ${name}(...args) {
+    self.postMessage(["${name}", ...args])
+    Atomics.wait(__syncArray__, 0, 0)
+}`
         } else {
             return `function ${name}(...args) {
     self.postMessage(["${name}", ...args])
@@ -132,6 +138,8 @@ ${data[1]}
                 var executionContextBindings = undefined
 
                 workerResult = eval(env.source)
+
+                console.log(env.source)
             })()
         })()
 

@@ -10,7 +10,7 @@ import {
     Joint,
     RigidBody,
     World,
-    getComponent
+    getComponent,
 } from "./World"
 import { addPlayer } from "./Player"
 import { FnBindings } from "./userExecutionContext/bindings"
@@ -44,7 +44,7 @@ export class Editor {
 
         this.view = new EditorView({
             extensions: [basicSetup, javascript()],
-            parent
+            parent,
         })
         this.userExecutionContext = new UserExecutionContext(
             executionParent,
@@ -88,8 +88,8 @@ export class Editor {
                 changes: {
                     from: 0,
                     to: this.view.state.doc.length,
-                    insert: newCode
-                }
+                    insert: newCode,
+                },
             })
         }
     }
@@ -105,5 +105,9 @@ export class Editor {
 
     sendMessageToExecutionContext = (msg: string) => {
         this.userExecutionContext.sendMessage(msg)
+    }
+
+    resumeExecution = () => {
+        this.userExecutionContext.resume()
     }
 }

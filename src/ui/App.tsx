@@ -19,6 +19,7 @@ import { FnBindings } from "../userExecutionContext/bindings"
 
 import roadSceneUrl from "../assets/road.gltf?url"
 import { Level } from "../level/Level"
+import { UserExecutionContext } from "../userExecutionContext/UserExecutionContext"
 
 export const App = () => {
     const viewParentRef: MutableRef<HTMLDivElement | null> = useRef(null)
@@ -35,7 +36,7 @@ export const App = () => {
     const bindings: FnBindings = {
         wait: { fn: () => {} },
         say: {
-            fn: (text: string) => {
+            fn: (context: UserExecutionContext, text: string) => {
                 const utterance = new SpeechSynthesisUtterance(text)
                 speechSynthesis.cancel()
                 speechSynthesis.speak(utterance)
@@ -43,8 +44,9 @@ export const App = () => {
             },
         },
         forward: {
-            fn: (distance: number) => {
+            fn: (context: UserExecutionContext, distance: number) => {
                 console.log(`Move forward ${distance}`)
+                context.resume()
             },
         },
     }
