@@ -30,6 +30,7 @@ export const App = () => {
     const levelRef: MutableRef<Level | null> = useRef(null)
 
     const [linesSaid, setLinesSaid] = useState<string[]>([])
+    const [levelCss, setLevelCss] = useState("")
 
     const bindings: FnBindings = {
         wait: { fn: () => {} },
@@ -100,6 +101,8 @@ export const App = () => {
 
         levelRef.current = level
 
+        setLevelCss(level.css)
+
         // worldRef.current.init()
 
         return () => {
@@ -115,8 +118,6 @@ export const App = () => {
 
     const [width, setWidth] = useState(400)
 
-    useEffect(() => console.log("Hi!"), [])
-
     const lessonInfo: LessonInfo = {
         title: (HelloWorld as any).title,
         chapter: (HelloWorld as any).chapter,
@@ -126,6 +127,8 @@ export const App = () => {
 
     return (
         <div class="">
+            <style>{levelCss}</style>
+
             {/* <div class="border-r h-screen p-2"> */}
             <div
                 class="h-full absolute top-0 left-0 z-10 m-3 p-5 bg-slate-100 bg-opacity-90 rounded-lg overflow-x-hidden shadow-lg backdrop-blur-lg"
