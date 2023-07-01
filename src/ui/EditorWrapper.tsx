@@ -35,7 +35,7 @@ export interface EditorToolbarProps {
 
 export const EditorToolbar: FunctionComponent<EditorToolbarProps> = ({
     run,
-    prettify
+    prettify,
 }) => {
     return (
         <div class="relative flex rounded-md shadow-md bg-slate-200 bg-opacity-60 backdrop-blur-sm h-10 p-4 items-center justify-end">
@@ -52,7 +52,7 @@ export const EditorToolbar: FunctionComponent<EditorToolbarProps> = ({
 export const EditorWrapper: FunctionComponent<EditorWrapperProps> = ({
     bindings,
     initialCode,
-    readerRef
+    readerRef,
 }) => {
     const editorParent: MutableRef<HTMLDivElement | null> = useRef(null)
     const executionContextParent: MutableRef<HTMLDivElement | null> =

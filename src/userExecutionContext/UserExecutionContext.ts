@@ -39,6 +39,11 @@ export class UserExecutionContext {
     }
 
     private messageEventListener = (e: MessageEvent<unknown>) => {
+        if (e.source !== this.iframe?.contentWindow) {
+            return
+        }
+
+        console.log("new message from iframe")
         // Check that we received an array and that the program finished
         if (Array.isArray(e.data) && e.data[0] === "result") {
             // console.log("Code finished running.")
@@ -52,10 +57,11 @@ export class UserExecutionContext {
             !e.data[0].includes("proto") &&
             this.bindings.hasOwnProperty(e.data[0])
         ) {
+            console.log("call binding")
             const name = e.data[0] as string
             const args = (e.data as any[]).slice(1)
             const bindingInfo = this.bindings[name]
-            bindingInfo.fn(...args)
+            bindingInfo.fn(this, ...args)
         } else {
             throw new InvalidMessageReceivedFromUserExecutionContextError(
                 "The user execution context iframe posted an invalid response to the host application."
@@ -64,6 +70,7 @@ export class UserExecutionContext {
     }
 
     evalAsync = async (code: string) => {
+        console.log("eval")
         ;(this.iframe as HTMLIFrameElement).contentWindow?.postMessage(
             ["eval", code],
             "*"
@@ -73,6 +80,17 @@ export class UserExecutionContext {
     destroy = () => {
         this.iframe?.remove()
         window.removeEventListener("message", this.messageEventListener)
+    }
+
+    sendMessage = (message: string) => {
+        ;(this.iframe as HTMLIFrameElement).contentWindow?.postMessage(
+            message,
+            "*"
+        )
+    }
+
+    resume = () => {
+        this.sendMessage("resume")
     }
 }
 
