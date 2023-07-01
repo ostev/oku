@@ -1,8 +1,14 @@
 import { MDXProvider } from "@mdx-js/preact"
-import { ComponentChild, FunctionComponent, FunctionalComponent } from "preact"
+import {
+    Component,
+    ComponentChild,
+    FunctionComponent,
+    FunctionalComponent,
+    h,
+} from "preact"
 
-import PopConcert from "../lessons/PopConcert.mdx"
-import * as PopConcertMetadata from "../lessons/PopConcert.mdx"
+import HelloWorld from "../lessons/HelloWorld.mdx"
+import * as HelloWorldMetadata from "../lessons/HelloWorld.mdx"
 
 import { H1, Heading } from "./Heading"
 import { EditorReader, EditorWrapper } from "./EditorWrapper"
@@ -10,21 +16,15 @@ import { FnBindings } from "../userExecutionContext/bindings"
 import { MutableRef, useEffect, useMemo, useRef } from "preact/hooks"
 import { Card } from "./Card"
 import { Paragraph } from "./Paragraph"
+import { Level } from "../level/Level"
+import { World } from "../World"
+import { DocLink } from "./Docs"
 
 export const FunFact: FunctionalComponent = ({ children }) => (
     <div class="bg-slate-200 bg-opacity-40 backdrop-blur-sm m-1 my-3 p-3 rounded-lg">
         <Heading level={3}>Fun fact! 💡</Heading>
         {children}
     </div>
-)
-
-export const DocLink: FunctionalComponent<{ symbol: string }> = ({
-    children,
-    symbol,
-}) => (
-    <a href={`/${symbol}`}>
-        <em>{children}</em> 📃
-    </a>
 )
 
 export const Ref: FunctionalComponent<{ chapter: number; section: number }> = ({
@@ -70,13 +70,22 @@ export const Goal: FunctionalComponent = ({ children }) => {
     )
 }
 
-export const lessons = [PopConcert]
+export const lessons = [HelloWorld]
+
+export interface LessonInfo {
+    title: string
+    chapter: number
+    section: number
+    content: FunctionComponent
+}
 
 export interface LessonProps {
     bindings: FnBindings
+    info: LessonInfo
 }
 
 export const Lesson: FunctionComponent<LessonProps> = ({
+    info,
     bindings,
 }: LessonProps) => {
     const pre: FunctionComponent = ({ children }) => {
@@ -106,10 +115,10 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         h1: H1,
         pre,
         MainEditor: EditorWrapper,
-        FunFact: FunFact,
+        FunFact,
         p: Paragraph,
-        DocLink: DocLink,
-        YourTurn: YourTurn,
+        DocLink,
+        YourTurn,
         Challenge,
         Goal,
         Hint: Paragraph,
@@ -118,9 +127,9 @@ export const Lesson: FunctionComponent<LessonProps> = ({
 
     return (
         <article>
-            <H1 className="mb-4">{(PopConcertMetadata as any).title}</H1>
+            <H1 className="mb-4">{info.title}</H1>
             <MDXProvider components={components}>
-                <PopConcert />
+                {h(info.content, {})}
             </MDXProvider>
         </article>
     )

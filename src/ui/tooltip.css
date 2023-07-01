@@ -1,0 +1,15 @@
+/* .tooltip {
+    position: relative;
+    top: -1.2em;
+} */
+
+.tooltip .tooltip-text {
+    visibility: hidden;
+    position: absolute;
+
+    left: 50%;
+}
+
+.tooltip:hover .tooltip-text {
+    visibility: visible;
+}
