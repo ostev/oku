@@ -16,6 +16,10 @@ export const ComponentNotFoundError = error("ComponentNotFoundError")
 
 export const CannotCreateConvexHullError = error("CannotCreateConvexHullError")
 
+export const NoIndicesFoundOnGeometryError = error(
+    "NoIndicesFoundOnGeometryError"
+)
+
 export const getComponent = <Kind extends ComponentKind>(
     entity: Readonly<Entity>,
     kind: Kind
@@ -35,6 +39,8 @@ export const getComponent = <Kind extends ComponentKind>(
     return undefined as any
 }
 
+export type StepFunction = (delta: number, time: number, world: World) => void
+
 export class World {
     private entities: Map<EntityId, Entity> = new Map()
     private componentLookupTable: Map<ComponentKind, Set<EntityId>> = new Map()
@@ -43,17 +49,37 @@ export class World {
     private animRequestHandle: number | undefined
     private time = 0
 
+    private stepFunctions: StepFunction[] = []
+
     // objectLoader = new Three.ObjectLoader()
 
     playerMovementVector = new Rapier.Vector3(0, 0, 0)
 
     view: View
     physics: Rapier.World
+
+    debug = import.meta.env.DEV
     // keys: Record<string, boolean> = {}
 
     constructor(gravity: Readonly<Rapier.Vector3>, view: View) {
         this.physics = new Rapier.World(gravity)
         this.view = view
+    }
+
+    registerStepFunction = (fn: StepFunction) => {
+        this.stepFunctions.push(fn)
+    }
+
+    unregisterStepFunction = (fn: StepFunction) => {
+        const index = this.stepFunctions.findIndex(
+            (x) => x.toString() === fn.toString()
+        )
+
+        if (index !== -1) {
+            this.stepFunctions.splice(index, 1)
+        } else {
+            console.warn("Cannot unregister step function")
+        }
     }
 
     destroy = () => {
@@ -98,9 +124,27 @@ export class World {
         // this.intervalHandle = undefined
     }
 
-    importGLTF = async (url: string) => {
+    // init = () => {
+    //     for (const entity of this.getEntities("rigidBody")) {
+    //         ;(
+    //             getComponent(entity, "rigidBody") as RigidBody
+    //         ).rigidBody.setTranslation(entity.transform.translation, true)
+    //     }
+
+    //     for (const entity of this.getEntities("mesh")) {
+    //         ;(getComponent(entity, "mesh") as Mesh).mesh.position.set(
+    //             entity.transform.translation.x,
+    //             entity.transform.translation.y,
+    //             entity.transform.translation.z
+    //         )
+    //     }
+    // }
+
+    importGLTF = async (url: string, translation: Vec3) => {
         const gltfLoader = new GLTFLoader()
         const gltf = await gltfLoader.loadAsync(url)
+
+        gltf.scene.position.set(translation.x, translation.y, translation.z)
 
         // gltf.scene.traverse((object) => {
         //     console.log(object.type)
@@ -111,19 +155,26 @@ export class World {
             components: Set<Component>
         }[] = []
 
+        const objects: Three.Object3D[] = []
+
         gltf.scene.traverse((object) => {
-            entityDescriptions.push(this.importObject(object, true))
+            objects.push(object)
+
+            entityDescriptions.push(
+                this.importObject(object, translation, true)
+            )
         })
 
         for (const { transform, components } of entityDescriptions) {
             this.addEntity(transform, components)
         }
 
-        console.log(entityDescriptions)
+        // console.log(entityDescriptions)
     }
 
     importObject = (
         object: Three.Object3D,
+        translation: Vec3,
         useShadows: boolean
     ): { transform: Transform; components: Set<Component> } => {
         const position = object.getWorldPosition(new Three.Vector3())
@@ -161,37 +212,34 @@ export class World {
 
                 components.add({ kind: "collider", collider })
             } else if (object.name.includes("trimesh_collider")) {
-                // This currently crashes.
+                if (mesh.geometry.index !== null) {
+                    const desc = Rapier.ColliderDesc.trimesh(
+                        new Float32Array(
+                            mesh.geometry.getAttribute("position").array
+                        ),
+                        // uint32Range(0, vertices.length)
+                        new Uint32Array(mesh.geometry.index.array)
+                    )
 
-                console.log(mesh.geometry.attributes)
+                    const collider = this.physics.createCollider(desc)
 
-                const desc = Rapier.ColliderDesc.trimesh(
-                    new Float32Array(
-                        mesh.geometry.getAttribute("position").array
-                    ),
-                    // uint32Range(0, vertices.length)
-                    new Uint32Array(mesh.geometry.index.array)
-                )
+                    collider.setTranslation(transform.translation)
+                    collider.setRotation(transform.rotation)
 
-                if (desc === null) {
-                    throw new CannotCreateConvexHullError(
-                        `Unable to create convex hull for imported mesh of name ${mesh.name}`
+                    components.add({ kind: "collider", collider })
+                } else {
+                    throw new NoIndicesFoundOnGeometryError(
+                        `The geometry of object ${object.name} doesn't include any indices.`
                     )
                 }
-                const collider = this.physics.createCollider(desc)
-
-                collider.setTranslation(transform.translation)
-                collider.setRotation(transform.rotation)
-
-                components.add({ kind: "collider", collider })
             }
 
             components.add({ kind: "mesh", mesh })
         }
 
-        console.log(transform)
-        console.log(components)
-        console.log(object)
+        // console.log(transform)
+        // console.log(components)
+        // console.log(object)
 
         return { transform, components }
 
@@ -295,8 +343,15 @@ export class World {
 
             return { kind: "rigidBody", rigidBody, collider }
         } else if (component.kind === "mesh") {
+            component.mesh.position.set(
+                entity.transform.translation.x,
+                entity.transform.translation.y,
+                entity.transform.translation.z
+            )
+
             // component.mesh.name = entity.id.toString()
             this.view.scene.add(component.mesh)
+
             return component
         } else {
             return component
@@ -326,7 +381,6 @@ export class World {
             this.getEntities("rigidBody"),
             this.getEntities("mesh")
         )) {
-            const mesh = (entity.components.get("mesh") as Mesh).mesh
             const rigidBody = (entity.components.get("rigidBody") as RigidBody)
                 .rigidBody
 
@@ -338,6 +392,16 @@ export class World {
                 rotation.x,
                 rotation.y,
                 rotation.z
+            )
+
+            const mesh = (entity.components.get("mesh") as Mesh).mesh
+
+            mesh.position.set(position.x, position.y, position.z)
+            mesh.rotation.set(rotation.x, rotation.y, rotation.z)
+            mesh.scale.set(
+                entity.transform.scale.x,
+                entity.transform.scale.y,
+                entity.transform.scale.z
             )
 
             // if (this.keys["w"]) {
@@ -355,14 +419,6 @@ export class World {
             // if (this.keys[" "]) {
             //     rigidBody.applyImpulse(new Three.Vector3(0, 1, 0), true)
             // }
-
-            mesh.position.set(position.x, position.y, position.z)
-            mesh.rotation.set(rotation.x, rotation.y, rotation.z)
-            mesh.scale.set(
-                entity.transform.scale.x,
-                entity.transform.scale.y,
-                entity.transform.scale.z
-            )
         }
 
         // for (const entity of intersection(
@@ -374,6 +430,10 @@ export class World {
         //     const targetAltitude = (getComponent(entity, "rigidBody") as Hover)
         //         .altitude
         // }
+
+        for (const fn of this.stepFunctions) {
+            fn(delta, this.time, this)
+        }
     }
 
     fixedStepPlayer = (delta: number) => {
@@ -413,13 +473,16 @@ export class World {
             if (hit !== null) {
                 const hitPoint = ray.pointAt(hit.toi)
                 const altitude = distance(currentPosition, hitPoint)
-                $("#playerPos").textContent = altitude.toString()
-                // if (altitude > 1) {
-                //     this.playerMovementVector.y -= fallSpeed * delta
-                // }
-                // if (altitude < 0.8) {
-                //     this.playerMovementVector.y += riseSpeed * delta
-                // }
+                if (this.debug) {
+                    $("#playerPos").textContent = altitude.toString()
+                }
+                if (altitude > 1) {
+                    console.log("ha")
+                    this.playerMovementVector.y -= fallSpeed * delta
+                }
+                if (altitude < 0.8) {
+                    this.playerMovementVector.y += riseSpeed * delta
+                }
             } else {
                 this.playerMovementVector.y -= fallSpeed * delta
             }

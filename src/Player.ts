@@ -41,13 +41,15 @@ export const addPlayer = async (world: World): Promise<Entity> => {
         const mesh = object as Three.Mesh
         if (mesh.isMesh) {
             // console.log(mesh.geometry.attributes)
-            mesh.material = new Three.MeshToonMaterial({ color: "#049ef4" })
+            // mesh.material = new Three.MeshToonMaterial({ color: "#049ef4" })
+            mesh.castShadow = true
+            mesh.receiveShadow = true
         }
     })
 
     const playerEntity = world.addEntity(
         {
-            translation: new Vec3(0, 5, 0),
+            translation: new Vec3(0, 0, 0),
             rotation: new Three.Quaternion(),
             scale: new Vec3(1, 1, 1),
         },

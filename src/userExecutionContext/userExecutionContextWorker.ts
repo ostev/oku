@@ -88,7 +88,7 @@ onmessage = (e) => {
         //     console.log(__syncArray__)
         // }, 2000)
     } else if (e.data[0] === "eval" && typeof e.data[1] === "string") {
-        console.log(__syncArray__?.buffer)
+        // console.log(__syncArray__?.buffer)
 
         let workerResult = undefined
         ;(() => {
@@ -96,7 +96,7 @@ onmessage = (e) => {
             var e = undefined
             var secure = undefined
             var safeObjects = undefined
-            console.log(executionContextBindings)
+            // console.log(executionContextBindings)
             const env = {
                 source: `
 // === Library code ===
@@ -123,10 +123,10 @@ ${Object.entries(executionContextBindings as Bindings)
 // === User code ===
 \n
 ${data[1]}
-`
+`,
             }
             Object.freeze(env)
-            console.log(env.source)
+            // console.log(env.source)
             ;(() => {
                 var data = undefined
                 var executionContextBindings = undefined

@@ -1,16 +1,24 @@
 import { MutableRef, useEffect, useMemo, useRef, useState } from "preact/hooks"
 
-import { Vec3, World, translation } from "../World"
+import {
+    NoIndicesFoundOnGeometryError,
+    Vec3,
+    World,
+    translation,
+} from "../World"
 import { View } from "../View"
 import { RefAccessedBeforeComponentMountedError } from "../helpers"
 import { addPlayer } from "../Player"
 import { addBox } from "../level"
 // import { Heading } from "./Heading"
-import { Lesson } from "./Lesson"
+import { Lesson, LessonInfo } from "./Lesson"
+
+import * as HelloWorld from "../lessons/HelloWorld.mdx"
 
 import { FnBindings } from "../userExecutionContext/bindings"
 
 import roadSceneUrl from "../assets/road.gltf?url"
+import { Level } from "../level/Level"
 
 export const App = () => {
     const viewParentRef: MutableRef<HTMLDivElement | null> = useRef(null)
@@ -19,6 +27,7 @@ export const App = () => {
     const resizeObserverRef: MutableRef<ResizeObserver | null> = useRef(null)
 
     const worldRef: MutableRef<World | null> = useRef(null)
+    const levelRef: MutableRef<Level | null> = useRef(null)
 
     const [linesSaid, setLinesSaid] = useState<string[]>([])
 
@@ -72,7 +81,7 @@ export const App = () => {
         //     "white"
         // )
 
-        worldRef.current.importGLTF(roadSceneUrl)
+        // worldRef.current.importGLTF(roadSceneUrl)
 
         if (viewParentRef.current !== null) {
             viewRef.current.appendToElement(viewParentRef.current)
@@ -82,22 +91,38 @@ export const App = () => {
             )
         }
 
-        worldRef.current.start()
+        const level = new (HelloWorld as any).Level()
+
+        worldRef.current.registerStepFunction(level.step)
+        level.init(worldRef.current).then(() => {
+            worldRef.current?.start()
+        })
+
+        levelRef.current = level
+
+        // worldRef.current.init()
 
         return () => {
+            worldRef.current?.unregisterStepFunction(level.step)
             worldRef?.current?.destroy()
             resizeObserverRef.current?.unobserve(
                 viewParentRef.current as Element
             )
             resizeObserverRef.current?.disconnect()
+            worldRef.current = null
         }
     }, [])
 
     const [width, setWidth] = useState(400)
 
-    const [x, setX] = useState(0)
-
     useEffect(() => console.log("Hi!"), [])
+
+    const lessonInfo: LessonInfo = {
+        title: HelloWorld.title,
+        chapter: HelloWorld.chapter,
+        section: HelloWorld.section,
+        content: HelloWorld.default,
+    }
 
     return (
         <div class="">
@@ -106,7 +131,7 @@ export const App = () => {
                 class="h-full absolute top-0 left-0 z-10 m-3 p-5 bg-slate-100 bg-opacity-90 rounded-lg overflow-x-hidden shadow-lg backdrop-blur-lg"
                 style={{ width: width }}
             >
-                <Lesson bindings={bindings} />
+                <Lesson bindings={bindings} info={lessonInfo} />
             </div>
             {/* </div> */}
             {/* <div class="border-l h-screen" ref={viewParentRef}></div> */}
