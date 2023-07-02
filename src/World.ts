@@ -50,6 +50,7 @@ export class World {
     private time = 0
 
     private stepFunctions: StepFunction[] = []
+    private completeGoal: (id: number) => void
 
     // objectLoader = new Three.ObjectLoader()
 
@@ -61,9 +62,14 @@ export class World {
     debug = import.meta.env.DEV
     // keys: Record<string, boolean> = {}
 
-    constructor(gravity: Readonly<Rapier.Vector3>, view: View) {
+    constructor(
+        gravity: Readonly<Rapier.Vector3>,
+        view: View,
+        completeGoal: (id: number) => void
+    ) {
         this.physics = new Rapier.World(gravity)
         this.view = view
+        this.completeGoal = completeGoal
     }
 
     registerStepFunction = (fn: StepFunction) => {
