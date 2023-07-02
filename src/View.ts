@@ -4,19 +4,13 @@ import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js"
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js"
 // import { SSAOPass } from "three/addons/postprocessing/SSAOPass.js"
 // import { FXAAShader } from "three/addons/shaders/FXAAShader.js"
-import { SMAAPass } from "three/addons/postprocessing/SMAAPass.js"
-import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js"
+// import { SMAAPass } from "three/addons/postprocessing/SMAAPass.js"
 import { GUI } from "three/addons/libs/lil-gui.module.min.js"
 
 import { OrbitControls } from "three/addons/controls/OrbitControls.js"
 
-import { SketchPass } from "./render/SketchPass"
-
 import { paintFragment } from "./render/shaders/paint"
 import { simpleVertex } from "./render/shaders/simple"
-import chroma from "chroma-js"
-import { $ } from "./helpers"
-import { World } from "./World"
 
 export class View {
     camera: Three.OrthographicCamera
