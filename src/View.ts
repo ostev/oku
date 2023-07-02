@@ -86,7 +86,7 @@ export class View {
                 "red"
             )
             this.scene.add(this.lightHelper)
-            // this.scene.add(cameraHelper)
+            this.scene.add(cameraHelper)
 
             this.gui = new GUI()
             {
