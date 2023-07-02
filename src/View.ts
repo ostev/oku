@@ -2,6 +2,7 @@ import * as Three from "three"
 
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js"
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js"
+import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js"
 // import { SSAOPass } from "three/addons/postprocessing/SSAOPass.js"
 // import { FXAAShader } from "three/addons/shaders/FXAAShader.js"
 // import { SMAAPass } from "three/addons/postprocessing/SMAAPass.js"
@@ -32,6 +33,7 @@ export class View {
     // ssaoPass: SSAOPass
     // fxaaPass: ShaderPass
     // smaaPass: SMAAPass
+    // bloomPass: UnrealBloomPass
 
     paintMaterial: Three.ShaderMaterial
 
@@ -159,6 +161,14 @@ export class View {
         )
         this.composer.addPass(renderPass)
 
+        // this.bloomPass = new UnrealBloomPass(
+        //     new Three.Vector2(this.width, this.height),
+        //     1.6,
+        //     0.1,
+        //     0.8
+        // )
+        // this.composer.addPass(this.bloomPass)
+
         // this.outlinePass = new SketchPass(this.scene, this.camera, 1, 1)
         // this.composer.addPass(this.outlinePass)
 
@@ -243,6 +253,8 @@ export class View {
         this.camera.bottom = -halfHeight
 
         this.camera.updateProjectionMatrix()
+
+        // this.bloomPass.setSize(width, height)
 
         // this.outlinePass.setSize(width, height)
         // this.ssaoPass.setSize(width, height)

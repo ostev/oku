@@ -1,4 +1,4 @@
-import { Vec3, World } from "../../World"
+import { Vec3, World, getComponent } from "../../World"
 import { Level } from "../Level"
 
 import roadUrl from "../../assets/road.gltf?url"
@@ -44,8 +44,18 @@ export class HelloWorld implements Level {
     `
 
     init = async (world: World) => {
-        await addPeggy(world)
+        const peggy = await addPeggy(world)
         await world.importGLTF(roadUrl, new Vec3(0, -5, 0))
+
+        world.addComponentToEntity(peggy.id, {
+            kind: "listener",
+            notify: (event) => {
+                if (event.kind === "speaking") {
+                    console.log(`Heard the following text: ${event.text}`)
+                    world.completeGoal(1)
+                }
+            },
+        })
     }
 
     step = (delta: number, time: number, world: World) => {}

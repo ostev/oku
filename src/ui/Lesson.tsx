@@ -68,19 +68,25 @@ export const GoalDisplay: FunctionalComponent<{
     completed?: boolean
     id: ID
 }> = ({ children, completed, id }) => {
+    const cssId = `goal-checkbox-${id.toString()}`
+
     return (
         <div class="my-4 ml-4">
-            <Heading level={3} className="block">
-                <span class="">🎯 Goal {id.index}</span>
+            <Heading level={3} className="flex items-center">
+                <label class="ml-2 text-sm font-medium" for={cssId}>
+                    🎯 Goal {id.index}
+                </label>
                 <input
                     type="checkbox"
-                    class="ml-4 h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-primary checked:bg-primary checked:before:opacity-[0.16] checked:after:absolute checked:after:-mt-px checked:after:ml-[0.25rem] checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-l-0 checked:after:border-t-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:-mt-px checked:focus:after:ml-[0.25rem] checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-l-0 checked:focus:after:border-t-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent dark:border-neutral-600 dark:checked:border-primary dark:checked:bg-primary dark:focus:before:shadow-[0px_0px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca]"
+                    class="ml-4 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                    id={cssId}
                     disabled={true}
                     checked={completed}
+                    onChange={(e) => e.preventDefault()}
                     name={`Goal ${id.index}`}
                 />
             </Heading>
-            {children}
+            <div class="ml-4">{children}</div>
         </div>
     )
 }
@@ -107,7 +113,7 @@ export class ID {
     }
 
     toString = (): string => {
-        return `${this.chapter}/${this.section}/${this.index}`
+        return `${this.chapter}-${this.section}-${this.index}`
     }
 
     equals = (otherID: ID) =>
@@ -172,7 +178,12 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         worldRef.current = new World(
             { x: 0, y: -9.8, z: 0 },
             viewRef.current,
-            (id) => console.log("Complete goal", id)
+            (index) =>
+                setCompletedGoals(
+                    completedGoals.concat([
+                        new ID(info.chapter, info.section, index),
+                    ])
+                )
         )
 
         resizeObserverRef.current = new ResizeObserver(([viewParentEntry]) => {
