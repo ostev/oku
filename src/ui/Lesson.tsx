@@ -10,7 +10,7 @@ import {
 import { HelloWorld } from "../level/levels/HelloWorld"
 
 import { H1, Heading } from "./Heading"
-import { EditorReader, EditorWrapper } from "./EditorWrapper"
+import { EditorReadWriter, EditorWrapper } from "./EditorWrapper"
 import { FnBindings } from "../userExecutionContext/bindings"
 import { MutableRef, useEffect, useMemo, useRef, useState } from "preact/hooks"
 import { Card } from "./Card"
@@ -21,7 +21,10 @@ import { DocLink } from "./Docs"
 import { View } from "../View"
 import { UserExecutionContext } from "../userExecutionContext/UserExecutionContext"
 import { addPlayer } from "../Player"
-import { RefAccessedBeforeComponentMountedError } from "../helpers"
+import { RefAccessedBeforeComponentMountedError, error } from "../helpers"
+import { useStorage } from "./useStorage"
+
+export const CodeExcerptIDNotFoundError = error("CodeExcerptIDNotFoundError")
 
 export const FunFact: FunctionalComponent = ({ children }) => (
     <div class="bg-slate-200 bg-opacity-40 backdrop-blur-sm m-1 my-3 p-3 rounded-lg">
@@ -43,38 +46,24 @@ export const YourTurn: FunctionalComponent = ({ children }) => (
     </div>
 )
 
-export const Challenge: FunctionalComponent<{
-    difficulty: "easy" | "medium" | "hard"
-}> = ({ children, difficulty }) => {
-    let difficultyEmoji
-
-    if (difficulty == "easy") {
-        difficultyEmoji = "🟩"
-    } else if (difficulty == "medium") {
-        difficultyEmoji = "🟧"
-    } else {
-        difficultyEmoji = "🟥"
-    }
-
-    return (
-        <div class="my-4 ml-4">
-            <Heading level={3}>🎯{difficultyEmoji} Challenge</Heading>{" "}
-            {children}
-        </div>
-    )
-}
-
 export const GoalDisplay: FunctionalComponent<{
     completed?: boolean
     id: ID
-}> = ({ children, completed, id }) => {
-    const cssId = `goal-checkbox-${id.toString()}`
+    titlePrefix: string
+}> = ({ children, completed, id, titlePrefix }) => {
+    const cssId = `goal-checkbox-${id.stringify()}`
 
     return (
         <div class="my-4 ml-4">
             <Heading level={3} className="flex items-center">
-                <label class="ml-2 text-sm font-medium" for={cssId}>
-                    🎯 Goal {id.index}
+                <label
+                    class="ml-2 text-sm font-medium"
+                    style={{
+                        textDecoration: completed ? "line-through" : "none",
+                    }}
+                    for={cssId}
+                >
+                    {titlePrefix} {id.index}
                 </label>
                 <input
                     type="checkbox"
@@ -112,7 +101,7 @@ export class ID {
         this.index = index
     }
 
-    toString = (): string => {
+    stringify = (): string => {
         return `${this.chapter}-${this.section}-${this.index}`
     }
 
@@ -130,7 +119,10 @@ export interface LessonProps {
 export const Lesson: FunctionComponent<LessonProps> = ({
     info,
 }: LessonProps) => {
-    const [completedGoals, setCompletedGoals] = useState<ID[]>([])
+    const [completedGoals, setCompletedGoals] = useStorage<ID[]>(
+        `${info.chapter}-${info.section}_completedGoals`,
+        []
+    )
 
     const viewParentRef: MutableRef<HTMLDivElement | null> = useRef(null)
     const viewRef: MutableRef<View | null> = useRef(null)
@@ -149,7 +141,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         say: {
             fn: (context: UserExecutionContext, text: string) => {
                 const utterance = new SpeechSynthesisUtterance(text)
-                speechSynthesis.cancel()
+                // speechSynthesis.cancel()
                 speechSynthesis.speak(utterance)
 
                 if (playerRef.current !== null && worldRef.current !== null) {
@@ -261,25 +253,79 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         }
     }, [])
 
-    const pre: FunctionComponent = ({ children }) => {
-        const readerRef = useRef(new EditorReader())
+    const Code: FunctionComponent = ({ children }) => {
+        const { initialCode, index } = useMemo(() => {
+            let code: string
 
-        let initialCode
+            if (typeof children === "object") {
+                code = (children as any).props.children
+            } else if (typeof children === "string") {
+                code = children
+            } else {
+                code = "⚠️ Invalid children ⚠️"
+            }
 
-        if (typeof children === "object") {
-            initialCode = (children as any).props.children
-        } else if (typeof children === "string") {
-            initialCode = children
-        } else {
-            initialCode = "⚠️ Invalid children ⚠️"
-        }
-        initialCode += "\n"
+            let index: number
+            const lines = code.split("\n")
+            if (code.trim().startsWith("//")) {
+                const match = lines[0].trim().match(/\/\/\s*(\d+)/)
+
+                if (match !== null && match[1] !== undefined) {
+                    index = Number(match[1])
+                } else {
+                    throw new CodeExcerptIDNotFoundError(
+                        `No ID header found in the following code (regex didn't match):\n${code}`
+                    )
+                }
+            } else {
+                throw new CodeExcerptIDNotFoundError(
+                    `No ID header found in the following code:\n${code}`
+                )
+            }
+
+            lines.shift()
+            return { initialCode: lines.join("\n") + "\n", index }
+        }, [children])
+
+        const [storedCode, setStoredCode] = useStorage(
+            `${info.chapter}-${info.section}_${new ID(
+                info.chapter,
+                info.section,
+                index
+            ).stringify()}_storedCode`,
+            initialCode
+        )
+        const readWriteRef = useRef(new EditorReadWriter())
+
+        useEffect(() => {
+            readWriteRef.current.write(storedCode)
+        }, [storedCode])
+
+        useEffect(() => {
+            const intervalHandle = setInterval(() => {
+                // console.log("Save")
+                setStoredCode(readWriteRef.current.read())
+                // console.log(storedCode)
+            }, 5_000)
+            const blurEventListener = () =>
+                setStoredCode(readWriteRef.current.read())
+            window.addEventListener("blur", blurEventListener)
+
+            return () => {
+                clearInterval(intervalHandle)
+                window.removeEventListener("blur", blurEventListener)
+            }
+        }, [])
+
+        // useEffect(() => {
+        //     readWriteRef.current.write(storedCode)
+        // }, [storedCode])
 
         return (
             <EditorWrapper
                 bindings={bindings}
                 initialCode={initialCode}
-                readerRef={readerRef}
+                readerRef={readWriteRef}
             />
         )
     }
@@ -294,6 +340,34 @@ export const Lesson: FunctionComponent<LessonProps> = ({
             <GoalDisplay
                 completed={completedGoals.some((otherID) => id.equals(otherID))}
                 id={id}
+                titlePrefix="🎯 Goal"
+            >
+                {children}
+            </GoalDisplay>
+        )
+    }
+
+    const Challenge: FunctionComponent<{
+        index: number
+        difficulty: "easy" | "medium" | "hard"
+    }> = ({ children, index, difficulty }) => {
+        const id = new ID(info.chapter, info.section, index)
+
+        let difficultyEmoji
+
+        if (difficulty == "easy") {
+            difficultyEmoji = "🟩"
+        } else if (difficulty == "medium") {
+            difficultyEmoji = "🟧"
+        } else {
+            difficultyEmoji = "🟥"
+        }
+
+        return (
+            <GoalDisplay
+                completed={completedGoals.some((otherID) => id.equals(otherID))}
+                id={id}
+                titlePrefix={`${difficultyEmoji} Challenge`}
             >
                 {children}
             </GoalDisplay>
@@ -302,7 +376,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
 
     const components = {
         h1: H1,
-        pre,
+        pre: Code,
         MainEditor: EditorWrapper,
         FunFact,
         p: Paragraph,

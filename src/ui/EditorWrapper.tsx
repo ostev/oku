@@ -4,9 +4,9 @@ import { FnBindings } from "../userExecutionContext/bindings"
 import { NotYetImplementedError, error } from "../helpers"
 import { FunctionComponent } from "preact"
 
-const EditorRefsNotInitialisedError = error("EditorRefsNotInitialisedError")
+const EditorNotInitialisedError = error("EditorNotInitialisedError")
 
-export class EditorReader {
+export class EditorReadWriter {
     private editor: Editor | undefined
 
     read = (): string => {
@@ -14,6 +14,16 @@ export class EditorReader {
             return ""
         } else {
             return this.editor.code
+        }
+    }
+
+    write = (code: string) => {
+        if (this.editor === undefined) {
+            throw new EditorNotInitialisedError(
+                "Cannot write to uninitialised editor."
+            )
+        } else {
+            this.editor.code = code
         }
     }
 
@@ -25,7 +35,7 @@ export class EditorReader {
 export interface EditorWrapperProps {
     bindings: FnBindings
     initialCode: string
-    readerRef: MutableRef<EditorReader>
+    readerRef: MutableRef<EditorReadWriter>
 }
 
 export interface EditorToolbarProps {
@@ -78,7 +88,7 @@ export const EditorWrapper: FunctionComponent<EditorWrapperProps> = ({
                 readerRef.current.setEditor(editorRef.current)
             }
         } else {
-            throw new EditorRefsNotInitialisedError(
+            throw new EditorNotInitialisedError(
                 "Attempted to initialise editor before the component was mounted."
             )
         }

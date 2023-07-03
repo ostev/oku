@@ -34,8 +34,6 @@ export const App = () => {
         level: (HelloWorld as any).level,
     }
 
-    console.log((HelloWorld as any).level)
-
     // return <div class="">{/* <div class="border-r h-screen p-2"> */}</div>
     return <Lesson info={lessonInfo} />
 }

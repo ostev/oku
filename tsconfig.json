@@ -6,7 +6,7 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "skipLibCheck": true,
-
+    "noEmit": true,
 
     /* Linting */
     "strict": true,
