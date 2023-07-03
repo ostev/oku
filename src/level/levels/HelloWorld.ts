@@ -59,7 +59,10 @@ export class HelloWorld implements Level {
                                 lowercaseText.includes("world")
                             ) {
                                 world.completeGoal(1)
-                            } else {
+                            } else if (
+                                lowercaseText !==
+                                "I'm speaking to you right now."
+                            ) {
                                 world.completeGoal(2)
                             }
                         }

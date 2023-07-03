@@ -4,10 +4,12 @@ import userExecutionContextIFrameScriptUrl from "./userExecutionContextIFrame?ur
 
 export class UserExecutionContext {
     private iframe: HTMLIFrameElement | undefined
+    private onError: (error: Error) => void
 
     bindings: FnBindings
 
-    constructor(parent: Element, bindings: FnBindings) {
+    constructor(parent: Element, bindings: FnBindings, onError: (error: Error) => void) {
+        this.onError=onError
         this.bindings = bindings
         this.initialiseIFrame(parent)
     }
@@ -43,21 +45,19 @@ export class UserExecutionContext {
             return
         }
 
-        console.log("new message from iframe")
         // Check that we received an array and that the program finished
         if (Array.isArray(e.data) && e.data[0] === "result") {
-            // console.log("Code finished running.")
             // Nothing for now
         } else if (Array.isArray(e.data) && e.data[0] === "error") {
             console.error("Your code has an error! 😲 Here it is:")
             console.error(e.data[1])
+            this.onError(e.data[1])
         } else if (
             Array.isArray(e.data) &&
             typeof e.data[0] === "string" &&
             !e.data[0].includes("proto") &&
             this.bindings.hasOwnProperty(e.data[0])
         ) {
-            console.log("call binding")
             const name = e.data[0] as string
             const args = (e.data as any[]).slice(1)
             const bindingInfo = this.bindings[name]
@@ -70,7 +70,6 @@ export class UserExecutionContext {
     }
 
     evalAsync = async (code: string) => {
-        console.log("eval")
         ;(this.iframe as HTMLIFrameElement).contentWindow?.postMessage(
             ["eval", code],
             "*"

@@ -45,7 +45,6 @@ class UserExecutionContext {
                 //     console.log(`Delaying ${syncInfo.delay}ms...`)
                 //     setTimeout(this.resume, syncInfo.delay)
                 // }
-                console.log("call binding iframe")
                 this.postMessage(e.data)
             }
 
@@ -83,13 +82,11 @@ class UserExecutionContext {
     resume = () => {
         Atomics.store(this.syncArray, 0, 1)
         Atomics.notify(this.syncArray, 0, 1)
-        console.log(`Resumed with value ${this.syncArray[0]}`)
-        console.log(this.syncArray.buffer)
+        // console.log(`Resumed with value ${this.syncArray[0]}`)
         Atomics.store(this.syncArray, 0, 0)
     }
 
     evalAsync = (script: string, timeout = 30000) => {
-        console.log("evalIFrame")
         return new Promise((resolve, reject) => {
             this.resolve = resolve
             this.reject = reject
@@ -104,14 +101,11 @@ class UserExecutionContext {
 }
 
 const context = new UserExecutionContext(bindingSyncInfo, (message) => {
-    console.log("Post from iframe", message)
     return window.top?.postMessage(message)
 })
 
 window.addEventListener("message", (e) => {
-    console.log(e)
     if (e.data === "resume") {
-        console.log("resume")
         context.resume()
     } else if (Array.isArray(e.data) && e.data[0] === "eval") {
         ;(() => context.evalAsync(e.data[1]))().then(

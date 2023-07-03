@@ -23,6 +23,8 @@ import { UserExecutionContext } from "../userExecutionContext/UserExecutionConte
 import { addPlayer } from "../Player"
 import { RefAccessedBeforeComponentMountedError, error } from "../helpers"
 import { useStorage } from "./useStorage"
+import { Button, ButtonKind } from "./Button"
+import { Modal } from "./Modal"
 
 export const CodeExcerptIDNotFoundError = error("CodeExcerptIDNotFoundError")
 
@@ -135,6 +137,9 @@ export const Lesson: FunctionComponent<LessonProps> = ({
 
     // const [linesSaid, setLinesSaid] = useState<string[]>([])
     const [levelCss, setLevelCss] = useState("")
+    const [executionError, setExecutionError] = useState<Error | undefined>(
+        undefined
+    )
 
     const bindings: FnBindings = {
         wait: { fn: () => {} },
@@ -145,7 +150,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                 speechSynthesis.speak(utterance)
 
                 if (playerRef.current !== null && worldRef.current !== null) {
-                    console.log("Send out audio event")
+                    // console.log("Send out audio event")
                     worldRef.current.activateAudioEvent({
                         kind: "speaking",
                         source: getComponent(
@@ -317,15 +322,23 @@ export const Lesson: FunctionComponent<LessonProps> = ({
             }
         }, [])
 
-        // useEffect(() => {
-        //     readWriteRef.current.write(storedCode)
-        // }, [storedCode])
+        const additionalToolbarItems = (
+            <Button
+                kind={ButtonKind.Danger}
+                onClick={() => setStoredCode(initialCode)}
+            >
+                Reset
+            </Button>
+        )
 
         return (
             <EditorWrapper
                 bindings={bindings}
                 initialCode={initialCode}
                 readerRef={readWriteRef}
+                additionalToolbarItems={additionalToolbarItems}
+                onExecutionError={setExecutionError}
+                onRun={(code) => setStoredCode(code)}
             />
         )
     }
@@ -388,6 +401,22 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         Ref,
     }
 
+    const ErrorModal = () => (
+        <Modal
+            name="error"
+            title="I encountered an error..."
+            onDismiss={() => setExecutionError(undefined)}
+        >
+            <Paragraph>
+                I tried to run your code, but I encountered an error. Here it
+                is:
+            </Paragraph>
+            <Paragraph className="font-mono text-red-950">
+                {(executionError as Error).toString()}
+            </Paragraph>
+        </Modal>
+    )
+
     return (
         <div>
             <article
@@ -406,6 +435,8 @@ export const Lesson: FunctionComponent<LessonProps> = ({
             >
                 <style>{levelCss}</style>
             </div>
+            {executionError === undefined ? undefined : <ErrorModal />}
+            {/* {errorModal} */}
         </div>
     )
 }

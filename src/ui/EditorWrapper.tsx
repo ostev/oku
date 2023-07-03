@@ -2,7 +2,8 @@ import { MutableRef, useEffect, useRef, useState } from "preact/hooks"
 import { Editor } from "../Editor"
 import { FnBindings } from "../userExecutionContext/bindings"
 import { NotYetImplementedError, error } from "../helpers"
-import { FunctionComponent } from "preact"
+import { ComponentChildren, FunctionComponent } from "preact"
+import { Button } from "./Button"
 
 const EditorNotInitialisedError = error("EditorNotInitialisedError")
 
@@ -32,12 +33,6 @@ export class EditorReadWriter {
     }
 }
 
-export interface EditorWrapperProps {
-    bindings: FnBindings
-    initialCode: string
-    readerRef: MutableRef<EditorReadWriter>
-}
-
 export interface EditorToolbarProps {
     run: () => void
     prettify: () => void
@@ -46,23 +41,37 @@ export interface EditorToolbarProps {
 export const EditorToolbar: FunctionComponent<EditorToolbarProps> = ({
     run,
     prettify,
+    children,
 }) => {
     return (
-        <div class="relative flex rounded-md shadow-md bg-slate-200 bg-opacity-60 backdrop-blur-sm h-10 p-4 items-center justify-end">
-            <button class="mr-5" onClick={run}>
+        <div class="relative flex rounded-md shadow-md bg-slate-200 bg-opacity-60 backdrop-blur-sm h-10 p-4 items-center justify-end place-content-evenly">
+            {children}
+            <Button className="ml-5" onClick={run}>
                 Run!
-            </button>
-            <button class="mr-2" onClick={prettify}>
+            </Button>
+            {/* <button class="mr-2" onClick={prettify}>
                 Prettify!
-            </button>
+            </button> */}
         </div>
     )
+}
+
+export interface EditorWrapperProps {
+    bindings: FnBindings
+    initialCode: string
+    readerRef: MutableRef<EditorReadWriter>
+    additionalToolbarItems?: ComponentChildren
+    onExecutionError: (error: Error) => void
+    onRun?: (code: string) => void
 }
 
 export const EditorWrapper: FunctionComponent<EditorWrapperProps> = ({
     bindings,
     initialCode,
     readerRef,
+    additionalToolbarItems,
+    onExecutionError,
+    onRun,
 }) => {
     const editorParent: MutableRef<HTMLDivElement | null> = useRef(null)
     const executionContextParent: MutableRef<HTMLDivElement | null> =
@@ -79,7 +88,8 @@ export const EditorWrapper: FunctionComponent<EditorWrapperProps> = ({
             editorRef.current = new Editor(
                 editorParent.current,
                 executionContextParent.current,
-                bindings
+                bindings,
+                onExecutionError
             )
 
             editorRef.current.code = initialCode
@@ -117,7 +127,18 @@ export const EditorWrapper: FunctionComponent<EditorWrapperProps> = ({
     return (
         <div class="w-full">
             <div class="mb-2">
-                <EditorToolbar run={run} prettify={() => {}} />
+                <EditorToolbar
+                    run={() => {
+                        console.log("Run")
+                        if (onRun !== undefined && editorRef.current !== null) {
+                            onRun(editorRef.current.code)
+                        }
+                        run()
+                    }}
+                    prettify={() => {}}
+                >
+                    {additionalToolbarItems}
+                </EditorToolbar>
             </div>
             <div ref={editorParent}></div>
             <div ref={executionContextParent}></div>

@@ -25,7 +25,6 @@ export const useStorage = <T>(
         const storedValue = localStorage.getItem(key)
 
         if (storedValue !== null) {
-            console.log("Load", storedValue)
             const parsedValue =
                 typeof state === "string"
                     ? storedValue
@@ -49,7 +48,6 @@ export const useStorage = <T>(
             typeof value === "bigint"
                 ? value.toString()
                 : JSON.stringify(state)
-        console.log("Value:", value)
         localStorage.setItem(key, stringifiedValue)
     }
 

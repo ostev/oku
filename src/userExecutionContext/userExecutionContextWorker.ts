@@ -138,8 +138,6 @@ ${data[1]}
                 var executionContextBindings = undefined
 
                 workerResult = eval(env.source)
-
-                console.log(env.source)
             })()
         })()
 

@@ -26,7 +26,8 @@ export class Editor {
     constructor(
         parent: Element,
         executionParent: Element,
-        bindings: FnBindings
+        bindings: FnBindings,
+        onExecutionError: (error: Error) => void
     ) {
         // this.world = world
         // addPlayer(world).then((player) => {
@@ -48,7 +49,8 @@ export class Editor {
         })
         this.userExecutionContext = new UserExecutionContext(
             executionParent,
-            bindings
+            bindings,
+            onExecutionError
         )
         // helloThere: { fn: () => console.log("Hi!") },
         // forward: {
