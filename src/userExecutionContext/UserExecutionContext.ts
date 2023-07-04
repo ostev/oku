@@ -19,7 +19,7 @@ export class UserExecutionContext {
     }
 
     initialiseIFrame = (parent: Element): Promise<void> => {
-        return fetch("/iframe.html", {
+        return fetch("/userExecutionContext/iframe.html", {
             mode: "cors",
             headers: {
                 Accept: "text/html",
@@ -36,8 +36,7 @@ export class UserExecutionContext {
                     "allow-scripts allow-same-origin"
                 )
                 this.iframe.setAttribute("style", "display: none;")
-                this.iframe.setAttribute("src", "/iframe.html")
-
+                this.iframe.setAttribute("src", URL.createObjectURL(src))
                 parent.appendChild(this.iframe)
 
                 // this.iframe.contentWindow?.document.open()
@@ -45,8 +44,7 @@ export class UserExecutionContext {
                 // const script = this.iframe.contentWindow?.document.createElement(
                 //     "script"
                 // ) as HTMLScriptElement
-                // script.setAttribute("type", "module")
-                // script.setAttribute("src", userExecutionContextIFrameScriptUrl)
+                // // script.setAttribute("src", "/userExecutionContext/iframe.js")
                 // this.iframe.contentWindow?.document.appendChild(script)
 
                 // this.iframe.contentWindow?.document.close()

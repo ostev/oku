@@ -33,7 +33,6 @@ export default defineConfig({
         rollupOptions: {
             input: {
                 main: resolve(__dirname, "index.html"),
-                iframe: resolve(__dirname, "iframe.html"),
             },
         },
     },

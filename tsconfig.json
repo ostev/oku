@@ -16,6 +16,5 @@
     "jsx": "react-jsx",
     "jsxImportSource": "preact",
     "types": ["preact/jsx-runtime"]
-  },
-  "include": ["src"],
+  }
 }

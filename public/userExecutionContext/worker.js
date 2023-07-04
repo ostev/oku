@@ -1,4 +1,4 @@
-import { Bindings } from "./bindings"
+// import { Bindings } from "../../src/userExecutionContext/bindings"
 
 // let safeObjects = [
 //     "self",
@@ -69,18 +69,22 @@ import { Bindings } from "./bindings"
 //     }
 // })
 
-let executionContextBindings: Bindings | undefined = undefined
-let __syncArray__: Int32Array | undefined = undefined
+// let executionContextBindings: Bindings | undefined = undefined
+// let __syncArray__: Int32Array | undefined = undefined
+let executionContextBindings = undefined
+let __syncArray__ = undefined
 
 onmessage = (e) => {
-    let data: any[] = e.data
+    // let data: any[] = e.data
+    let data = e.data
 
     if (
         e.data[0] === "init" &&
         typeof e.data[1] === "object" &&
         typeof e.data[2] === "object"
     ) {
-        executionContextBindings = e.data[1] as Bindings
+        // executionContextBindings = e.data[1] as Bindings
+        executionContextBindings = e.data[1]
         __syncArray__ = new Int32Array(e.data[2])
         // __syncArray__[1] = 352
         // console.log(__syncArray__)
@@ -101,7 +105,7 @@ onmessage = (e) => {
             const env = {
                 source: `
 // === Library code ===
-${Object.entries(executionContextBindings as Bindings)
+${Object.entries(executionContextBindings)
     .map(([name, syncInfo]) => {
         if (syncInfo.delay === 0) {
             return `function ${name}(...args) {
