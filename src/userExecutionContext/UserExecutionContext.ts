@@ -1,6 +1,6 @@
 import { error } from "../helpers"
 import { FnBindings } from "./bindings"
-import userExecutionContextIFrameScriptUrl from "./userExecutionContextIFrame?url"
+// import userExecutionContextIFrameScriptUrl from "./userExecutionContextIFrame.js?url"
 
 export class UserExecutionContext {
     private iframe: HTMLIFrameElement | undefined
@@ -8,34 +8,51 @@ export class UserExecutionContext {
 
     bindings: FnBindings
 
-    constructor(parent: Element, bindings: FnBindings, onError: (error: Error) => void) {
-        this.onError=onError
+    constructor(
+        parent: Element,
+        bindings: FnBindings,
+        onError: (error: Error) => void
+    ) {
+        this.onError = onError
         this.bindings = bindings
         this.initialiseIFrame(parent)
     }
 
-    initialiseIFrame = (parent: Element) => {
-        this.iframe = document.createElement("iframe")
+    initialiseIFrame = (parent: Element): Promise<void> => {
+        return fetch("/iframe.html", {
+            mode: "cors",
+            headers: {
+                Accept: "text/html",
+                "Cross-Origin-Opener-Policy": "same-origin",
+                "Cross-Origin-Embedder-Policy": "require-corp",
+            },
+        })
+            .then((response) => response.blob())
+            .then((src) => {
+                this.iframe = document.createElement("iframe")
 
-        parent.appendChild(this.iframe)
+                this.iframe.setAttribute(
+                    "sandbox",
+                    "allow-scripts allow-same-origin"
+                )
+                this.iframe.setAttribute("style", "display: none;")
+                this.iframe.setAttribute("src", "/iframe.html")
 
-        this.iframe.setAttribute("sandbox", "allow-scripts")
-        this.iframe.setAttribute("style", "display: none;")
+                parent.appendChild(this.iframe)
 
-        this.iframe.contentWindow?.document.open()
+                // this.iframe.contentWindow?.document.open()
 
-        const script = this.iframe.contentWindow?.document.createElement(
-            "script"
-        ) as HTMLScriptElement
-        if (import.meta.env.DEV) {
-            script.setAttribute("type", "module")
-        }
-        script.setAttribute("src", userExecutionContextIFrameScriptUrl)
-        this.iframe.contentWindow?.document.appendChild(script)
+                // const script = this.iframe.contentWindow?.document.createElement(
+                //     "script"
+                // ) as HTMLScriptElement
+                // script.setAttribute("type", "module")
+                // script.setAttribute("src", userExecutionContextIFrameScriptUrl)
+                // this.iframe.contentWindow?.document.appendChild(script)
 
-        this.iframe.contentWindow?.document.close()
+                // this.iframe.contentWindow?.document.close()
 
-        window.addEventListener("message", this.messageEventListener)
+                window.addEventListener("message", this.messageEventListener)
+            })
 
         // ;(this.iframe as HTMLIFrameElement).contentWindow?.postMessage([""], "*")
     }

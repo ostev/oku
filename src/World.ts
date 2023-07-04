@@ -4,7 +4,7 @@ import * as Three from "three"
 import { $, error, range, uint32Range, withDefault } from "./helpers"
 import { intersection } from "./setHelpers"
 import { View } from "./View"
-import { distance, easeInOutQuad } from "./maths"
+import { distance, easeInOutQuad, easeInOutSine } from "./maths"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
 import { toIndexedGeometry } from "./geometry"
 
@@ -196,6 +196,9 @@ export class World {
         translation: Vec3,
         useShadows: boolean
     ): { transform: Transform; components: Set<Component> } => {
+        // console.log(object.name, object.type)
+        // console.log(object.name, object)
+
         const position = object.getWorldPosition(new Three.Vector3())
         const transform: Transform = {
             position: {
@@ -216,6 +219,7 @@ export class World {
             mesh.receiveShadow = useShadows
 
             if (object.name.includes("convex_collider")) {
+                // console.log("Convex", object.name)
                 const desc = Rapier.ColliderDesc.convexHull(
                     new Float32Array(mesh.geometry.attributes.position.array)
                 )
@@ -231,6 +235,7 @@ export class World {
 
                 components.add({ kind: "collider", collider })
             } else if (object.name.includes("trimesh_collider")) {
+                // console.log("trimesh", object.name)
                 if (mesh.geometry.index !== null) {
                     const desc = Rapier.ColliderDesc.trimesh(
                         new Float32Array(
@@ -251,6 +256,8 @@ export class World {
                         `The geometry of object ${object.name} doesn't include any indices.`
                     )
                 }
+            } else {
+                console.log("No collider", object.name)
             }
 
             components.add({ kind: "mesh", mesh })
@@ -527,7 +534,7 @@ export class World {
                 : absoluteAnimationProgress
 
             const bobbingAnim =
-                (easeInOutQuad(animationProgress) * 2 - 1) * 0.001
+                (easeInOutSine(animationProgress) * 2 - 1) * 0.001
             // console.log(bobbingAnim)
             // const bobbingAnim = 0
 

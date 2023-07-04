@@ -170,8 +170,10 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         },
     }
 
+    const cssRendererRef = useRef<HTMLDivElement | null>(null)
+
     useEffect(() => {
-        viewRef.current = new View()
+        viewRef.current = new View(cssRendererRef.current as HTMLElement)
         worldRef.current = new World(
             { x: 0, y: -9.8, z: 0 },
             viewRef.current,
@@ -433,6 +435,10 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                 class="h-full w-full absolute top-0 left-0 z-0"
                 ref={viewParentRef}
             >
+                {/* <div
+                    ref={cssRendererRef}
+                    style="width: 100%; height: 100%; position:absolute; top:0; left:0; pointer-events: none;"
+                ></div> */}
                 <style>{levelCss}</style>
             </div>
             {executionError === undefined ? undefined : <ErrorModal />}

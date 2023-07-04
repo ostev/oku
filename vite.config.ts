@@ -10,6 +10,7 @@ import smartypants from "remark-smartypants"
 import remarkMdxImages from "remark-mdx-images"
 import remarkMath from "remark-math"
 import rehypeKatex from "rehype-katex"
+import { resolve } from "path"
 
 export default defineConfig({
     server: {
@@ -28,4 +29,12 @@ export default defineConfig({
             rehypePlugins: [rehypeKatex],
         }),
     ],
+    build: {
+        rollupOptions: {
+            input: {
+                main: resolve(__dirname, "index.html"),
+                iframe: resolve(__dirname, "iframe.html"),
+            },
+        },
+    },
 })

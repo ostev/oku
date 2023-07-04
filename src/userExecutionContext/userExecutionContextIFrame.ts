@@ -6,6 +6,8 @@ export const InvalidMessageReceivedFromHostApplicationError = error(
     "InvalidMessageReceivedFromHostApplicationError"
 )
 
+console.log("Hey!")
+
 class UserExecutionContext {
     bindings: Bindings
 

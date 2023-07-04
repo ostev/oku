@@ -2,6 +2,10 @@ import * as Three from "three"
 
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js"
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js"
+import {
+    CSS3DRenderer,
+    CSS3DObject,
+} from "three/addons/renderers/CSS3DRenderer.js"
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js"
 // import { SSAOPass } from "three/addons/postprocessing/SSAOPass.js"
 // import { FXAAShader } from "three/addons/shaders/FXAAShader.js"
@@ -27,6 +31,7 @@ export class View {
     height = 0
 
     renderer: Three.WebGLRenderer
+    // cssRenderer: CSS3DRenderer
     composer: EffectComposer
 
     // outlinePass: SketchPass
@@ -43,7 +48,7 @@ export class View {
 
     gui: GUI | undefined
 
-    constructor() {
+    constructor(element: HTMLElement) {
         this.camera = new Three.OrthographicCamera()
         // this.camera = new Three.PerspectiveCamera()
 
@@ -54,18 +59,19 @@ export class View {
 
         this.sun.color.set("#fffeeb")
 
-        this.sun.position.set(10, 10, 10)
+        this.sun.position.set(-6, 3, 3)
         this.sun.castShadow = true
+        this.sun.shadow.bias = -0.00026
         // const lightHelper = new Three.DirectionalLightHelper(this.sun, 5, "red")
 
         {
-            const size = 5
+            const size = 10
             this.sun.shadow.camera.left = -size
             this.sun.shadow.camera.right = size
             this.sun.shadow.camera.top = size
             this.sun.shadow.camera.bottom = -size
 
-            const res = 1024
+            const res = 2048
             this.sun.shadow.mapSize.width = res
             this.sun.shadow.mapSize.height = res
         }
@@ -205,9 +211,21 @@ export class View {
         this.orbitControls.minPolarAngle = -Math.atan(-1 / Math.sqrt(2))
         this.orbitControls.maxPolarAngle = -Math.atan(-1 / Math.sqrt(2))
         this.camera.position.x = -20
-        this.camera.position.z = 20
+        this.camera.position.z = -20
         this.orbitControls.saveState()
         this.orbitControls.update()
+
+        // this.cssRenderer = new CSS3DRenderer({ element })
+        // this.cssRenderer.setSize(0, 0)
+        // const el = document.createElement("div")
+        // // el.setAttribute(
+        // //     "style",
+        // //     "width: 10px; height: 10px;background-color: 'red';"
+        // // )
+        // el.textContent = "Hey!"
+        // const cssObject = new CSS3DObject(el)
+        // cssObject.position.set(0, 10, 0)
+        // this.scene.add(cssObject)
     }
 
     // load = async () => {
@@ -240,6 +258,8 @@ export class View {
 
         this.renderer.setSize(width, height)
         this.renderer.setPixelRatio(pixelRatio)
+
+        // this.cssRenderer.setSize(width, height)
 
         this.composer.setSize(width, height)
         this.composer.setPixelRatio(pixelRatio)
@@ -276,6 +296,7 @@ export class View {
         // ).textContent = `${this.camera.position.x}, ${this.camera.position.y}, ${this.camera.position.z}`
 
         this.composer.render(delta)
+        // this.cssRenderer.render(this.scene, this.camera)
     }
 }
 

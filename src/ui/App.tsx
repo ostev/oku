@@ -19,7 +19,6 @@ import * as HelloWorld from "../lessons/HelloWorld.mdx"
 
 import { FnBindings } from "../userExecutionContext/bindings"
 
-import roadSceneUrl from "../assets/road.gltf?url"
 import { Level } from "../level/Level"
 import { UserExecutionContext } from "../userExecutionContext/UserExecutionContext"
 
