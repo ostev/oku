@@ -3,6 +3,7 @@ import { FunctionalComponent } from "preact"
 export enum ButtonKind {
     Normal,
     Danger,
+    Green,
 }
 
 export const Button: FunctionalComponent<{
@@ -10,8 +11,9 @@ export const Button: FunctionalComponent<{
     onClick: () => void
     className?: string
 }> = ({ children, kind, onClick, className }) => {
-    const primaryClass = "bg-blue-500 hover:bg-blue-700"
-    const dangerClass = "bg-red-500 hover:bg-red-700"
+    const primaryClass = "bg-blue-600 hover:bg-blue-800"
+    const dangerClass = "bg-red-600 hover:bg-red-800"
+    const greenClass = "bg-green-600 hover:bg-green-800"
 
     return (
         <button
@@ -19,8 +21,10 @@ export const Button: FunctionalComponent<{
             class={`${
                 kind === ButtonKind.Normal || kind === undefined
                     ? primaryClass
-                    : dangerClass
-            }  text-white font-bold py-1 px-4 rounded ${
+                    : kind === ButtonKind.Danger
+                    ? dangerClass
+                    : greenClass
+            }  text-white font-bold py-1 px-4 rounded drop-shadow-lg ${
                 className !== undefined ? className : ""
             }`}
             onClick={onClick}

@@ -26,6 +26,11 @@ import { useStorage } from "./useStorage"
 import { Button, ButtonKind } from "./Button"
 import { Modal } from "./Modal"
 
+export interface LessonID {
+    chapter: number
+    section: number
+}
+
 export const CodeExcerptIDNotFoundError = error("CodeExcerptIDNotFoundError")
 
 export const FunFact: FunctionalComponent = ({ children }) => (
@@ -82,14 +87,16 @@ export const GoalDisplay: FunctionalComponent<{
     )
 }
 
-export const lessons = [HelloWorld]
+export type GoalKind = "main" | "challenge"
+
+export type Goals = { main: ID[]; challenges: ID[] }
 
 export interface LessonInfo {
     title: string
-    chapter: number
-    section: number
+    id: LessonID
     content: FunctionComponent
     level: typeof HelloWorld
+    goals: Goals
 }
 
 export class ID {
@@ -116,15 +123,19 @@ export class ID {
 export interface LessonProps {
     // bindings: FnBindings
     info: LessonInfo
+    onGoalCompletion: (id: ID) => void
+    completedGoals: ID[]
 }
 
 export const Lesson: FunctionComponent<LessonProps> = ({
     info,
+    onGoalCompletion,
+    completedGoals,
 }: LessonProps) => {
-    const [completedGoals, setCompletedGoals] = useStorage<ID[]>(
-        `${info.chapter}-${info.section}_completedGoals`,
-        []
-    )
+    // const [completedGoals, setCompletedGoals] = useStorage<ID[]>(
+    //     `${info.chapter}-${info.section}_completedGoals`,
+    //     []
+    // )
 
     const viewParentRef: MutableRef<HTMLDivElement | null> = useRef(null)
     const viewRef: MutableRef<View | null> = useRef(null)
@@ -177,11 +188,15 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         worldRef.current = new World(
             { x: 0, y: -9.8, z: 0 },
             viewRef.current,
+            // (index) =>
+            // setCompletedGoals(
+            //     completedGoals.concat([
+            //         new ID(info.chapter, info.section, index),
+            //     ])
+            // )
             (index) =>
-                setCompletedGoals(
-                    completedGoals.concat([
-                        new ID(info.chapter, info.section, index),
-                    ])
+                onGoalCompletion(
+                    new ID(info.id.chapter, info.id.section, index)
                 )
         )
 
@@ -295,9 +310,9 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         }, [children])
 
         const [storedCode, setStoredCode] = useStorage(
-            `${info.chapter}-${info.section}_${new ID(
-                info.chapter,
-                info.section,
+            `${info.id.chapter}-${info.id.section}_${new ID(
+                info.id.chapter,
+                info.id.section,
                 index
             ).stringify()}_storedCode`,
             initialCode
@@ -349,7 +364,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         children,
         index,
     }) => {
-        const id = new ID(info.chapter, info.section, index)
+        const id = new ID(info.id.chapter, info.id.section, index)
 
         return (
             <GoalDisplay
@@ -366,7 +381,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         index: number
         difficulty: "easy" | "medium" | "hard"
     }> = ({ children, index, difficulty }) => {
-        const id = new ID(info.chapter, info.section, index)
+        const id = new ID(info.id.chapter, info.id.section, index)
 
         let difficultyEmoji
 

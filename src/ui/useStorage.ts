@@ -26,28 +26,29 @@ export const useStorage = <T>(
 
         if (storedValue !== null) {
             const parsedValue =
-                typeof state === "string"
-                    ? storedValue
-                    : typeof state === "number"
-                    ? Number(storedValue)
-                    : typeof state === "bigint"
-                    ? BigInt(storedValue)
-                    : JSON.parse(storedValue, storageCleaner)
+                // typeof state === "string"
+                //     ? storedValue
+                //     : typeof state === "number"
+                //     ? Number(storedValue)
+                //     : typeof state === "bigint"
+                //     ? BigInt(storedValue)
+                JSON.parse(storedValue, storageCleaner)
             setState(parsedValue)
         }
 
         // setHasLoaded(true)
     }, [])
 
-    const setStorage: StateUpdater<T> = (value) => {
+    const setStorage: (value: T) => void = (value) => {
         setState(value)
 
         const stringifiedValue =
-            typeof value === "string" ||
-            typeof value === "number" ||
-            typeof value === "bigint"
-                ? value.toString()
-                : JSON.stringify(state)
+            // typeof value === "string" ||
+            // typeof value === "number" ||
+            // typeof value === "bigint"
+            //     ? value.toString()
+            JSON.stringify(value)
+
         localStorage.setItem(key, stringifiedValue)
     }
 
