@@ -1,6 +1,7 @@
 import { ComponentChildren, FunctionalComponent } from "preact"
 
 import * as HelloWorld from "../lessons/HelloWorld.mdx"
+import * as GreetingOthers from "../lessons/GreetingOthers.mdx"
 
 import { Goals, ID, LessonID, LessonInfo } from "./Lesson"
 import { useMemo } from "preact/hooks"
@@ -56,6 +57,7 @@ export const getLessonInfo = (module: typeof HelloWorld): LessonInfo => {
 
 export const lessons: Record<string, LessonInfo> = {
     "1-1": getLessonInfo(HelloWorld),
+    "1-2": getLessonInfo(GreetingOthers),
 }
 
 export interface LessonCompletion {
@@ -113,7 +115,7 @@ export const LessonSelector: FunctionalComponent<{
                     return (
                         <button
                             onClick={() => onSelectLesson(id)}
-                            class="bg-green-200 hover:bg-green-300 transition-colors p-4 rounded-lg"
+                            class="bg-green-200 hover:bg-green-300 transition-colors p-4 rounded-lg drop-shadow-lg"
                         >
                             {title}
                         </button>
@@ -122,7 +124,7 @@ export const LessonSelector: FunctionalComponent<{
                     return (
                         <button
                             onClick={() => onSelectLesson(id)}
-                            class="bg-yellow-200 hover:bg-green-300 transition-colors p-4 rounded-lg"
+                            class="bg-yellow-200 hover:bg-green-300 transition-colors p-4 rounded-lg drop-shadow-lg"
                         >
                             {title}
                         </button>
@@ -131,7 +133,7 @@ export const LessonSelector: FunctionalComponent<{
                     return (
                         <button
                             onClick={() => onSelectLesson(id)}
-                            class="bg-slate-200 hover:bg-slate-300 transition-colors p-4 rounded-lg"
+                            class="bg-slate-200 hover:bg-slate-300 transition-colors p-4 rounded-lg drop-shadow-lg"
                         >
                             {title}
                         </button>
@@ -143,7 +145,7 @@ export const LessonSelector: FunctionalComponent<{
 
     return (
         <div class="flex h-screen">
-            <div class="z-50 grid grid-flow-col auto-cols-max max-w-md p-10 m-auto my-auto bg-slate-100 bg-opacity-80 backdrop-blur-xl rounded-lg">
+            <div class="z-50 grid grid-flow-col auto-cols-max space-x-10 max-w-md p-10 m-auto my-auto bg-slate-200 bg-opacity-80 backdrop-blur-xl rounded-lg drop-shadow-2xl">
                 {lessonStatus}
             </div>
         </div>

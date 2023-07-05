@@ -96,7 +96,10 @@ export const App = () => {
             {showLessonPicker ? (
                 <LessonSelector
                     progress={progress}
-                    onSelectLesson={setCurrentLesson}
+                    onSelectLesson={(id) => {
+                        setShowLessonPicker(false)
+                        setCurrentLesson(id)
+                    }}
                 />
             ) : null}
 

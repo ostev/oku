@@ -2,6 +2,11 @@ export const title = "Greeting others"
 export const chapter = 1
 export const section = 2
 
+export const goals = ["main"]
+
+import { HelloWorld } from "../level/levels/HelloWorld"
+export const level = HelloWorld
+
 Saying hello to yourself is all well and good, but wouldn't it be nice to have
 someone to talk to? Let me introduce you to my good friend Peggy. She's the
 smiling television a couple of metres in front of me.
@@ -12,6 +17,7 @@ command: <DocLink symbol="move">`forward`</DocLink>. Unlike
 takes a <DocLink symbol="number">number</DocLink> a <DocLink symbol="parameter">parameter</DocLink>:
 
 ```javascript
+// 1
 forward(2)
 ```
 
@@ -38,6 +44,7 @@ multiple commands by seperating them with newlines. Each one of these
 and newlines are kind of like full stops.
 
 ```javascript
+// 2
 // Laugh maniacally.
 say("Ha ha ha ha!")
 
@@ -52,6 +59,7 @@ say("Hee hee hee hee!")
 <Goal>Move to within one metre of Peggy and speak to her.</Goal>
 
 ```javascript
+// 3
 // Hint: use both the `forward` and `say` functions
 ```
 

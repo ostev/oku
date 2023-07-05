@@ -183,7 +183,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
 
     const cssRendererRef = useRef<HTMLDivElement | null>(null)
 
-    useEffect(() => {
+    const init = () => {
         viewRef.current = new View(cssRendererRef.current as HTMLElement)
         worldRef.current = new World(
             { x: 0, y: -9.8, z: 0 },
@@ -259,21 +259,26 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                 })
             }
         })
+    }
+
+    const destroy = () => {
+        if (levelRef.current !== null) {
+            worldRef.current?.unregisterStepFunction(levelRef.current.step)
+        }
+        worldRef.current?.destroy()
+        resizeObserverRef.current?.unobserve(viewParentRef.current as Element)
+        resizeObserverRef.current?.disconnect()
+        worldRef.current = null
+    }
+
+    useEffect(() => {
+        destroy()
+        init()
 
         // worldRef.current.init()
 
-        return () => {
-            if (levelRef.current !== null) {
-                worldRef.current?.unregisterStepFunction(levelRef.current.step)
-            }
-            worldRef.current?.destroy()
-            resizeObserverRef.current?.unobserve(
-                viewParentRef.current as Element
-            )
-            resizeObserverRef.current?.disconnect()
-            worldRef.current = null
-        }
-    }, [])
+        return destroy
+    }, [info])
 
     const Code: FunctionComponent = ({ children }) => {
         const { initialCode, index } = useMemo(() => {
