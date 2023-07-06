@@ -552,8 +552,9 @@ export class World {
     private animate = (time: number) => {
         const delta = time - this.time
         this.time = time
-
-        $("#fps").textContent = Math.round(1000 / delta).toString()
+        if (this.debug) {
+            $("#fps").textContent = Math.round(1000 / delta).toString()
+        }
 
         // for (const _i of range(
         //     0,

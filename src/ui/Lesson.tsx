@@ -443,7 +443,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         <div>
             <article
                 class="h-full absolute top-0 left-0 z-10 m-3 p-5 bg-slate-100 bg-opacity-90 rounded-lg overflow-x-hidden shadow-lg backdrop-blur-lg"
-                style={{ width: 400 }}
+                style={{ width: 600 }}
             >
                 <H1 className="mb-4">{info.title}</H1>
                 <MDXProvider components={components}>
