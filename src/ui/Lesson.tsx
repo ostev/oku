@@ -23,7 +23,7 @@ import {
 import { Card } from "./Card"
 import { Paragraph } from "./Paragraph"
 import { Level } from "../level/Level"
-import { AudioSource, Entity, World, getComponent } from "../World"
+import { AudioSource, Entity, Vec3, World, getComponent } from "../World"
 import { DocLink } from "./Docs"
 import { View } from "../View"
 import { UserExecutionContext } from "../userExecutionContext/UserExecutionContext"
@@ -36,6 +36,7 @@ import {
 import { useStorage } from "./useStorage"
 import { Button, ButtonKind } from "./Button"
 import { Modal } from "./Modal"
+import { vec3Distance } from "../maths"
 
 export interface LessonID {
     chapter: number
@@ -189,7 +190,37 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         forward: {
             fn: (context: UserExecutionContext, distance: number) => {
                 console.log(`Move forward ${distance}`)
-                context.resume()
+                if (worldRef.current !== null && playerRef.current !== null) {
+                    const startingPlayerPos =
+                        playerRef.current.transform.position
+                    const speed = 0.001
+                    const stepFunction = (
+                        delta: number,
+                        time: number,
+                        world: World
+                    ) => {
+                        if (playerRef.current !== null) {
+                            const player = world.getEntity(playerRef.current.id)
+                            if (player !== undefined) {
+                                if (
+                                    vec3Distance(
+                                        startingPlayerPos,
+                                        player.transform.position
+                                    ) >= distance
+                                ) {
+                                    world.playerMovementVector.z = 0
+                                    world.unregisterStepFunction(stepFunction)
+
+                                    context.resume()
+                                } else {
+                                    world.playerMovementVector.z =
+                                        -speed * delta
+                                }
+                            }
+                        }
+                    }
+                    worldRef.current.registerStepFunction(stepFunction)
+                }
             },
         },
     }
@@ -477,8 +508,8 @@ export const Lesson: FunctionComponent<LessonProps> = ({
             {executionError === undefined ? undefined : <ErrorModal />}
             {speechHistory.length > 0 ? (
                 <div
-                    class="fixed max-h-40 overflow-x-hidden overflow-y-scroll top-5 right-5 bg-slate-200 bg-opacity-70 backdrop-blur-xl rounded p-1"
-                    style={{ zIndex: 5000 }}
+                    class="fixed  max-h-40 overflow-x-hidden overflow-y-scroll top-5 right-5 bg-slate-200 bg-opacity-70 backdrop-blur-xl rounded p-1"
+                    style={{ zIndex: 5000, minWidth: 200 }}
                 >
                     <Button
                         onClick={() => setSpeechHistory([])}

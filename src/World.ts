@@ -4,7 +4,7 @@ import * as Three from "three"
 import { $, error, range, uint32Range, withDefault } from "./helpers"
 import { intersection } from "./setHelpers"
 import { View } from "./View"
-import { distance, easeInOutQuad, easeInOutSine } from "./maths"
+import { vec3Distance, easeInOutQuad, easeInOutSine } from "./maths"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
 import { toIndexedGeometry } from "./geometry"
 
@@ -506,7 +506,7 @@ export class World {
 
             if (hit !== null) {
                 const hitPoint = ray.pointAt(hit.toi)
-                const altitude = distance(currentPosition, hitPoint)
+                const altitude = vec3Distance(currentPosition, hitPoint)
                 if (this.debug) {
                     $("#playerPos").textContent = altitude.toString()
                 }
