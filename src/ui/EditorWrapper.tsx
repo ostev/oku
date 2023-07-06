@@ -80,7 +80,6 @@ export const EditorWrapper: FunctionComponent<EditorWrapperProps> = ({
     let editorRef: MutableRef<Editor | null> = useRef(null)
 
     useEffect(() => {
-        console.log("Update")
         if (
             editorParent.current !== null &&
             executionContextParent.current !== null

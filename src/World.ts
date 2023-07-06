@@ -257,7 +257,7 @@ export class World {
                     )
                 }
             } else {
-                console.log("No collider", object.name)
+                // console.log("No collider", object.name)
             }
 
             components.add({ kind: "mesh", mesh })

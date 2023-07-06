@@ -37,3 +37,17 @@ export const NotYetImplementedError = error("NotYetImplementedError")
 export const RefAccessedBeforeComponentMountedError = error(
     "RefAccessedBeforeComponentMountedError"
 )
+
+export const findIndexRight = <T>(
+    predicate: (x: T) => boolean,
+    array: ArrayLike<T>
+): number | undefined => {
+    console.log(array.length)
+    for (let i = array.length; i >= 0; i--) {
+        console.log(i)
+        if (predicate(array[i])) {
+            return i
+        }
+    }
+    return undefined
+}

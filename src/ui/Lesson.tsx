@@ -12,7 +12,14 @@ import { HelloWorld } from "../level/levels/HelloWorld"
 import { H1, Heading } from "./Heading"
 import { EditorReadWriter, EditorWrapper } from "./EditorWrapper"
 import { FnBindings } from "../userExecutionContext/bindings"
-import { MutableRef, useEffect, useMemo, useRef, useState } from "preact/hooks"
+import {
+    MutableRef,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "preact/hooks"
 import { Card } from "./Card"
 import { Paragraph } from "./Paragraph"
 import { Level } from "../level/Level"
@@ -21,7 +28,11 @@ import { DocLink } from "./Docs"
 import { View } from "../View"
 import { UserExecutionContext } from "../userExecutionContext/UserExecutionContext"
 import { addPlayer } from "../Player"
-import { RefAccessedBeforeComponentMountedError, error } from "../helpers"
+import {
+    RefAccessedBeforeComponentMountedError,
+    error,
+    findIndexRight,
+} from "../helpers"
 import { useStorage } from "./useStorage"
 import { Button, ButtonKind } from "./Button"
 import { Modal } from "./Modal"
@@ -151,13 +162,13 @@ export const Lesson: FunctionComponent<LessonProps> = ({
     const [executionError, setExecutionError] = useState<Error | undefined>(
         undefined
     )
+    const [speechHistory, setSpeechHistory] = useState<string[]>([])
 
     const bindings: FnBindings = {
         wait: { fn: () => {} },
         say: {
             fn: (context: UserExecutionContext, text: string) => {
                 const utterance = new SpeechSynthesisUtterance(text)
-                // speechSynthesis.cancel()
                 speechSynthesis.speak(utterance)
 
                 if (playerRef.current !== null && worldRef.current !== null) {
@@ -171,6 +182,8 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                         text,
                     })
                 }
+
+                setSpeechHistory([text, ...speechHistory])
             },
         },
         forward: {
@@ -462,6 +475,26 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                 <style>{levelCss}</style>
             </div>
             {executionError === undefined ? undefined : <ErrorModal />}
+            {speechHistory.length > 0 ? (
+                <div
+                    class="fixed max-h-40 overflow-x-hidden overflow-y-scroll top-5 right-5 bg-slate-200 bg-opacity-70 backdrop-blur-xl rounded p-1"
+                    style={{ zIndex: 5000 }}
+                >
+                    <Button
+                        onClick={() => setSpeechHistory([])}
+                        className="absolute top-1 right-1"
+                    >
+                        Clear
+                    </Button>
+                    <ol class="mt-10">
+                        {speechHistory.map((text) => (
+                            <li class="bg-slate-300 bg-opacity-70 rounded p-2 m-4">
+                                <em>&ldquo;{text}&rdquo;</em>
+                            </li>
+                        ))}
+                    </ol>
+                </div>
+            ) : undefined}
             {/* {errorModal} */}
         </div>
     )
