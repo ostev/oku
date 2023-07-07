@@ -47,7 +47,7 @@ export class HelloWorld implements Level {
     `
 
     init = async (world: World) => {
-        await world.importGLTF(suburbUrl, new Vec3(0, -5, 0))
+        await world.importGLTF(suburbUrl, new Vec3(0, 0, 0))
 
         world.addEntity(
             translation(new Vec3(0, 0, 0)),
@@ -63,8 +63,9 @@ export class HelloWorld implements Level {
                             ) {
                                 world.completeGoal(1)
                             } else if (
-                                lowercaseText !==
-                                "I'm speaking to you right now."
+                                !lowercaseText.includes(
+                                    "m speaking to you right now"
+                                )
                             ) {
                                 world.completeGoal(2)
                             }
