@@ -71,12 +71,25 @@
                         }
                         Object.freeze(env)
                         // console.log(env.source)
-                        ;(() => {
-                            var data = undefined
-                            var executionContextBindings = undefined
 
-                            workerResult = eval(env.source)
-                        })()
+                        let __error__ = false
+
+                        try {
+                            ;(() => {
+                                var data = undefined
+                                var executionContextBindings = undefined
+                                var __error__ = undefined
+
+                                workerResult = eval(env.source)
+                            })()
+                        } catch (error) {
+                            self.postMessage(["error", error])
+                            __error__ = true
+                        }
+
+                        if (!__error__) {
+                            self.postMessage("done")
+                        }
                     })()
 
                     self.postMessage(["result", workerResult])
@@ -208,42 +221,6 @@
                     // this.worker = null as any as Worker
                     this.worker = null
                     this.initWorker()
-
-                    this.worker.addEventListener("message", (e) => {
-                        if (this.timeoutHandle !== undefined) {
-                            clearTimeout(this.timeoutHandle)
-                        }
-
-                        if (
-                            typeof e.data === "object" &&
-                            typeof e.data[0] === "string" &&
-                            !e.data[0].includes("proto") &&
-                            this.bindings.hasOwnProperty(e.data[0])
-                        ) {
-                            // const name = e.data[0] as string
-                            const name = e.data[0]
-                            const syncInfo = this.bindings[name]
-                            // if (syncInfo.delay !== 0) {
-                            //     console.log(`Delaying ${syncInfo.delay}ms...`)
-                            //     setTimeout(this.resume, syncInfo.delay)
-                            // }
-                            this.postMessage(e.data)
-                        }
-
-                        if (this.resolve !== undefined) {
-                            this.resolve(e.data)
-                        }
-                    })
-
-                    this.worker.onerror = (e) => {
-                        if (this.timeoutHandle !== undefined) {
-                            clearTimeout(this.timeoutHandle)
-                        }
-
-                        if (this.reject !== undefined) {
-                            this.reject(e.message)
-                        }
-                    }
                 }
 
                 initWorker = () => {
@@ -281,8 +258,42 @@
                 // evalAsync = (script: string, timeout = 30000) => {
                 evalAsync = (script, timeout = 30000) => {
                     return new Promise((resolve, reject) => {
-                        this.resolve = resolve
-                        this.reject = reject
+                        this.worker.onmessage = (e) => {
+                            if (this.timeoutHandle !== undefined) {
+                                clearTimeout(this.timeoutHandle)
+                            }
+
+                            if (
+                                Array.isArray(e.data) &&
+                                typeof e.data[0] === "string" &&
+                                !e.data[0].includes("proto") &&
+                                this.bindings.hasOwnProperty(e.data[0])
+                            ) {
+                                // const name = e.data[0] as string
+                                const name = e.data[0]
+                                const syncInfo = this.bindings[name]
+                                // if (syncInfo.delay !== 0) {
+                                //     console.log(`Delaying ${syncInfo.delay}ms...`)
+                                //     setTimeout(this.resume, syncInfo.delay)
+                                // }
+                                this.postMessage(e.data)
+                            } else if (
+                                Array.isArray(e.data) &&
+                                e.data[0] === "error"
+                            ) {
+                                reject(e.data[1])
+                            } else if (e.data === "done") {
+                                resolve()
+                            }
+                        }
+
+                        this.worker.onerror = (e) => {
+                            if (this.timeoutHandle !== undefined) {
+                                clearTimeout(this.timeoutHandle)
+                            }
+
+                            reject(e)
+                        }
 
                         this.timeoutHandle = setTimeout(() => {
                             this.killWorker, reject("timeout")
@@ -304,9 +315,14 @@
                 if (e.data === "resume") {
                     context.resume()
                 } else if (Array.isArray(e.data) && e.data[0] === "eval") {
-                    ;(() => context.evalAsync(e.data[1]))().then(
-                        () => window.top?.postMessage(["result"]),
-                        (error) => window.top?.postMessage(["error", error])
+                    context.evalAsync(e.data[1]).then(
+                        () => {
+                            window.top?.postMessage(["result"])
+                        },
+                        (error) => {
+                            console.log("Reject")
+                            window.top?.postMessage(["error", error])
+                        }
                     )
                 } else {
                     throw new InvalidMessageReceivedFromHostApplicationError(
