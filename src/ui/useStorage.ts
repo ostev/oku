@@ -42,7 +42,9 @@ export const useStorage = <T>(
     const setStorage: StateUpdater<T> = (value) => {
         setState((prevValue) => {
             const newState =
-                typeof value === "function" ? value(prevValue) : value
+                typeof value === "function"
+                    ? (value as CallableFunction)(prevValue)
+                    : value
 
             const stringifiedValue =
                 // typeof value === "string" ||
