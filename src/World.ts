@@ -77,9 +77,7 @@ export class World {
     }
 
     unregisterStepFunction = (fn: StepFunction) => {
-        const index = this.stepFunctions.findIndex(
-            (x) => x.toString() === fn.toString()
-        )
+        const index = this.stepFunctions.findIndex((x) => x === fn)
 
         if (index !== -1) {
             this.stepFunctions.splice(index, 1)
@@ -513,7 +511,7 @@ export class World {
                 if (altitude > 1) {
                     this.playerMovementVector.y -= fallSpeed * delta
                 }
-                if (altitude < 0.8) {
+                if (altitude < 0.6) {
                     this.playerMovementVector.y += riseSpeed * delta
                 }
             } else {

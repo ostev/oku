@@ -59,10 +59,12 @@ export const EditorToolbar: FunctionComponent<EditorToolbarProps> = ({
 export interface EditorWrapperProps {
     bindings: FnBindings
     initialCode: string
-    readerRef: MutableRef<EditorReadWriter>
+    readerRef?: MutableRef<EditorReadWriter>
     additionalToolbarItems?: ComponentChildren
     onExecutionError: (error: Error) => void
     onRun?: (code: string) => void
+    onFocus?: () => void
+    onBlur?: () => void
 }
 
 export const EditorWrapper: FunctionComponent<EditorWrapperProps> = ({
@@ -72,12 +74,20 @@ export const EditorWrapper: FunctionComponent<EditorWrapperProps> = ({
     additionalToolbarItems,
     onExecutionError,
     onRun,
+    onFocus,
+    onBlur,
 }) => {
     const editorParent: MutableRef<HTMLDivElement | null> = useRef(null)
     const executionContextParent: MutableRef<HTMLDivElement | null> =
         useRef(null)
 
     let editorRef: MutableRef<Editor | null> = useRef(null)
+
+    // useEffect(()=>{
+    //     if (editorParent.current !== null&&onBlur!==undefined) {
+    //         editorParent.current.removeEventListener("blur")
+    //     }
+    // })
 
     useEffect(() => {
         if (
@@ -91,19 +101,31 @@ export const EditorWrapper: FunctionComponent<EditorWrapperProps> = ({
                 onExecutionError
             )
 
+            const el =
+                editorRef.current.domElement.getElementsByClassName(
+                    "cm-content"
+                )[0]
+
+            if (onFocus !== undefined) {
+                el.addEventListener("focus", onFocus)
+            }
+            if (onBlur !== undefined) {
+                el.addEventListener("blur", onBlur)
+            }
+
             editorRef.current.code = initialCode
 
             if (readerRef !== undefined) {
                 readerRef.current.setEditor(editorRef.current)
             }
+
+            return () => {
+                editorRef.current?.destroy()
+            }
         } else {
             throw new EditorNotInitialisedError(
                 "Attempted to initialise editor before the component was mounted."
             )
-        }
-
-        return () => {
-            editorRef.current?.destroy()
         }
     }, [])
 

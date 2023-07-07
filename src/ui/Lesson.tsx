@@ -405,6 +405,12 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                 additionalToolbarItems={additionalToolbarItems}
                 onExecutionError={setExecutionError}
                 onRun={(code) => setStoredCode(code)}
+                onFocus={() => {
+                    worldRef.current?.stop()
+                }}
+                onBlur={() => {
+                    worldRef.current?.start()
+                }}
             />
         )
     }

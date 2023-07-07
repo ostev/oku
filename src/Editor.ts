@@ -96,6 +96,10 @@ export class Editor {
         }
     }
 
+    get domElement(): HTMLElement {
+        return this.view.dom
+    }
+
     destroy = () => {
         this.view.destroy()
         this.userExecutionContext.destroy()
