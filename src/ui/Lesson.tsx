@@ -404,7 +404,11 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                 readerRef={readWriteRef}
                 additionalToolbarItems={additionalToolbarItems}
                 onExecutionError={setExecutionError}
-                onRun={(code) => setStoredCode(code)}
+                onRun={(code) => {
+                    destroy()
+                    init()
+                    setStoredCode(code)
+                }}
                 onFocus={() => {
                     worldRef.current?.stop()
                 }}
