@@ -12,7 +12,7 @@ export const CannotStoreSymbolsError = error("CannotStoreSymbolsError")
 export const useStorage = <T>(
     key: string,
     initialValue: T
-): [T, (value: T) => void] => {
+): [T, StateUpdater<T>] => {
     if (typeof initialValue === "symbol") {
         throw new CannotStoreSymbolsError(
             `I cannot serialise and parse a symbol, so I can't store the symbol ${initialValue.toString()}!`
@@ -39,17 +39,21 @@ export const useStorage = <T>(
         // setHasLoaded(true)
     }, [])
 
-    const setStorage: (value: T) => void = (value) => {
-        setState(value)
+    const setStorage: StateUpdater<T> = (value) => {
+        setState((prevValue) => {
+            const newState =
+                typeof value === "function" ? value(prevValue) : value
 
-        const stringifiedValue =
-            // typeof value === "string" ||
-            // typeof value === "number" ||
-            // typeof value === "bigint"
-            //     ? value.toString()
-            JSON.stringify(value)
+            const stringifiedValue =
+                // typeof value === "string" ||
+                // typeof value === "number" ||
+                // typeof value === "bigint"
+                //     ? value.toString()
+                JSON.stringify(newState)
 
-        localStorage.setItem(key, stringifiedValue)
+            localStorage.setItem(key, stringifiedValue)
+            return newState
+        })
     }
 
     return [state, setStorage]

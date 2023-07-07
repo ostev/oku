@@ -53,6 +53,8 @@ export const App = () => {
 
     const lesson = lessons[key]
 
+    console.log("Progress", progress)
+
     const lessonElement = (
         <Lesson
             completedGoals={getGoalsCompleted(
@@ -60,8 +62,8 @@ export const App = () => {
                 lesson.id.chapter,
                 lesson.id.section
             )}
-            onGoalCompletion={(id) =>
-                setProgress({
+            onGoalCompletion={(id) => {
+                setProgress((progress) => ({
                     ...progress,
                     "1-1": {
                         goalsCompleted: [
@@ -69,8 +71,8 @@ export const App = () => {
                             id,
                         ],
                     },
-                })
-            }
+                }))
+            }}
             info={lesson}
         />
     )
