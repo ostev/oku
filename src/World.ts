@@ -58,6 +58,7 @@ export class World {
     // objectLoader = new Three.ObjectLoader()
 
     playerMovementVector = new Rapier.Vector3(0, 0, 0)
+    /// Player rotation in radians
     playerRotation: number = 0
 
     view: View
@@ -421,13 +422,17 @@ export class World {
             entity.transform.rotation = new Three.Quaternion(
                 rotation.x,
                 rotation.y,
-                rotation.z
+                rotation.z,
+                rotation.w
             )
-
             const mesh = (entity.components.get("mesh") as Mesh).mesh
 
-            mesh.position.set(position.x, position.y, position.z)
-            mesh.rotation.set(rotation.x, rotation.y, rotation.z)
+            mesh.position.set(
+                entity.transform.position.x,
+                entity.transform.position.y,
+                entity.transform.position.z
+            )
+            mesh.rotation.setFromQuaternion(entity.transform.rotation)
             mesh.scale.set(
                 entity.transform.scale.x,
                 entity.transform.scale.y,
@@ -563,11 +568,13 @@ export class World {
                 )
             )
 
-            const rotation = new Three.Quaternion()
-            rotation.setFromAxisAngle(
-                new Three.Vector3(0, 1, 0),
-                degToRad(this.playerRotation)
+            const rotation = new Three.Quaternion().setFromEuler(
+                new Three.Euler(0, this.playerRotation, 0, "YXZ")
             )
+            // rotation.setFromAxisAngle(
+            //     new Three.Vector3(0, 1, 0),
+            //     this.playerRotation
+            // )
             rigidBody.setNextKinematicRotation(rotation)
         }
     }

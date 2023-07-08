@@ -29,6 +29,7 @@ import { View } from "../View"
 import { UserExecutionContext } from "../userExecutionContext/UserExecutionContext"
 import { addPlayer } from "../Player"
 import {
+    $,
     RefAccessedBeforeComponentMountedError,
     error,
     findIndexRight,
@@ -36,7 +37,7 @@ import {
 import { useStorage } from "./useStorage"
 import { Button, ButtonKind } from "./Button"
 import { Modal } from "./Modal"
-import { vec3Distance } from "../maths"
+import { degToRad, easeInOutSine, vec3Distance } from "../maths"
 
 export interface LessonID {
     chapter: number
@@ -165,6 +166,8 @@ export const Lesson: FunctionComponent<LessonProps> = ({
     )
     const [speechHistory, setSpeechHistory] = useState<string[]>([])
 
+    const debug = import.meta.env.DEV
+
     const bindings: FnBindings = {
         wait: { fn: () => {} },
         say: {
@@ -224,22 +227,48 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         },
         turn: {
             fn: (context, degrees: number) => {
-                const originalRotation = worldRef.current.playerRotation
-                const stepFunction = (
-                    delta: number,
-                    time: number,
-                    world: World
-                ) => {
-                    if (world.playerRotation < originalRotation + degrees) {
-                        const speed = 0.001
+                if (worldRef.current !== null) {
+                    const radians = degToRad(degrees)
 
-                        world.playerRotation += degrees * speed * delta
-                    } else {
-                        world.unregisterStepFunction(stepFunction)
-                        context.resume()
+                    const originalRotation = worldRef.current.playerRotation
+
+                    const speed = 0.005
+                    const startTime = performance.now()
+                    const duration = radians / speed
+
+                    const stepFunction = (
+                        delta: number,
+                        time: number,
+                        world: World
+                    ) => {
+                        // if (world.playerRotation < originalRotation + degrees) {
+                        //     const speed = 0.001
+
+                        //     world.playerRotation += degrees * speed * delta
+                        // } else {
+
+                        const linearProgress = (time - startTime) / duration
+
+                        world.playerRotation =
+                            originalRotation + radians * linearProgress
+
+                        if (debug) {
+                            $(
+                                "#other"
+                            ).textContent = `Turn progress: ${linearProgress}`
+                        }
+
+                        if (linearProgress > 1) {
+                            world.unregisterStepFunction(stepFunction)
+                            context.resume()
+
+                            if (debug) {
+                                $("#other").textContent = ""
+                            }
+                        }
                     }
+                    worldRef.current?.registerStepFunction(stepFunction)
                 }
-                worldRef.current?.registerStepFunction(stepFunction)
             },
         },
     }

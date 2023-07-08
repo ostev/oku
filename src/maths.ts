@@ -24,3 +24,6 @@ export function easeInOutSine(x: number): number {
 export function easeOutSine(x: number): number {
     return Math.sin((x * Math.PI) / 2)
 }
+
+export const lerp = (x: number, y: number, t: number): number =>
+    x * t + y * (1 - t)

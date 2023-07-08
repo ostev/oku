@@ -14,13 +14,14 @@
         <p
             id="fps"
             style="
-                position: absolute;
+                position: fixed;
                 top: 0;
                 right: 0;
                 backdrop-filter: blur(10px);
             "
         ></p>
-        <p id="playerPos" style="position: absolute; bottom: 0; right: 0"></p>
+        <p id="playerPos" style="position: fixed; bottom: 0; right: 0"></p>
+        <p id="other" style="position: fixed; bottom: 0; right: 30%"></p>
         <div id="renderer"></div>
         <div id="executionContext"></div>
         <script type="module" src="/src/main.tsx"></script>
