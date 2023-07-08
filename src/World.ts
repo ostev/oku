@@ -4,7 +4,7 @@ import * as Three from "three"
 import { $, error, range, uint32Range, withDefault } from "./helpers"
 import { intersection } from "./setHelpers"
 import { View } from "./View"
-import { vec3Distance, easeInOutQuad, easeInOutSine } from "./maths"
+import { vec3Distance, degToRad, easeInOutSine } from "./maths"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
 import { toIndexedGeometry } from "./geometry"
 
@@ -58,6 +58,7 @@ export class World {
     // objectLoader = new Three.ObjectLoader()
 
     playerMovementVector = new Rapier.Vector3(0, 0, 0)
+    playerRotation: number = 0
 
     view: View
     physics: Rapier.World
@@ -561,6 +562,13 @@ export class World {
                     currentPosition.z + correctedMovement.z
                 )
             )
+
+            const rotation = new Three.Quaternion()
+            rotation.setFromAxisAngle(
+                new Three.Vector3(0, 1, 0),
+                degToRad(this.playerRotation)
+            )
+            rigidBody.setNextKinematicRotation(rotation)
         }
     }
 

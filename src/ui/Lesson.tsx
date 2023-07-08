@@ -189,7 +189,6 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         },
         forward: {
             fn: (context: UserExecutionContext, distance: number) => {
-                console.log(`Move forward ${distance}`)
                 if (worldRef.current !== null && playerRef.current !== null) {
                     const startingPlayerPos =
                         playerRef.current.transform.position
@@ -221,6 +220,26 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                     }
                     worldRef.current.registerStepFunction(stepFunction)
                 }
+            },
+        },
+        turn: {
+            fn: (context, degrees: number) => {
+                const originalRotation = worldRef.current.playerRotation
+                const stepFunction = (
+                    delta: number,
+                    time: number,
+                    world: World
+                ) => {
+                    if (world.playerRotation < originalRotation + degrees) {
+                        const speed = 0.001
+
+                        world.playerRotation += degrees * speed * delta
+                    } else {
+                        world.unregisterStepFunction(stepFunction)
+                        context.resume()
+                    }
+                }
+                worldRef.current?.registerStepFunction(stepFunction)
             },
         },
     }
