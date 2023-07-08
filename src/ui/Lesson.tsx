@@ -7,6 +7,8 @@ import {
     h,
 } from "preact"
 
+import * as Three from "three"
+
 import { HelloWorld } from "../level/levels/HelloWorld"
 
 import { H1, Heading } from "./Heading"
@@ -208,15 +210,37 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                                     vec3Distance(
                                         startingPlayerPos,
                                         player.transform.position
-                                    ) >= distance
+                                    ) > distance
                                 ) {
-                                    world.playerMovementVector.z = 0
+                                    world.playerMovementVector =
+                                        new Three.Vector3(0, 0, 0)
                                     world.unregisterStepFunction(stepFunction)
 
                                     context.resume()
                                 } else {
-                                    world.playerMovementVector.z =
-                                        -speed * delta
+                                    // world.playerMovementVector.z =
+                                    //     -speed * delta
+                                    const rotation =
+                                        new Three.Quaternion().setFromEuler(
+                                            new Three.Euler(
+                                                0,
+                                                world.playerRotation,
+                                                0,
+                                                "YXZ"
+                                            )
+                                        )
+
+                                    const forward = new Three.Vector3(
+                                        0,
+                                        0,
+                                        -1
+                                    ).applyQuaternion(rotation)
+                                    world.playerMovementVector =
+                                        forward.multiplyScalar(speed * delta)
+
+                                    $(
+                                        "#other"
+                                    ).textContent = `${world.playerMovementVector.x}, ${world.playerMovementVector.y}, ${world.playerMovementVector.z}`
                                 }
                             }
                         }
@@ -470,11 +494,13 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                     if (worldRef.current?.isRunning) {
                         worldRef.current?.stop()
                     }
+                    setStoredCode(readWriteRef.current.read())
                 }}
                 onBlur={() => {
                     if (!worldRef.current?.isRunning) {
                         worldRef.current?.start()
                     }
+                    setStoredCode(readWriteRef.current.read())
                 }}
             />
         )
