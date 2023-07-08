@@ -190,8 +190,14 @@
 
             const bindingSyncInfo = {
                 say: { delay: 0 },
+
                 wait: { delay: "parameterSeconds" },
+
                 forward: { delay: "untilResume" },
+                backward: { delay: "untilResume" },
+                left: { delay: "untilResume" },
+                right: { delay: "untilResume" },
+
                 turn: { delay: "untilResume" },
             }
 
@@ -250,6 +256,7 @@
                 }
 
                 resume = () => {
+                    console.log("Actually resume")
                     Atomics.store(this.syncArray, 0, 1)
                     Atomics.notify(this.syncArray, 0, 1)
                     // console.log(`Resumed with value ${this.syncArray[0]}`)
@@ -314,6 +321,7 @@
 
             window.addEventListener("message", (e) => {
                 if (e.data === "resume") {
+                    console.log("Received resume")
                     context.resume()
                 } else if (Array.isArray(e.data) && e.data[0] === "eval") {
                     context.evalAsync(e.data[1]).then(

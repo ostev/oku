@@ -175,6 +175,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         say: {
             fn: (context: UserExecutionContext, text: string) => {
                 const utterance = new SpeechSynthesisUtterance(text)
+
                 speechSynthesis.speak(utterance)
 
                 if (playerRef.current !== null && worldRef.current !== null) {
@@ -291,6 +292,24 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                     }
                     worldRef.current?.registerStepFunction(stepFunction)
                 }
+            },
+        },
+        backward: {
+            fn: (context, distance: number) => {
+                bindings.turn.fn(context, 180)
+                bindings.forward.fn(context, distance)
+            },
+        },
+        right: {
+            fn: (context, distance: number) => {
+                bindings.turn.fn(context, 90)
+                bindings.forward.fn(context, distance)
+            },
+        },
+        left: {
+            fn: (context, distance: number) => {
+                bindings.turn.fn(context, -90)
+                bindings.forward.fn(context, distance)
             },
         },
     }

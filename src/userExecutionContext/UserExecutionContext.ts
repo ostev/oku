@@ -85,10 +85,7 @@ export class UserExecutionContext {
     }
 
     evalAsync = async (code: string) => {
-        ;(this.iframe as HTMLIFrameElement).contentWindow?.postMessage(
-            ["eval", code],
-            "*"
-        )
+        this.sendMessage(["eval", code])
     }
 
     destroy = () => {
@@ -96,7 +93,8 @@ export class UserExecutionContext {
         window.removeEventListener("message", this.messageEventListener)
     }
 
-    sendMessage = (message: string) => {
+    sendMessage = (message: any) => {
+        console.log("Send message", message)
         ;(this.iframe as HTMLIFrameElement).contentWindow?.postMessage(
             message,
             "*"
