@@ -258,7 +258,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
 
                     const speed = 0.005
                     const startTime = performance.now()
-                    const duration = radians / speed
+                    const duration = Math.abs(radians) / speed
 
                     const stepFunction = (
                         delta: number,
