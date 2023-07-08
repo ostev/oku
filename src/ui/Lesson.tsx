@@ -241,12 +241,6 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                         time: number,
                         world: World
                     ) => {
-                        // if (world.playerRotation < originalRotation + degrees) {
-                        //     const speed = 0.001
-
-                        //     world.playerRotation += degrees * speed * delta
-                        // } else {
-
                         const linearProgress = (time - startTime) / duration
 
                         world.playerRotation =
