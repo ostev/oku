@@ -150,10 +150,8 @@ export const EditorWrapper: FunctionComponent<EditorWrapperProps> = ({
             <div class="mb-2">
                 <EditorToolbar
                     run={() => {
-                        console.log("Run")
                         if (onRun !== undefined && editorRef.current !== null) {
                             onRun(editorRef.current.code).then(() => {
-                                console.log("Actually run")
                                 run()
                             })
                         } else {
