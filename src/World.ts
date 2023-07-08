@@ -507,16 +507,18 @@ export class World {
             const fallSpeed = 0.0001
             const riseSpeed = 0.005
 
+            let bobbingAnim = 0
+
             if (hit !== null) {
                 const hitPoint = ray.pointAt(hit.toi)
                 const altitude = vec3Distance(currentPosition, hitPoint)
                 if (this.debug) {
                     $("#playerPos").textContent = altitude.toString()
                 }
-                if (altitude > 0.8) {
-                    this.playerMovementVector.y = -fallSpeed * delta
+                if (altitude > 1) {
+                    this.playerMovementVector.y -= fallSpeed * delta
                 } else if (altitude < 0.6) {
-                    this.playerMovementVector.y = riseSpeed * delta
+                    this.playerMovementVector.y += riseSpeed * delta
                 } else {
                     const animationDuration = 10_000
                     let isEvenCycle =
@@ -529,17 +531,23 @@ export class World {
                         ? -absoluteAnimationProgress
                         : absoluteAnimationProgress
 
-                    const bobbingAnim =
+                    bobbingAnim =
                         (easeInOutSine(animationProgress) * 2 - 1) * 0.0006
-                    this.playerMovementVector.y = bobbingAnim
+                    console.log(bobbingAnim)
                 }
             } else {
                 this.playerMovementVector.y -= fallSpeed * delta
             }
 
+            const movementVector = new Vec3(
+                this.playerMovementVector.x,
+                this.playerMovementVector.y + bobbingAnim,
+                this.playerMovementVector.z
+            )
+
             characterController.computeColliderMovement(
                 rigidBody.collider(0),
-                this.playerMovementVector
+                movementVector
             )
 
             // console.log(bobbingAnim)
