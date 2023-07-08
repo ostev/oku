@@ -228,7 +228,6 @@ export const Lesson: FunctionComponent<LessonProps> = ({
     const cssRendererRef = useRef<HTMLDivElement | null>(null)
 
     const init = async () => {
-        console.log("init")
         viewRef.current = new View(cssRendererRef.current as HTMLElement)
         worldRef.current = new World(
             { x: 0, y: -9.8, z: 0 },
@@ -438,7 +437,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         )
     }
 
-    const Goal: FunctionComponent<{ index: number }> = ({
+    const Goal: FunctionalComponent<{ index: number; onClear: () => void }> = ({
         children,
         index,
     }) => {

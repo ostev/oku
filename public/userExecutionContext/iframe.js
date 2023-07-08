@@ -98,8 +98,6 @@ const InvalidMessageReceivedFromHostApplicationError = error(
     "InvalidMessageReceivedFromHostApplicationError"
 )
 
-console.log("Hey!")
-
 class UserExecutionContext {
     // bindings: Bindings
 
@@ -165,7 +163,6 @@ class UserExecutionContext {
         if (this.worker !== undefined && this.worker !== null) {
             this.worker.terminate()
         }
-        console.log("Hey!")
 
         this.worker = new Worker(
             URL.createObjectURL(

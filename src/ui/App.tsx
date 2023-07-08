@@ -53,8 +53,6 @@ export const App = () => {
 
     const lesson = lessons[key]
 
-    console.log("Progress", progress)
-
     const lessonElement = (
         <Lesson
             completedGoals={getGoalsCompleted(

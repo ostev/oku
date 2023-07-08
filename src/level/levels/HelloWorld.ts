@@ -47,7 +47,6 @@ export class HelloWorld implements Level {
     `
 
     init = async (world: World) => {
-        console.log("Init level")
         await world.importGLTF(suburbUrl, new Vec3(0, 0, 0))
 
         const entity = world.addEntity(
@@ -56,7 +55,6 @@ export class HelloWorld implements Level {
                 {
                     kind: "listener",
                     notify: (event) => {
-                        console.log("Notify")
                         if (event.kind === "speaking") {
                             const lowercaseText = event.text.toLowerCase()
                             if (
@@ -76,8 +74,6 @@ export class HelloWorld implements Level {
                 },
             ])
         )
-
-        console.log(world.getEntity(entity.id))
 
         // const mesh = new Three.Mesh(
         //     new Three.BoxGeometry(2, 2, 2),

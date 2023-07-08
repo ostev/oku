@@ -513,11 +513,25 @@ export class World {
                 if (this.debug) {
                     $("#playerPos").textContent = altitude.toString()
                 }
-                if (altitude > 1) {
-                    this.playerMovementVector.y -= fallSpeed * delta
-                }
-                if (altitude < 0.6) {
-                    this.playerMovementVector.y += riseSpeed * delta
+                if (altitude > 0.8) {
+                    this.playerMovementVector.y = -fallSpeed * delta
+                } else if (altitude < 0.6) {
+                    this.playerMovementVector.y = riseSpeed * delta
+                } else {
+                    const animationDuration = 10_000
+                    let isEvenCycle =
+                        Math.floor(this.time / animationDuration) % 2 == 0
+                    const absoluteAnimationProgress =
+                        ((this.time % animationDuration) / animationDuration) *
+                            2 -
+                        1
+                    const animationProgress = isEvenCycle
+                        ? -absoluteAnimationProgress
+                        : absoluteAnimationProgress
+
+                    const bobbingAnim =
+                        (easeInOutSine(animationProgress) * 2 - 1) * 0.0006
+                    this.playerMovementVector.y = bobbingAnim
                 }
             } else {
                 this.playerMovementVector.y -= fallSpeed * delta
@@ -528,16 +542,6 @@ export class World {
                 this.playerMovementVector
             )
 
-            const animationDuration = 10_000
-            let isEvenCycle = Math.floor(this.time / animationDuration) % 2 == 0
-            const absoluteAnimationProgress =
-                ((this.time % animationDuration) / animationDuration) * 2 - 1
-            const animationProgress = isEvenCycle
-                ? -absoluteAnimationProgress
-                : absoluteAnimationProgress
-
-            const bobbingAnim =
-                (easeInOutSine(animationProgress) * 2 - 1) * 0.001
             // console.log(bobbingAnim)
             // const bobbingAnim = 0
 
@@ -545,7 +549,7 @@ export class World {
             rigidBody.setNextKinematicTranslation(
                 new Rapier.Vector3(
                     currentPosition.x + correctedMovement.x,
-                    currentPosition.y + correctedMovement.y + bobbingAnim,
+                    currentPosition.y + correctedMovement.y,
                     currentPosition.z + correctedMovement.z
                 )
             )
