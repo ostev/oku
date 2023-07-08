@@ -502,12 +502,16 @@ export class World {
                 { x: 0, y: -1, z: 0 }
             )
 
-            const hit = this.physics.castRay(ray, 20, true)
+            const hit = this.physics.castRay(ray, 20, false)
 
-            const fallSpeed = 0.0001
-            const riseSpeed = 0.005
+            const fallSpeed = 0.0015
+            const riseSpeed = 0.0015
 
-            let bobbingAnim = 0
+            const movementVector = new Vec3(
+                this.playerMovementVector.x,
+                this.playerMovementVector.y,
+                this.playerMovementVector.z
+            )
 
             if (hit !== null) {
                 const hitPoint = ray.pointAt(hit.toi)
@@ -516,9 +520,9 @@ export class World {
                     $("#playerPos").textContent = altitude.toString()
                 }
                 if (altitude > 1) {
-                    this.playerMovementVector.y -= fallSpeed * delta
-                } else if (altitude < 0.6) {
-                    this.playerMovementVector.y += riseSpeed * delta
+                    movementVector.y -= fallSpeed * delta
+                } else if (altitude < 0.79) {
+                    movementVector.y += riseSpeed * delta
                 } else {
                     const animationDuration = 10_000
                     let isEvenCycle =
@@ -530,20 +534,16 @@ export class World {
                     const animationProgress = isEvenCycle
                         ? -absoluteAnimationProgress
                         : absoluteAnimationProgress
-
-                    bobbingAnim =
-                        (easeInOutSine(animationProgress) * 2 - 1) * 0.0006
-                    console.log(bobbingAnim)
+                    movementVector.y +=
+                        (easeInOutSine(animationProgress) * 2 - 1) * 0.001
                 }
             } else {
-                this.playerMovementVector.y -= fallSpeed * delta
-            }
+                movementVector.y -= fallSpeed * delta
 
-            const movementVector = new Vec3(
-                this.playerMovementVector.x,
-                this.playerMovementVector.y + bobbingAnim,
-                this.playerMovementVector.z
-            )
+                if (this.debug) {
+                    $("#playerPos").textContent = "No hit"
+                }
+            }
 
             characterController.computeColliderMovement(
                 rigidBody.collider(0),

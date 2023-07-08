@@ -31,7 +31,7 @@ import okuModelUrl from "./assets/oku.glb?url"
 // }
 
 export const addPlayer = async (world: World): Promise<Entity> => {
-    const characterController = world.physics.createCharacterController(0.0001)
+    const characterController = world.physics.createCharacterController(0.001)
     const rigidBody = world.physics.createRigidBody(
         Rapier.RigidBodyDesc.kinematicPositionBased().setAdditionalMass(1)
     )

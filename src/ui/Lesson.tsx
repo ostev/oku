@@ -304,6 +304,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                             setLevelCss(level.css)
 
                             worldRef.current?.start()
+
                             resolve()
                         })
                     } else {
