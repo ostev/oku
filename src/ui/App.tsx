@@ -63,15 +63,15 @@ export const App = () => {
                 lesson.id.section
             )}
             onGoalCompletion={(id) => {
-                setProgress((progress) => ({
-                    ...progress,
-                    "1-1": {
-                        goalsCompleted: [
-                            ...getGoalsCompleted(progress, 1, 1),
-                            id,
-                        ],
-                    },
-                }))
+                const goalsCompleted = getGoalsCompleted(progress, 1, 1)
+                if (!goalsCompleted.includes(id)) {
+                    setProgress((progress) => ({
+                        ...progress,
+                        "1-1": {
+                            goalsCompleted: [...goalsCompleted, id],
+                        },
+                    }))
+                }
             }}
             info={lesson}
         />

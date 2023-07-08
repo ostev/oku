@@ -62,7 +62,7 @@ export interface EditorWrapperProps {
     readerRef?: MutableRef<EditorReadWriter>
     additionalToolbarItems?: ComponentChildren
     onExecutionError: (error: Error) => void
-    onRun?: (code: string) => void
+    onRun?: (code: string) => Promise<void>
     onFocus?: () => void
     onBlur?: () => void
 }
@@ -152,9 +152,13 @@ export const EditorWrapper: FunctionComponent<EditorWrapperProps> = ({
                     run={() => {
                         console.log("Run")
                         if (onRun !== undefined && editorRef.current !== null) {
-                            onRun(editorRef.current.code)
+                            onRun(editorRef.current.code).then(() => {
+                                console.log("Actually run")
+                                run()
+                            })
+                        } else {
+                            run()
                         }
-                        run()
                     }}
                     prettify={() => {}}
                 >

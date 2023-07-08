@@ -227,7 +227,8 @@ export const Lesson: FunctionComponent<LessonProps> = ({
 
     const cssRendererRef = useRef<HTMLDivElement | null>(null)
 
-    const init = () => {
+    const init = async () => {
+        console.log("init")
         viewRef.current = new View(cssRendererRef.current as HTMLElement)
         worldRef.current = new World(
             { x: 0, y: -9.8, z: 0 },
@@ -278,29 +279,40 @@ export const Lesson: FunctionComponent<LessonProps> = ({
 
         // worldRef.current.importGLTF(roadSceneUrl)
 
-        addPlayer(worldRef.current).then((playerEntity) => {
-            playerRef.current = playerEntity
-
-            const level = new info.level()
-
-            worldRef.current?.registerStepFunction(level.step)
-
+        return new Promise<void>((resolve, reject) => {
             if (worldRef.current !== null) {
-                level.init(worldRef.current).then(() => {
-                    if (viewParentRef.current !== null) {
-                        viewRef.current?.appendToElement(viewParentRef.current)
+                addPlayer(worldRef.current).then((playerEntity) => {
+                    playerRef.current = playerEntity
+
+                    const level = new info.level()
+
+                    worldRef.current?.registerStepFunction(level.step)
+
+                    if (worldRef.current !== null) {
+                        level.init(worldRef.current).then(() => {
+                            if (viewParentRef.current !== null) {
+                                viewRef.current?.appendToElement(
+                                    viewParentRef.current
+                                )
+                            } else {
+                                throw new RefAccessedBeforeComponentMountedError(
+                                    "View parent ref is null"
+                                )
+                            }
+
+                            levelRef.current = level
+
+                            setLevelCss(level.css)
+
+                            worldRef.current?.start()
+                            resolve()
+                        })
                     } else {
-                        throw new RefAccessedBeforeComponentMountedError(
-                            "View parent ref is null"
-                        )
+                        reject()
                     }
-
-                    levelRef.current = level
-
-                    setLevelCss(level.css)
-
-                    worldRef.current?.start()
                 })
+            } else {
+                reject()
             }
         })
     }
@@ -313,6 +325,8 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         resizeObserverRef.current?.unobserve(viewParentRef.current as Element)
         resizeObserverRef.current?.disconnect()
         worldRef.current = null
+        levelRef.current?.destroy()
+        levelRef.current = null
     }
 
     useEffect(() => {
@@ -406,14 +420,19 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                 onExecutionError={setExecutionError}
                 onRun={(code) => {
                     destroy()
-                    init()
-                    setStoredCode(code)
+                    return init().then(() => {
+                        setStoredCode(code)
+                    })
                 }}
                 onFocus={() => {
-                    worldRef.current?.stop()
+                    if (worldRef.current?.isRunning) {
+                        worldRef.current?.stop()
+                    }
                 }}
                 onBlur={() => {
-                    worldRef.current?.start()
+                    if (!worldRef.current?.isRunning) {
+                        worldRef.current?.start()
+                    }
                 }}
             />
         )

@@ -50,6 +50,9 @@ export class World {
     private time = 0
 
     private stepFunctions: StepFunction[] = []
+
+    isRunning: boolean = false
+
     completeGoal: (index: number) => void
 
     // objectLoader = new Three.ObjectLoader()
@@ -115,6 +118,7 @@ export class World {
         // }
 
         // this.intervalHandle = setInterval(this.fixedStep, 1 / 60)
+        this.isRunning = true
         this.animate(0)
     }
 
@@ -126,6 +130,7 @@ export class World {
         }
         // clearInterval(this.intervalHandle)
         // this.intervalHandle = undefined
+        this.isRunning = false
     }
 
     activateAudioEvent = (event: AudioEvent) => {

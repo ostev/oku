@@ -92,11 +92,12 @@ export const LessonSelector: FunctionalComponent<{
 
         for (const [key, { goalsCompleted }] of Object.entries(progress)) {
             const { id, goals } = lessons[key]
+            console.log(goalsCompleted)
 
             if (goalsCompleted.length <= 0) {
                 notStarted.push(id)
             } else if (
-                goalsCompleted.length ===
+                goalsCompleted.length >=
                 goals.main.length + goals.challenges.length
             ) {
                 completed.push(id)
@@ -124,7 +125,7 @@ export const LessonSelector: FunctionalComponent<{
                     return (
                         <button
                             onClick={() => onSelectLesson(id)}
-                            class="bg-yellow-200 hover:bg-green-300 transition-colors p-4 rounded-lg drop-shadow-lg"
+                            class="bg-yellow-200 hover:bg-yellow-300 transition-colors p-4 rounded-lg drop-shadow-lg"
                         >
                             {title}
                         </button>
