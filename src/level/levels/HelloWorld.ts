@@ -47,7 +47,7 @@ export class HelloWorld implements Level {
     `
 
     init = async (world: World) => {
-        await world.importGLTF(suburbUrl, new Vec3(2, -3, -2))
+        await world.importGLTF(suburbUrl, new Vec3(4, -2, -2.2))
 
         const entity = world.addEntity(
             translation(new Vec3(0, 0, 0)),

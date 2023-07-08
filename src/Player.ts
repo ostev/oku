@@ -36,7 +36,7 @@ export const addPlayer = async (world: World): Promise<Entity> => {
         Rapier.RigidBodyDesc.kinematicPositionBased().setAdditionalMass(1)
     )
     const collider = world.physics.createCollider(
-        Rapier.ColliderDesc.cuboid(0.5, 0.5, 0.5),
+        Rapier.ColliderDesc.ball(0.2),
         rigidBody
     )
 

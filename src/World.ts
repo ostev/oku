@@ -496,7 +496,7 @@ export class World {
             const ray = new Rapier.Ray(
                 {
                     x: currentPosition.x,
-                    y: currentPosition.y - 0.51,
+                    y: currentPosition.y - 0.21,
                     z: currentPosition.z,
                 },
                 { x: 0, y: -1, z: 0 }
@@ -517,11 +517,11 @@ export class World {
                 const hitPoint = ray.pointAt(hit.toi)
                 const altitude = vec3Distance(currentPosition, hitPoint)
                 if (this.debug) {
-                    $("#playerPos").textContent = altitude.toString()
+                    $("#playerPos").textContent = altitude.toFixed(4)
                 }
-                if (altitude > 1) {
+                if (altitude > 0.5) {
                     movementVector.y -= fallSpeed * delta
-                } else if (altitude < 0.79) {
+                } else if (altitude < 0.29) {
                     movementVector.y += riseSpeed * delta
                 } else {
                     const animationDuration = 10_000
@@ -535,7 +535,7 @@ export class World {
                         ? -absoluteAnimationProgress
                         : absoluteAnimationProgress
                     movementVector.y +=
-                        (easeInOutSine(animationProgress) * 2 - 1) * 0.001
+                        (easeInOutSine(animationProgress) * 2 - 1) * 0.0008
                 }
             } else {
                 movementVector.y -= fallSpeed * delta
