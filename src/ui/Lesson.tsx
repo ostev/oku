@@ -265,18 +265,22 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                         time: number,
                         world: World
                     ) => {
-                        const linearProgress = (time - startTime) / duration
+                        let linearProgress = (time - startTime) / duration
+                        if (linearProgress > 1) {
+                            linearProgress = 1
+                        }
+                        const progress = easeInOutSine(linearProgress)
 
                         world.playerRotation =
-                            originalRotation + radians * linearProgress
+                            originalRotation + radians * progress
 
                         if (debug) {
                             $(
                                 "#other"
-                            ).textContent = `Turn progress: ${linearProgress}`
+                            ).textContent = `Turn progress: ${progress}`
                         }
 
-                        if (linearProgress > 1) {
+                        if (linearProgress === 1) {
                             world.unregisterStepFunction(stepFunction)
                             context.resume()
 
