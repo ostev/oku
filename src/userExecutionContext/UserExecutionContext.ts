@@ -8,6 +8,8 @@ export class UserExecutionContext {
 
     bindings: FnBindings
 
+    onResume = () => {}
+
     constructor(
         parent: Element,
         bindings: FnBindings,
@@ -103,6 +105,11 @@ export class UserExecutionContext {
 
     resume = () => {
         this.sendMessage("resume")
+        this.onResume()
+    }
+
+    clearOnResume = () => {
+        this.onResume = () => {}
     }
 }
 

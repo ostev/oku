@@ -294,24 +294,6 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                 }
             },
         },
-        backward: {
-            fn: (context, distance: number) => {
-                bindings.turn.fn(context, 180)
-                bindings.forward.fn(context, distance)
-            },
-        },
-        right: {
-            fn: (context, distance: number) => {
-                bindings.turn.fn(context, 90)
-                bindings.forward.fn(context, distance)
-            },
-        },
-        left: {
-            fn: (context, distance: number) => {
-                bindings.turn.fn(context, -90)
-                bindings.forward.fn(context, distance)
-            },
-        },
     }
 
     const cssRendererRef = useRef<HTMLDivElement | null>(null)
