@@ -525,12 +525,12 @@ export class World {
                 if (this.debug) {
                     $("#playerPos").textContent = altitude.toFixed(4)
                 }
-                if (altitude > 0.5) {
+                if (altitude > 0.9) {
                     movementVector.y -= fallSpeed * delta
                 } else if (altitude < 0.29) {
                     movementVector.y += riseSpeed * delta
                 } else {
-                    const animationDuration = 10_000
+                    const animationDuration = 5_000
                     let isEvenCycle =
                         Math.floor(this.time / animationDuration) % 2 == 0
                     const absoluteAnimationProgress =
@@ -541,7 +541,7 @@ export class World {
                         ? -absoluteAnimationProgress
                         : absoluteAnimationProgress
                     movementVector.y +=
-                        (easeInOutSine(animationProgress) * 2 - 1) * 0.0008
+                        (easeInOutSine(animationProgress) * 2 - 1) * 0.001
                 }
             } else {
                 movementVector.y -= fallSpeed * delta
