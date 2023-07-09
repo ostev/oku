@@ -108,14 +108,14 @@ export class View {
             }
 
             {
-                const folder = this.gui.addFolder("DirectionalLight")
+                const folder = this.gui.addFolder("Directional Light")
                 folder.addColor(new ColorGUIHelper(this.sun, "color"), "value")
                 makeXYZGUI(folder, this.sun.position, "position", onLightChange)
                 folder.open()
             }
 
             {
-                const folder = this.gui.addFolder("Target")
+                const folder = this.gui.addFolder("Directional Light Target")
                 makeXYZGUI(
                     folder,
                     this.sun.target.position,
