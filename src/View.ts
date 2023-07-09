@@ -19,7 +19,7 @@ import { simpleVertex } from "./render/shaders/simple"
 
 export class View {
     camera: Three.OrthographicCamera
-    orthographicScale: number = 0.01
+    private orthographicScale: number = 0.01
 
     scene: Three.Scene
 
@@ -27,8 +27,8 @@ export class View {
     sun = new Three.DirectionalLight()
     lightHelper: Three.DirectionalLightHelper | undefined
 
-    width = 0
-    height = 0
+    private width = 0
+    private height = 0
 
     renderer: Three.WebGLRenderer
     // cssRenderer: CSS3DRenderer
@@ -297,6 +297,11 @@ export class View {
 
         this.composer.render(delta)
         // this.cssRenderer.render(this.scene, this.camera)
+    }
+
+    setOrthographicScale = (scale: number) => {
+        this.orthographicScale = scale
+        this.setSize(this.width, this.height)
     }
 }
 
