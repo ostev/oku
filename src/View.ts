@@ -81,14 +81,16 @@ export class View {
         // this.scene.add(lightHelper)
 
         if (this.debug) {
-            const cameraHelper = new Three.CameraHelper(this.sun.shadow.camera)
+            const shadowCameraHelper = new Three.CameraHelper(
+                this.sun.shadow.camera
+            )
             this.lightHelper = new Three.DirectionalLightHelper(
                 this.sun,
                 1,
                 "red"
             )
             this.scene.add(this.lightHelper)
-            this.scene.add(cameraHelper)
+            this.scene.add(shadowCameraHelper)
 
             this.gui = new GUI()
             {
