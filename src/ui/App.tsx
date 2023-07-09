@@ -69,14 +69,21 @@ export const App = () => {
                     lesson.id.section
                 )}
                 onGoalCompletion={(id) => {
-                    const goalsCompleted = getGoalsCompleted(progress, 1, 1)
+                    console.log("Completed goal", id)
+                    const goalsCompleted = getGoalsCompleted(
+                        progress,
+                        currentLesson.chapter,
+                        currentLesson.section
+                    )
                     if (!goalsCompleted.includes(id)) {
-                        setProgress((progress) => ({
-                            ...progress,
-                            "1-1": {
+                        setProgress((progress) => {
+                            const updatedProgress = { ...progress }
+                            updatedProgress[key] = {
                                 goalsCompleted: [...goalsCompleted, id],
-                            },
-                        }))
+                            }
+
+                            return updatedProgress
+                        })
                     }
                 }}
                 info={lesson}

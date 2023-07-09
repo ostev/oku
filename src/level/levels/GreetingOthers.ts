@@ -5,6 +5,8 @@ import { Vec3, World, getComponent, translation } from "../../World"
 import { Level } from "../Level"
 
 import parkUrl from "../../assets/park.gltf?url"
+import { addPeggy } from "../../characters/peggy"
+import { vec3Distance } from "../../maths"
 
 export class GreetingOthers implements Level {
     //     css = `
@@ -48,27 +50,28 @@ export class GreetingOthers implements Level {
     init = async (world: World) => {
         world.view.setOrthographicScale(0.007)
 
-        await world.importGLTF(parkUrl, new Vec3(1.5, -4, -0.5))
+        await world.importGLTF(parkUrl, new Vec3(1.5, -1, -0.5))
 
-        const entity = world.addEntity(
-            translation(new Vec3(0, 0, 0)),
+        const peggyPosition = new Vec3(0, 0, -2.4)
+        const peggy = await addPeggy(world, peggyPosition)
+
+        const peggyListener = world.addEntity(
+            translation(peggyPosition),
             new Set([
                 {
                     kind: "listener",
                     notify: (event) => {
                         if (event.kind === "speaking") {
-                            const lowercaseText = event.text.toLowerCase()
-                            if (
-                                lowercaseText.includes("hello") &&
-                                lowercaseText.includes("world")
-                            ) {
+                            console.log("Heard", event)
+                            const distance = vec3Distance(
+                                event.source.position,
+                                peggyPosition
+                            )
+                            console.log("Distance: ", distance)
+
+                            if (distance <= 1) {
+                                console.log("Complete 1")
                                 world.completeGoal(1)
-                            } else if (
-                                !lowercaseText.includes(
-                                    "m speaking to you right now"
-                                )
-                            ) {
-                                world.completeGoal(2)
                             }
                         }
                     },

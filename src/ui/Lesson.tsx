@@ -239,9 +239,9 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                                     world.playerMovementVector =
                                         forward.multiplyScalar(speed * delta)
 
-                                    $(
-                                        "#other"
-                                    ).textContent = `${world.playerMovementVector.x}, ${world.playerMovementVector.y}, ${world.playerMovementVector.z}`
+                                    // $(
+                                    //     "#other"
+                                    // ).textContent = `${world.playerMovementVector.x}, ${world.playerMovementVector.y}, ${world.playerMovementVector.z}`
                                 }
                             }
                         }

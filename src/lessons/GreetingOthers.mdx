@@ -2,7 +2,7 @@ export const title = "Greeting others"
 export const chapter = 1
 export const section = 2
 
-export const goals = ["main"]
+export const goals = ["main", "main"]
 
 import { GreetingOthers } from "../level/levels/GreetingOthers"
 export const level = GreetingOthers
@@ -18,7 +18,7 @@ takes a <DocLink symbol="number">number</DocLink> a <DocLink symbol="parameter">
 
 ```javascript
 // 1
-forward(2)
+forward(1.5)
 ```
 
 This number tells me how far to move forward in metres.
@@ -35,7 +35,7 @@ would turn left since you are providing more power to the right engine than the
 left. The third number indicates the amount of time in seconds you want me to
 move for. So, this example tells me to turn left for 3 seconds. */}
 
-Peggy is 3 metres in front of me, but I need to be within 1 metre
+Peggy is 1.5 metres in front of me, but I need to be within 1 metre
 of her to say hello. You need to use both
 <DocLink symbol="move">`forward`</DocLink> and
 <DocLink symbol="say">`say`</DocLink> in the your program. You can give me
@@ -48,25 +48,40 @@ and newlines are kind of like full stops.
 // Laugh maniacally.
 say("Ha ha ha ha!")
 
-// Move backward metres
-backward(4)
+// Move forward 4 metres
+forward(4)
 
-// Laugh again
-say("Hee hee hee hee!")
+// Gloat
+say("Hee hee hee hee! Take that! I crashed into you!")
 ```
 
 <YourTurn>
-<Goal>Move to within one metre of Peggy and speak to her.</Goal>
+<Goal index={1}>Move to within one metre of Peggy and speak to her.</Goal>
 
 ```javascript
 // 3
 // Hint: use both the `forward` and `say` functions
 ```
 
-There are other movement commands beside <DocLink symbol="forward">`forward`</DocLink>: <DocLink symbol="left">`left`</DocLink>, <DocLink symbol="right">`right`</DocLink> and <DocLink symbol="backward">`backward`</DocLink>. You can use these to move in the four cardinal directions.
+In addition to being able to move <DocLink symbol="forward">`forward`</DocLink>, I can also <DocLink symbol="turn">`turn`</DocLink>! Like <DocLink symbol="forward">`forward`</DocLink>, <DocLink symbol="turn">`turn`</DocLink> also takes one parameter: a <DocLink symbol="number">number</DocLink>
+indicating how far I should turn in degrees. You use it like this:
 
-<Goal>
+```javascript
+// 4
+// Turn clockwise 90 degrees
+turn(90)
+
+// Move 1 metre forward
+forward(1)
+```
+
+<Goal index={2}>
     Say hello to Arnold, the robot dog over in the corner, using these new commands.
 </Goal>
+
+```javascript
+// 5
+// Hint: `turn`, then move `forward`, *then* `say` something
+```
 
 </YourTurn>

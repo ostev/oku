@@ -94,6 +94,7 @@ export class World {
     destroy = () => {
         this.stop()
         this.view.destroy()
+        this.entities = null as any
     }
 
     start = () => {
@@ -164,7 +165,7 @@ export class World {
     //     }
     // }
 
-    importGLTF = async (url: string, translation: Vec3) => {
+    importGLTF = async (url: string, translation: Vec3): Promise<Entity[]> => {
         const gltfLoader = new GLTFLoader()
         const gltf = await gltfLoader.loadAsync(url)
 
@@ -189,9 +190,9 @@ export class World {
             )
         })
 
-        for (const { transform, components } of entityDescriptions) {
+        return entityDescriptions.map(({ transform, components }) =>
             this.addEntity(transform, components)
-        }
+        )
 
         // console.log(entityDescriptions)
     }
@@ -525,7 +526,7 @@ export class World {
                 if (this.debug) {
                     $("#playerPos").textContent = altitude.toFixed(4)
                 }
-                if (altitude > 0.9) {
+                if (altitude > 1) {
                     movementVector.y -= fallSpeed * delta
                 } else if (altitude < 0.29) {
                     movementVector.y += riseSpeed * delta
@@ -556,9 +557,6 @@ export class World {
                 movementVector
             )
 
-            // console.log(bobbingAnim)
-            // const bobbingAnim = 0
-
             const correctedMovement = characterController.computedMovement()
             rigidBody.setNextKinematicTranslation(
                 new Rapier.Vector3(
@@ -582,20 +580,27 @@ export class World {
     private animate = (time: number) => {
         const delta = time - this.time
         this.time = time
-        if (this.debug) {
-            $("#fps").textContent = Math.round(1000 / delta).toString()
+
+        if (delta < 100) {
+            if (this.debug) {
+                $("#fps").textContent = Math.round(1000 / delta).toString()
+            }
+
+            // for (const _i of range(
+            //     0,
+            //     Math.max(Math.floor(delta / (this.physics.timestep * 1000)), 1)
+            // )) {
+            this.fixedStep(delta)
+            // }
+
+            this.step(delta)
+
+            this.view.render(delta)
+        } else {
+            console.warn(
+                `Excessive frame time of ${delta.toFixed(0)}ms. Skipping frame.`
+            )
         }
-
-        // for (const _i of range(
-        //     0,
-        //     Math.max(Math.floor(delta / (this.physics.timestep * 1000)), 1)
-        // )) {
-        this.fixedStep(delta)
-        // }
-
-        this.step(delta)
-
-        this.view.render(delta)
 
         this.animRequestHandle = requestAnimationFrame(this.animate)
     }
