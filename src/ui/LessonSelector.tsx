@@ -2,6 +2,7 @@ import { ComponentChildren, FunctionalComponent } from "preact"
 
 import * as HelloWorld from "../lessons/HelloWorld.mdx"
 import * as GreetingOthers from "../lessons/GreetingOthers.mdx"
+import * as SongAndDance from "../lessons/SongAndDance.mdx"
 
 import { Goals, ID, LessonID, LessonInfo } from "./Lesson"
 import { useMemo } from "preact/hooks"
@@ -58,6 +59,7 @@ export const getLessonInfo = (module: typeof HelloWorld): LessonInfo => {
 export const lessons: Record<string, LessonInfo> = {
     "1-1": getLessonInfo(HelloWorld),
     "1-2": getLessonInfo(GreetingOthers),
+    "1-3": getLessonInfo(SongAndDance),
 }
 
 export interface LessonCompletion {
@@ -146,7 +148,7 @@ export const LessonSelector: FunctionalComponent<{
 
     return (
         <div class="flex h-screen">
-            <div class="z-50 grid grid-flow-col auto-cols-max space-x-10 max-w-md p-10 m-auto my-auto bg-slate-200 bg-opacity-80 backdrop-blur-xl rounded-lg drop-shadow-2xl">
+            <div class="z-50 grid grid-flow-col columns-3 space-x-10 w-auto p-10 m-auto my-auto bg-slate-200 bg-opacity-80 backdrop-blur-xl rounded-lg drop-shadow-2xl">
                 {lessonStatus}
             </div>
         </div>

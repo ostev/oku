@@ -2,9 +2,15 @@ export const title = "Song and dance 🎤"
 export const chapter = 1
 export const section = 3
 
+export const goals = ["main", "challenge"]
+
+import { SongAndDance } from "../level/levels/SongAndDance"
+export const level = SongAndDance
+
 Now that we've made some friends, let's put on a show! Peggy is a very talented instrumentalist, so she'll be providing accompaniment to my amazing vocal talents!
 
 ```javascript
+// 1
 say("La la la laaa!")
 ```
 
@@ -13,6 +19,7 @@ I'm great, right? The trouble is, I'm not a very creative robot. I need some hel
 While speaking and moving is all well and good, in order for a dance routine to be great, it needs to be carefully timed. The lyrics need to be one with the moves, and it needs to match the pace of the song. Sometimes, you might want to pause for dramatic effect, or wait until I've finished singing a line to start the next one. That's where <DocLink symbol="wait">`wait`</DocLink> comes in!
 
 ```javascript
+// 2
 // Move forward 1.5 metres 
 forward(1.5)
 
@@ -30,14 +37,13 @@ wait(4)
 say("I love singing every day!")
 ```
 
-<DocLink symbol="wait">`wait`</DocLink> takes one <DocLink symbol="parameter">
-    parameter
-</DocLink>
-: the number of seconds I need to wait. Unlike a human, I don't get impatient, so
+<DocLink symbol="wait">`wait`</DocLink> takes one <DocLink symbol="parameter">parameter</DocLink>:
+the number of seconds I need to wait. Unlike a human, I don't get impatient, so
 I can wait as long as you want! (Within limits, of course.) I can even perform some
 calculations to figure out how long you want me to wait:
 
 ```javascript
+// 3
 // Wait for 2 + 3 = 5 seconds
 wait(2 + 3)
 
@@ -48,6 +54,7 @@ wait(9 - 4)
 The symbols for the addition <DocLink symbol="operator">operators</DocLink> ($+$ and $-$) are the same as in normal maths. Division and multiplication use the symbols `/` and `*` instead of $\times$ and $\div$, since you won't find the last two on any normal keyboard!
 
 ```javascript
+// 4
 // Wait for 2 * 2.5 = 5 seconds
 wait(2 * 2.5)
 
@@ -58,6 +65,7 @@ wait(10 / 2)
 You can also use <DocLink symbol="paranthesis">parantheses</DocLink>--`(` and `)`-- to group calculations, like in maths:
 
 ```javascript
+// 5
 // ❌ Wait for 5 - 2.5 * 2 = 0 seconds ❌
 wait(5 - 2.5 * 2)
 
@@ -72,10 +80,16 @@ wait((5 - 2.5) * 2)
     waiting using `wait`.
 </Goal>
 
+```javascript
+// 6
+```
+
 <Challenge difficulty="easy">
 
-```javascript
+</Challenge>
 
+```javascript
+// 7
 ```
 
 </YourTurn>
