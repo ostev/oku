@@ -193,8 +193,6 @@ export class World {
         return entityDescriptions.map(({ transform, components }) =>
             this.addEntity(transform, components)
         )
-
-        // console.log(entityDescriptions)
     }
 
     importObject = (
@@ -202,9 +200,6 @@ export class World {
         translation: Vec3,
         useShadows: boolean
     ): { transform: Transform; components: Set<Component> } => {
-        // console.log(object.name, object.type)
-        // console.log(object.name, object)
-
         const position = object.getWorldPosition(new Three.Vector3())
         const transform: Transform = {
             position: {

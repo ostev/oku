@@ -2,7 +2,7 @@ import * as Three from "three"
 import * as Rapier from "@dimforge/rapier3d"
 
 import { Vec3, World, getComponent, translation } from "../../World"
-import { Level } from "../Level"
+import { Level, addTestCube } from "../Level"
 
 import parkUrl from "../../assets/park.gltf?url"
 import { addPeggy } from "../../characters/peggy"
@@ -50,9 +50,10 @@ export class GreetingOthers implements Level {
     init = async (world: World) => {
         world.view.setOrthographicScale(0.007)
 
-        await world.importGLTF(parkUrl, new Vec3(1.5, -1, -0.5))
+        const parkPosition = new Vec3(1.5, -1, -1.5)
+        await world.importGLTF(parkUrl, parkPosition)
 
-        const peggyPosition = new Vec3(0, 0, -2.4)
+        const peggyPosition = new Vec3(0, -1, -2.5)
         const peggy = await addPeggy(world, peggyPosition)
 
         const peggyListener = world.addEntity(
@@ -76,6 +77,39 @@ export class GreetingOthers implements Level {
                         }
                     },
                 },
+            ])
+        )
+
+        const arnoldPosition = new Vec3(3.5, 0, 0.5)
+
+        const arnoldListener = world.addEntity(
+            translation(arnoldPosition),
+            new Set([
+                {
+                    kind: "listener",
+                    notify: (event) => {
+                        if (event.kind === "speaking") {
+                            console.log("Arnold heard", event)
+                            const distance = vec3Distance(
+                                event.source.position,
+                                arnoldPosition
+                            )
+                            console.log("Distance from Arnold: ", distance)
+
+                            if (distance <= 1) {
+                                console.log("Complete 2")
+                                world.completeGoal(2)
+                            }
+                        }
+                    },
+                },
+                // {
+                //     kind: "mesh",
+                //     mesh: new Three.Mesh(
+                //         new Three.BoxGeometry(1, 1, 1),
+                //         new Three.MeshStandardMaterial({ color: "white" })
+                //     ),
+                // },
             ])
         )
     }

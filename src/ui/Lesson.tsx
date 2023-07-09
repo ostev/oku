@@ -253,7 +253,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         turn: {
             fn: (context, degrees: number) => {
                 if (worldRef.current !== null) {
-                    const radians = degToRad(degrees)
+                    const radians = -degToRad(degrees)
 
                     const originalRotation = worldRef.current.playerRotation
 
