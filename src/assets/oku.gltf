@@ -3,9 +3,6 @@
 		"generator":"Khronos glTF Blender I/O v3.5.30",
 		"version":"2.0"
 	},
-	"extensionsUsed":[
-		"KHR_materials_emissive_strength"
-	],
 	"scene":0,
 	"scenes":[
 		{
@@ -65,18 +62,14 @@
 	"materials":[
 		{
 			"doubleSided":true,
-			"emissiveFactor":[
-				1,
-				1,
-				1
-			],
-			"extensions":{
-				"KHR_materials_emissive_strength":{
-					"emissiveStrength":4.099999904632568
-				}
-			},
 			"name":"Face",
 			"pbrMetallicRoughness":{
+				"baseColorFactor":[
+					0.2007099986076355,
+					0.7067990899085999,
+					1,
+					1
+				],
 				"metallicFactor":0,
 				"roughnessFactor":0.5
 			}
@@ -85,12 +78,6 @@
 			"doubleSided":true,
 			"name":"Torso",
 			"pbrMetallicRoughness":{
-				"baseColorFactor":[
-					0.03821233659982681,
-					0.5495263338088989,
-					1,
-					1
-				],
 				"metallicFactor":0,
 				"roughnessFactor":0.5
 			}
@@ -99,12 +86,6 @@
 			"doubleSided":true,
 			"name":"Arms",
 			"pbrMetallicRoughness":{
-				"baseColorFactor":[
-					0.25006067752838135,
-					0.8078638911247253,
-					1,
-					1
-				],
 				"metallicFactor":0,
 				"roughnessFactor":0.5
 			}
@@ -113,12 +94,6 @@
 			"doubleSided":true,
 			"name":"Head",
 			"pbrMetallicRoughness":{
-				"baseColorFactor":[
-					0.01817932538688183,
-					0.36580371856689453,
-					0.4232673645019531,
-					1
-				],
 				"metallicFactor":0,
 				"roughnessFactor":0.5
 			}
