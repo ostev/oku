@@ -4,7 +4,7 @@ import * as Rapier from "@dimforge/rapier3d"
 import { Vec3, World, getComponent, translation } from "../../World"
 import { Level } from "../Level"
 
-import parkUrl from "../../assets/park.gltf?url"
+import stageUrl from "../../assets/stage.gltf?url"
 import { addPeggy } from "../../characters/peggy"
 import { vec3Distance } from "../../maths"
 
@@ -50,7 +50,7 @@ export class SongAndDance implements Level {
     init = async (world: World) => {
         world.view.setOrthographicScale(0.007)
 
-        await world.importGLTF(parkUrl, new Vec3(1.5, -1, -0.5))
+        await world.importGLTF(stageUrl, new Vec3(1.5, -1, -0.5))
 
         const peggyPosition = new Vec3(0, 0, -2.4)
         const peggy = await addPeggy(world, peggyPosition)

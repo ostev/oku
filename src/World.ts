@@ -200,6 +200,7 @@ export class World {
         translation: Vec3,
         useShadows: boolean
     ): { transform: Transform; components: Set<Component> } => {
+        console.log(object)
         const position = object.getWorldPosition(new Three.Vector3())
         const transform: Transform = {
             position: {
