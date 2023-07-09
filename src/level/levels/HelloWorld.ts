@@ -4,8 +4,7 @@ import * as Rapier from "@dimforge/rapier3d"
 import { Vec3, World, getComponent, translation } from "../../World"
 import { Level } from "../Level"
 
-import suburbUrl from "../../assets/suburb.gltf?url"
-import { addPeggy } from "../../characters/peggy"
+import plinthUrl from "../../assets/plinth.gltf?url"
 
 export class HelloWorld implements Level {
     //     css = `
@@ -47,7 +46,10 @@ export class HelloWorld implements Level {
     `
 
     init = async (world: World) => {
-        await world.importGLTF(suburbUrl, new Vec3(4, -2, -2.2))
+        world.view.setOrthographicScale(0.005)
+
+        // await world.importGLTF(suburbUrl, new Vec3(4, -2, -2.2))
+        await world.importGLTF(plinthUrl, new Vec3(0, -4, 0))
 
         const entity = world.addEntity(
             translation(new Vec3(0, 0, 0)),
