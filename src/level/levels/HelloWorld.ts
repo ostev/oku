@@ -76,27 +76,6 @@ export class HelloWorld implements Level {
                 },
             ])
         )
-
-        // const mesh = new Three.Mesh(
-        //     new Three.BoxGeometry(2, 2, 2),
-        //     new Three.MeshStandardMaterial({ color: "white" })
-        // )
-        // const rigidBodyDesc = Rapier.RigidBodyDesc.dynamic()
-        //     .setTranslation(0, 5, 0)
-        //     .setAdditionalMass(2)
-        // const rigidBody = world.physics.createRigidBody(rigidBodyDesc)
-        // const collider = world.physics.createCollider(
-        //     Rapier.ColliderDesc.cuboid(1, 1, 1),
-        //     rigidBody
-        // )
-
-        // world.addEntity(
-        //     translation(new Vec3(0, 5, 0)),
-        //     new Set([
-        //         { kind: "mesh", mesh },
-        //         { kind: "rigidBody", rigidBody, collider },
-        //     ])
-        // )
     }
 
     step = (delta: number, time: number, world: World) => {}
