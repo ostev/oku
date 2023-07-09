@@ -71,7 +71,7 @@ export class View {
             this.sun.shadow.camera.top = size
             this.sun.shadow.camera.bottom = -size
 
-            const res = 1024
+            const res = 2048
             this.sun.shadow.mapSize.width = res
             this.sun.shadow.mapSize.height = res
         }
