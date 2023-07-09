@@ -32,10 +32,16 @@ import { Button, ButtonKind } from "./Button"
 
 export const App = () => {
     const [progress, setProgress] = useStorage<Progress>("progress", {})
-    const [currentLesson, setCurrentLesson] = useStorage<LessonID>(
+    const [currentLesson, setCurrentLesson] = useStorage<LessonID | undefined>(
         "currentLesson",
-        { chapter: 1, section: 1 }
+        undefined
     )
+
+    useEffect(() => {
+        if (localStorage.getItem("currentLesson") === null) {
+            setCurrentLesson({ chapter: 1, section: 1 })
+        }
+    })
 
     const [showLessonPicker, setShowLessonPicker] = useState(false)
 
@@ -48,32 +54,37 @@ export const App = () => {
     // }
 
     // return <div class="">{/* <div class="border-r h-screen p-2"> */}</div>
+    let lessonElement
 
-    const key = `${currentLesson.chapter}-${currentLesson.section}`
+    if (currentLesson !== undefined) {
+        const key = `${currentLesson.chapter}-${currentLesson.section}`
 
-    const lesson = lessons[key]
+        const lesson = lessons[key]
 
-    const lessonElement = (
-        <Lesson
-            completedGoals={getGoalsCompleted(
-                progress,
-                lesson.id.chapter,
-                lesson.id.section
-            )}
-            onGoalCompletion={(id) => {
-                const goalsCompleted = getGoalsCompleted(progress, 1, 1)
-                if (!goalsCompleted.includes(id)) {
-                    setProgress((progress) => ({
-                        ...progress,
-                        "1-1": {
-                            goalsCompleted: [...goalsCompleted, id],
-                        },
-                    }))
-                }
-            }}
-            info={lesson}
-        />
-    )
+        lessonElement = (
+            <Lesson
+                completedGoals={getGoalsCompleted(
+                    progress,
+                    lesson.id.chapter,
+                    lesson.id.section
+                )}
+                onGoalCompletion={(id) => {
+                    const goalsCompleted = getGoalsCompleted(progress, 1, 1)
+                    if (!goalsCompleted.includes(id)) {
+                        setProgress((progress) => ({
+                            ...progress,
+                            "1-1": {
+                                goalsCompleted: [...goalsCompleted, id],
+                            },
+                        }))
+                    }
+                }}
+                info={lesson}
+            />
+        )
+    } else {
+        lessonElement = undefined
+    }
 
     return (
         // <Lesson
