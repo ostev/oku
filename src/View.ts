@@ -77,7 +77,7 @@ export class View {
         }
 
         this.scene.add(this.ambientLight)
-        // this.scene.add(this.sun)
+        this.scene.add(this.sun)
         // this.scene.add(lightHelper)
 
         if (this.debug) {

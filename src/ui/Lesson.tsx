@@ -392,12 +392,14 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         if (levelRef.current !== null) {
             worldRef.current?.unregisterStepFunction(levelRef.current.step)
         }
+        levelRef.current?.destroy(worldRef.current as World)
+        levelRef.current = null
+
         worldRef.current?.destroy()
+        worldRef.current = null
+
         resizeObserverRef.current?.unobserve(viewParentRef.current as Element)
         resizeObserverRef.current?.disconnect()
-        worldRef.current = null
-        levelRef.current?.destroy()
-        levelRef.current = null
     }
 
     useEffect(() => {

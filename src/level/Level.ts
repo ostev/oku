@@ -7,7 +7,7 @@ export interface Level {
     css: string
     init: (world: World) => Promise<void>
     step: (delta: number, time: number, world: World) => void
-    destroy: () => void
+    destroy: (world: World) => void
 }
 
 export const addTestCube = (world: World) => {
