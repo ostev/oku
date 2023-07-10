@@ -17,18 +17,12 @@ import { FnBindings } from "./userExecutionContext/bindings"
 
 export class Editor {
     private view: EditorView
-    private userExecutionContext: UserExecutionContext
 
     player: Entity | undefined
     playerCharacterController: Rapier.KinematicCharacterController | undefined
     playerRigidBody: Rapier.RigidBody | undefined
 
-    constructor(
-        parent: Element,
-        executionParent: Element,
-        bindings: FnBindings,
-        onExecutionError: (error: Error) => void
-    ) {
+    constructor(parent: Element) {
         // this.world = world
         // addPlayer(world).then((player) => {
         //     this.player = player
@@ -47,11 +41,6 @@ export class Editor {
             extensions: [basicSetup, javascript()],
             parent,
         })
-        this.userExecutionContext = new UserExecutionContext(
-            executionParent,
-            bindings,
-            onExecutionError
-        )
         // helloThere: { fn: () => console.log("Hi!") },
         // forward: {
         //     fn: (duration: number) => {
@@ -102,18 +91,18 @@ export class Editor {
 
     destroy = () => {
         this.view.destroy()
-        this.userExecutionContext.destroy()
+        // this.userExecutionContext.destroy()
     }
 
-    run = async () => {
-        this.userExecutionContext.evalAsync(this.code)
-    }
+    // run = async () => {
+    //     this.userExecutionContext.evalAsync(this.code)
+    // }
 
-    sendMessageToExecutionContext = (msg: string) => {
-        this.userExecutionContext.sendMessage(msg)
-    }
+    // sendMessageToExecutionContext = (msg: string) => {
+    //     this.userExecutionContext.sendMessage(msg)
+    // }
 
-    resumeExecution = () => {
-        this.userExecutionContext.resume()
-    }
+    // resumeExecution = () => {
+    //     this.userExecutionContext.resume()
+    // }
 }

@@ -168,7 +168,10 @@ export const Lesson: FunctionComponent<LessonProps> = ({
     )
     const [speechHistory, setSpeechHistory] = useState<string[]>([])
 
-    const debug = import.meta.env.DEV
+    const executionContextRef = useRef<UserExecutionContext | undefined>(
+        undefined
+    )
+    const executionParentRef = useRef<HTMLDivElement | null>(null)
 
     const bindings: FnBindings = {
         wait: { fn: () => {} },
@@ -296,6 +299,18 @@ export const Lesson: FunctionComponent<LessonProps> = ({
             },
         },
     }
+
+    useEffect(() => {
+        if (executionParentRef.current !== null) {
+            executionContextRef.current = new UserExecutionContext(
+                executionParentRef.current,
+                bindings,
+                setExecutionError
+            )
+        }
+    }, [])
+
+    const debug = import.meta.env.DEV
 
     const cssRendererRef = useRef<HTMLDivElement | null>(null)
 
@@ -491,12 +506,15 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                 initialCode={initialCode}
                 readerRef={readWriteRef}
                 additionalToolbarItems={additionalToolbarItems}
-                onExecutionError={setExecutionError}
-                onRun={(code) => {
+                onRun={async (code) => {
                     destroy()
-                    return init().then(() => {
-                        setStoredCode(code)
-                    })
+                    await init()
+
+                    setStoredCode(code)
+
+                    if (executionContextRef.current !== undefined) {
+                        await executionContextRef.current.evalAsync(code)
+                    }
                 }}
                 onFocus={() => {
                     if (worldRef.current?.isRunning) {
@@ -631,7 +649,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                     </ol>
                 </div>
             ) : undefined}
-            {/* {errorModal} */}
+            <div ref={executionParentRef}></div>
         </div>
     )
 }

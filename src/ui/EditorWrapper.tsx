@@ -4,6 +4,7 @@ import { FnBindings } from "../userExecutionContext/bindings"
 import { NotYetImplementedError, error } from "../helpers"
 import { ComponentChildren, FunctionComponent } from "preact"
 import { Button } from "./Button"
+import { UserExecutionContext } from "../userExecutionContext/UserExecutionContext"
 
 const EditorNotInitialisedError = error("EditorNotInitialisedError")
 
@@ -61,8 +62,7 @@ export interface EditorWrapperProps {
     initialCode: string
     readerRef?: MutableRef<EditorReadWriter>
     additionalToolbarItems?: ComponentChildren
-    onExecutionError: (error: Error) => void
-    onRun?: (code: string) => Promise<void>
+    onRun: (code: string) => Promise<void>
     onFocus?: () => void
     onBlur?: () => void
 }
@@ -72,14 +72,11 @@ export const EditorWrapper: FunctionComponent<EditorWrapperProps> = ({
     initialCode,
     readerRef,
     additionalToolbarItems,
-    onExecutionError,
     onRun,
     onFocus,
     onBlur,
 }) => {
     const editorParent: MutableRef<HTMLDivElement | null> = useRef(null)
-    const executionContextParent: MutableRef<HTMLDivElement | null> =
-        useRef(null)
 
     let editorRef: MutableRef<Editor | null> = useRef(null)
 
@@ -90,16 +87,8 @@ export const EditorWrapper: FunctionComponent<EditorWrapperProps> = ({
     // })
 
     useEffect(() => {
-        if (
-            editorParent.current !== null &&
-            executionContextParent.current !== null
-        ) {
-            editorRef.current = new Editor(
-                editorParent.current,
-                executionContextParent.current,
-                bindings,
-                onExecutionError
-            )
+        if (editorParent.current !== null) {
+            editorRef.current = new Editor(editorParent.current)
 
             const el =
                 editorRef.current.domElement.getElementsByClassName(
@@ -120,6 +109,7 @@ export const EditorWrapper: FunctionComponent<EditorWrapperProps> = ({
             }
 
             return () => {
+                console.log("Destroy editor")
                 editorRef.current?.destroy()
             }
         } else {
@@ -141,21 +131,13 @@ export const EditorWrapper: FunctionComponent<EditorWrapperProps> = ({
     //     )
     // }, [bindings])
 
-    const run = () => {
-        editorRef.current?.run()
-    }
-
     return (
         <div class="w-full">
             <div class="mb-2">
                 <EditorToolbar
                     run={() => {
-                        if (onRun !== undefined && editorRef.current !== null) {
-                            onRun(editorRef.current.code).then(() => {
-                                run()
-                            })
-                        } else {
-                            run()
+                        if (editorRef.current !== null) {
+                            onRun(editorRef.current.code)
                         }
                     }}
                     prettify={() => {}}
@@ -164,7 +146,6 @@ export const EditorWrapper: FunctionComponent<EditorWrapperProps> = ({
                 </EditorToolbar>
             </div>
             <div ref={editorParent}></div>
-            <div ref={executionContextParent}></div>
         </div>
     )
 }
