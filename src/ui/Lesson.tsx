@@ -195,6 +195,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         },
         forward: {
             fn: (context: UserExecutionContext, distance: number) => {
+                console.log("Forward")
                 if (worldRef.current !== null && playerRef.current !== null) {
                     const startingPlayerPos =
                         playerRef.current.transform.position

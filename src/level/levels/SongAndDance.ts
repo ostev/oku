@@ -67,18 +67,17 @@ export class SongAndDance implements Level {
         canvas {
             background-image: linear-gradient(
                 45deg,
-                hsl(128deg 16% 65%) 0%,
-                hsl(157deg 30% 58%) 27%,
-                hsl(174deg 51% 47%) 40%,
-                hsl(184deg 100% 38%) 50%,
-                hsl(193deg 100% 44%) 60%,
-                hsl(200deg 100% 49%) 69%,
-                hsl(203deg 100% 50%) 77%,
-                hsl(207deg 100% 50%) 85%,
-                hsl(251deg 100% 71%) 92%,
-                hsl(291deg 85% 58%) 100%
+                hsl(240deg 100% 20%) 0%,
+                hsl(255deg 95% 24%) 21%,
+                hsl(261deg 89% 27%) 30%,
+                hsl(266deg 83% 32%) 39%,
+                hsl(270deg 78% 36%) 46%,
+                hsl(273deg 74% 40%) 54%,
+                hsl(276deg 71% 45%) 61%,
+                hsl(279deg 69% 49%) 69%,
+                hsl(282deg 75% 53%) 79%,
+                hsl(285deg 86% 57%) 100%
             );
-
         }
     `
 

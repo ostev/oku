@@ -59,8 +59,10 @@ export class UserExecutionContext {
 
     private messageEventListener = (e: MessageEvent<unknown>) => {
         if (e.source !== this.iframe?.contentWindow) {
+            console.log("Ignoring message:", e.data)
             return
         }
+        console.log("Received message from iframe:", e.data)
 
         // Check that we received an array and that the program finished
         if (Array.isArray(e.data) && e.data[0] === "result") {
@@ -75,6 +77,7 @@ export class UserExecutionContext {
             !e.data[0].includes("proto") &&
             this.bindings.hasOwnProperty(e.data[0])
         ) {
+            console.log("Calling binding", e.data)
             const name = e.data[0] as string
             const args = (e.data as any[]).slice(1)
             const bindingInfo = this.bindings[name]
