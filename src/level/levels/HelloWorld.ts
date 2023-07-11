@@ -67,7 +67,8 @@ export class HelloWorld extends Level {
                             } else if (
                                 !lowercaseText.includes(
                                     "m speaking to you right now"
-                                )
+                                ) &&
+                                lowercaseText.match(/\w/) !== null
                             ) {
                                 world.completeGoal(2)
                             }
