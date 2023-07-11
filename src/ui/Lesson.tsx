@@ -683,7 +683,11 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         <div>
             <article
                 class="absolute top-0 left-0 z-10 m-3 p-5 bg-slate-100 bg-opacity-90 rounded-lg overflow-x-hidden shadow-lg backdrop-blur-lg"
-                style={{ width: 600, height: "calc(100% - 1.5rem)" }}
+                style={{
+                    width: 600,
+                    height: "calc(100% - 1.5rem)",
+                    resize: "horizontal",
+                }}
             >
                 <H1 className="mb-4">{info.title}</H1>
                 <MDXProvider components={components}>
