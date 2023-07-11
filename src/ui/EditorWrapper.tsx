@@ -62,7 +62,8 @@ export interface EditorWrapperProps {
     initialCode: string
     readerRef?: MutableRef<EditorReadWriter>
     additionalToolbarItems?: ComponentChildren
-    onRun: (code: string) => Promise<void>
+    runnable?: boolean
+    onRun?: (code: string) => Promise<void>
     onFocus?: () => void
     onBlur?: () => void
 }
@@ -72,6 +73,7 @@ export const EditorWrapper: FunctionComponent<EditorWrapperProps> = ({
     initialCode,
     readerRef,
     additionalToolbarItems,
+    runnable,
     onRun,
     onFocus,
     onBlur,
@@ -134,16 +136,21 @@ export const EditorWrapper: FunctionComponent<EditorWrapperProps> = ({
     return (
         <div class="w-full">
             <div class="mb-2">
-                <EditorToolbar
-                    run={() => {
-                        if (editorRef.current !== null) {
-                            onRun(editorRef.current.code)
-                        }
-                    }}
-                    prettify={() => {}}
-                >
-                    {additionalToolbarItems}
-                </EditorToolbar>
+                {runnable === undefined || runnable == true ? (
+                    <EditorToolbar
+                        run={() => {
+                            if (
+                                editorRef.current !== null &&
+                                onRun !== undefined
+                            ) {
+                                onRun(editorRef.current.code)
+                            }
+                        }}
+                        prettify={() => {}}
+                    >
+                        {additionalToolbarItems}
+                    </EditorToolbar>
+                ) : undefined}
             </div>
             <div ref={editorParent}></div>
         </div>

@@ -39,7 +39,7 @@ function tween(light: Three.SpotLight) {
         .start()
 }
 
-export class SongAndDance extends Level {
+export class PopConcert extends Level {
     private previousSpotlightAnimationTime: number = 0
     private spotlights: Three.SpotLight[] = []
     private spotlightHelpers: Three.SpotLightHelper[] | undefined
@@ -120,20 +120,31 @@ export class SongAndDance extends Level {
 
                             case "executionComplete":
                                 if (
-                                    world.playerRaycastHits &&
+                                    world.code !== undefined &&
                                     this.mainGoalIsComplete()
                                 ) {
-                                    world.completeGoal(2)
-                                    console.log("Player remained on stage")
+                                    {
+                                        const regex =
+                                            /(let|var|const) (.+) =(.*)/
+                                        const match = world.code.match(regex)
+                                        if (match !== null) {
+                                            world.completeGoal(2)
+                                        }
+                                    }
+
+                                    {
+                                        const regex = /\+\s*"(.*)"/
+                                        const match = world.code.match(regex)
+                                        console.log(match)
+                                        if (match !== null) {
+                                            world.completeGoal(3)
+                                        }
+                                    }
                                 }
                                 break
 
                             default:
                                 break
-                        }
-
-                        if (this.mainGoalIsComplete()) {
-                            world.completeGoal(1)
                         }
                     },
                 },

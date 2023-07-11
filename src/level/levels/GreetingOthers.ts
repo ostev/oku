@@ -8,7 +8,7 @@ import parkUrl from "../../assets/park.gltf?url"
 import { addPeggy } from "../../characters/peggy"
 import { vec3Distance } from "../../maths"
 
-export class GreetingOthers implements Level {
+export class GreetingOthers extends Level {
     //     css = `
     //         canvas {
     //             background-image: linear-gradient(

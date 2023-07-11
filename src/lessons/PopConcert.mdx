@@ -2,6 +2,11 @@ export const title = "Pop concert"
 export const chapter = 2
 export const section = 1
 
+export const goals = ["main", "challenge"]
+
+import { PopConcert } from "../level/levels/PopConcert"
+export const level = PopConcert
+
 Let's extend our song and dance routine a little bit and add some more move variations. I'm going to introduce you to a new programming concept in this one, so hold tight.
 
 You may have noticed that both the example and your own code were highly repetitive. If you wanted to change something, you would have to find and replace every occurrence of it across the program! For instance, if I wanted to increase the dramatic pauses and change the lyrics of the chorus, I would have to replace `4` everywhere and painstakingly type out the lyrics again and again for each repetition. Isn't that annoying?
@@ -19,6 +24,7 @@ remember, you <DocLink symbol="functionCall">call</DocLink> a function by adding
 {/* seperated by <DocLink symbol="comma">commas</DocLink>, like this: */}
 
 ```javascript
+// 1
 say("Hi!")
 ```
 
@@ -34,14 +40,16 @@ problem.
 We declare a variable using the following code:
 
 ```javascript
+// 2
 let speed = 3
 ```
 
 <DocLink symbol="let">`let`</DocLink> is an example of a <DocLink symbol="keyword">keyword</DocLink>--that's why it's highlighted purple. <DocLink symbol="keyword">keywords</DocLink> introduce certain <DocLink symbol="statement">statements</DocLink> like variable declarations. `speed` is the name of the <DocLink symbol="variable">variable</DocLink>, and the <DocLink symbol="assignmentOperator">equals sign (`=`)</DocLink> separates the name from its value. We can now refer to the <DocLink symbol="number">number</DocLink> `3` by the name `speed` instead of its value. That allows us to easily adjust the speed of the routine without changing every single occurrence of the number `3`! We can also use the mathematical operators we learned about earlier to adjust the duration of the pause.
 
-<Challenge difficulty="easy">Try changing the value of `speed` to something else and see how the program changes.</Challenge>
+<Challenge difficulty="easy" index={1}>Try changing the value of `speed` to something else and see how the program changes.</Challenge>
 
 ```javascript
+// 3
 let speed = 3
 
 say("La la la!")
@@ -57,17 +65,21 @@ wait(speed * 2)
 <YourTurn>
 Programmers often spend time <DocLink symbol="refactor">refactoring</DocLink>--that is, they rewrite sections of already working code to make it cleaner and easier to maintain. Refactors can often help eliminate <DocLink symbol="bug">bugs</DocLink> and other problems with the code by making it easier to understand.
 
-<Goal>
+<Goal index={2}>
 Refactor your existing program from <Ref chapter={1} section={3}>"Song and dance 🎤"</Ref> to integrate variables.
 </Goal>
+```javascript
+// 4
+```
 
-<Hint number={1}>Create a variable called `speed`.</Hint>
-<Hint number={2}>Use mathematical operators like `+`, `-`, `*` and `/` to derive the different wait times from `speed`</Hint>
-<Hint number={3}>
+<Hint index={1}>Create a variable called `speed`.</Hint>
+<Hint index={2}>Use mathematical operators like `+`, `-`, `*` and `/` to derive the different wait times from `speed`</Hint>
+<Hint index={3}>
 Here's a scaffold:
 
 ```javascript
-// static
+// 5
+// no-run
 
 let speed = [insert speed here]
 
@@ -79,10 +91,12 @@ wait(speed * (5 / 3))
 ```
 </Hint>
 
-<Challenge difficulty="medium">
+<Challenge difficulty="medium" index={3}>
 In <DocLink symbol="javascript">JavaScript</DocLink>, you can also add <DocLink symbol="string">strings</DocLink> together using the addition operator (`+`). Create a new variable called `baseLyrics` and add strings to it for the lines of the chorus, like this:
 
 ```javascript
+// 6
+// no-run
 let speed = 2
 let baseLyrics = "La la"
 

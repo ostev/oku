@@ -6,7 +6,7 @@ import { Level } from "../Level"
 
 import plinthUrl from "../../assets/plinth.gltf?url"
 
-export class HelloWorld implements Level {
+export class HelloWorld extends Level {
     //     css = `
     //         canvas {
     //             background-image: linear-gradient(

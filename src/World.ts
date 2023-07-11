@@ -53,6 +53,8 @@ export class World {
 
     isRunning: boolean = false
 
+    code: string | undefined
+
     completeGoal: (index: number) => void
 
     // objectLoader = new Three.ObjectLoader()

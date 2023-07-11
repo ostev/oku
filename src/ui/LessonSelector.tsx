@@ -3,6 +3,7 @@ import { ComponentChildren, FunctionalComponent } from "preact"
 import * as HelloWorld from "../lessons/HelloWorld.mdx"
 import * as GreetingOthers from "../lessons/GreetingOthers.mdx"
 import * as SongAndDance from "../lessons/SongAndDance.mdx"
+import * as PopConcert from "../lessons/PopConcert.mdx"
 
 import { Goals, ID, LessonID, LessonInfo } from "./Lesson"
 import { useMemo } from "preact/hooks"
@@ -60,6 +61,7 @@ export const lessons: Record<string, LessonInfo> = {
     "1-1": getLessonInfo(HelloWorld),
     "1-2": getLessonInfo(GreetingOthers),
     "1-3": getLessonInfo(SongAndDance),
+    "2-1": getLessonInfo(PopConcert),
 }
 
 export interface LessonCompletion {

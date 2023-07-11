@@ -3,11 +3,13 @@ import * as Rapier from "@dimforge/rapier3d"
 
 import { Vec3, World, translation } from "../World"
 
-export interface Level {
-    css: string
-    init: (world: World) => Promise<void>
-    step: (delta: number, time: number, world: World) => void
-    destroy: (world: World) => void
+export class Level {
+    css: string = ""
+    init: (world: World) => Promise<void> = async () => {}
+    step: (delta: number, time: number, world: World) => void = () => {}
+    destroy: (world: World) => void = () => {}
+
+    constructor() {}
 }
 
 export const addTestCube = (world: World) => {

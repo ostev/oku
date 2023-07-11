@@ -9,8 +9,6 @@ import {
 
 import * as Three from "three"
 
-import { HelloWorld } from "../level/levels/HelloWorld"
-
 import { H1, Heading } from "./Heading"
 import { EditorReadWriter, EditorWrapper } from "./EditorWrapper"
 import { FnBindings } from "../userExecutionContext/bindings"
@@ -48,8 +46,18 @@ export interface LessonID {
 
 export const CodeExcerptIDNotFoundError = error("CodeExcerptIDNotFoundError")
 
+export const Hint: FunctionalComponent<{ index: number }> = ({
+    children,
+    index,
+}) => (
+    <details class="bg-slate-200 bg-opacity-60 backdrop-blur-sm m-1 my-3 p-3 rounded-lg">
+        <summary class="font-bold text-lg">Hint {index}</summary>
+        {children}
+    </details>
+)
+
 export const FunFact: FunctionalComponent = ({ children }) => (
-    <div class="bg-slate-200 bg-opacity-40 backdrop-blur-sm m-1 my-3 p-3 rounded-lg">
+    <div class="bg-slate-200 bg-opacity-60 backdrop-blur-sm m-1 my-3 p-3 rounded-lg">
         <Heading level={3}>Fun fact! 💡</Heading>
         {children}
     </div>
@@ -110,7 +118,7 @@ export interface LessonInfo {
     title: string
     id: LessonID
     content: FunctionComponent
-    level: typeof HelloWorld
+    level: typeof Level
     goals: Goals
 }
 
@@ -340,10 +348,12 @@ export const Lesson: FunctionComponent<LessonProps> = ({
     }
 
     const onFinish = () => {
-        worldRef.current?.activateEvent({
-            event: { kind: "executionComplete" },
-            source: new EventSource(new Vec3(0, 0, 0)),
-        })
+        if (worldRef.current !== null) {
+            worldRef.current.activateEvent({
+                event: { kind: "executionComplete" },
+                source: new EventSource(new Vec3(0, 0, 0)),
+            })
+        }
     }
 
     useEffect(() => {
@@ -475,7 +485,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
     }, [info])
 
     const Code: FunctionComponent = ({ children }) => {
-        const { initialCode, index } = useMemo(() => {
+        const { initialCode, index, runnable } = useMemo(() => {
             let code: string
 
             if (typeof children === "object") {
@@ -505,7 +515,10 @@ export const Lesson: FunctionComponent<LessonProps> = ({
             }
 
             lines.shift()
-            return { initialCode: lines.join("\n") + "\n", index }
+
+            const runnable = !lines[0].includes("no-run")
+
+            return { initialCode: lines.join("\n") + "\n", index, runnable }
         }, [children])
 
         const [storedCode, setStoredCode] = useStorage(
@@ -553,10 +566,16 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                 initialCode={initialCode}
                 readerRef={readWriteRef}
                 additionalToolbarItems={additionalToolbarItems}
+                runnable={runnable}
                 onRun={async (code) => {
                     setSpeechHistory([])
                     destroy()
+
                     await init()
+
+                    if (worldRef.current !== null) {
+                        worldRef.current.code = code
+                    }
 
                     setStoredCode(code)
 
@@ -632,9 +651,9 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         p: Paragraph,
         DocLink,
         YourTurn,
-        Challenge,
+        Challenge: Goal,
         Goal,
-        Hint: Paragraph,
+        Hint,
         Ref,
     }
 
@@ -657,8 +676,8 @@ export const Lesson: FunctionComponent<LessonProps> = ({
     return (
         <div>
             <article
-                class="h-full absolute top-0 left-0 z-10 m-3 p-5 bg-slate-100 bg-opacity-90 rounded-lg overflow-x-hidden shadow-lg backdrop-blur-lg"
-                style={{ width: 600 }}
+                class="absolute top-0 left-0 z-10 m-3 p-5 bg-slate-100 bg-opacity-90 rounded-lg overflow-x-hidden shadow-lg backdrop-blur-lg"
+                style={{ width: 600, height: "calc(100% - 1.5rem)" }}
             >
                 <H1 className="mb-4">{info.title}</H1>
                 <MDXProvider components={components}>
