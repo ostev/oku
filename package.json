@@ -2,7 +2,11 @@
     "name": "programming-game",
     "private": true,
     "version": "0.0.0",
-    "main": "src/main.js",
+    "main": ".vite/build/main.js",
+    "author": {
+        "name": "Oscar Stevens"
+    },
+    "description": "Untitled programming game for 2023 Australian Student Game Challenge",
     "scripts": {
         "dev": "vite",
         "build": "tsc && vite build",
@@ -23,6 +27,7 @@
         "@electron-forge/plugin-auto-unpack-natives": "^6.2.1",
         "@electron-forge/plugin-vite": "^6.2.1",
         "@preact/preset-vite": "^2.5.0",
+        "@rabbitholesyndrome/electron-forge-maker-portable": "^0.1.1",
         "@types/chroma-js": "^2.4.0",
         "@types/three": "^0.152.1",
         "autoprefixer": "^10.4.14",
