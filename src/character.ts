@@ -1,7 +1,7 @@
 import * as Three from "three"
 import { createLitMaterial } from "./lighting"
 import {
-    AudioSource,
+    EventSource,
     Entity,
     RigidBody,
     Vec3,
@@ -85,7 +85,7 @@ export const addCharacter = async (
             },
             { kind: "rigidBody", rigidBody, collider },
             { kind: "player" },
-            new AudioSource(new Vec3(0, 0, 0)),
+            new EventSource(new Vec3(0, 0, 0)),
         ])
     )
 

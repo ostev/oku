@@ -54,18 +54,18 @@ export class GreetingOthers implements Level {
         await world.importGLTF(parkUrl, parkPosition)
 
         const peggyPosition = new Vec3(0, -1, -2.5)
-        const peggy = await addPeggy(world, peggyPosition)
+        await addPeggy(world, peggyPosition)
 
-        const peggyListener = world.addEntity(
+        world.addEntity(
             translation(peggyPosition),
             new Set([
                 {
                     kind: "listener",
-                    notify: (event) => {
+                    notify: ({ event, source }) => {
                         if (event.kind === "speaking") {
                             console.log("Heard", event)
                             const distance = vec3Distance(
-                                event.source.position,
+                                source.position,
                                 peggyPosition
                             )
                             console.log("Distance: ", distance)
@@ -82,16 +82,16 @@ export class GreetingOthers implements Level {
 
         const arnoldPosition = new Vec3(3.5, 0, 0.5)
 
-        const arnoldListener = world.addEntity(
+        world.addEntity(
             translation(arnoldPosition),
             new Set([
                 {
                     kind: "listener",
-                    notify: (event) => {
+                    notify: ({ event, source }) => {
                         if (event.kind === "speaking") {
                             console.log("Arnold heard", event)
                             const distance = vec3Distance(
-                                event.source.position,
+                                source.position,
                                 arnoldPosition
                             )
                             console.log("Distance from Arnold: ", distance)

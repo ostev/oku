@@ -5,6 +5,7 @@ import { FnBindings } from "./bindings"
 export class UserExecutionContext {
     private iframe: HTMLIFrameElement | undefined
     private onError: (error: Error) => void
+    private onFinish: () => void
 
     bindings: FnBindings
 
@@ -13,9 +14,11 @@ export class UserExecutionContext {
     constructor(
         parent: Element,
         bindings: FnBindings,
-        onError: (error: Error) => void
+        onError: (error: Error) => void,
+        onFinish: () => void
     ) {
         this.onError = onError
+        this.onFinish = onFinish
         this.bindings = bindings
         this.initialiseIFrame(parent)
     }
@@ -66,7 +69,7 @@ export class UserExecutionContext {
 
         // Check that we received an array and that the program finished
         if (Array.isArray(e.data) && e.data[0] === "result") {
-            // Nothing for now
+            this.onFinish()
         } else if (Array.isArray(e.data) && e.data[0] === "error") {
             console.error("Your code has an error! 😲 Here it is:")
             console.error(e.data[1])

@@ -1,7 +1,7 @@
 import { MutableRef, useEffect, useMemo, useRef, useState } from "preact/hooks"
 
 import {
-    AudioSource,
+    EventSource,
     Entity,
     NoIndicesFoundOnGeometryError,
     Vec3,
@@ -70,21 +70,27 @@ export const App = () => {
                 )}
                 onGoalCompletion={(id) => {
                     console.log("Completed goal", id)
-                    const goalsCompleted = getGoalsCompleted(
-                        progress,
-                        currentLesson.chapter,
-                        currentLesson.section
-                    )
-                    if (!goalsCompleted.includes(id)) {
-                        setProgress((progress) => {
+
+                    setProgress((progress) => {
+                        const goalsCompleted = getGoalsCompleted(
+                            progress,
+                            currentLesson.chapter,
+                            currentLesson.section
+                        )
+
+                        if (goalsCompleted.find(id.equals) === undefined) {
                             const updatedProgress = { ...progress }
                             updatedProgress[key] = {
                                 goalsCompleted: [...goalsCompleted, id],
                             }
 
+                            console.log("Updated progress to:", updatedProgress)
+
                             return updatedProgress
-                        })
-                    }
+                        } else {
+                            return progress
+                        }
+                    })
                 }}
                 info={lesson}
             />

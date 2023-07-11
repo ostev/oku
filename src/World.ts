@@ -59,7 +59,8 @@ export class World {
 
     playerMovementVector = new Rapier.Vector3(0, 0, 0)
     /// Player rotation in radians
-    playerRotation: number = 0
+    playerRotation = 0
+    playerRaycastHits = true
 
     view: View
     physics: Rapier.World
@@ -136,7 +137,7 @@ export class World {
         this.isRunning = false
     }
 
-    activateAudioEvent = (event: AudioEvent) => {
+    activateEvent = (event: WorldEventInfo) => {
         const listenerEntities = this.getEntities("listener")
 
         for (const listenerEntity of listenerEntities) {
@@ -463,11 +464,11 @@ export class World {
         //         .altitude
         // }
 
-        for (const entity of this.getEntities("audioSource")) {
+        for (const entity of this.getEntities("eventSource")) {
             const audioSource = getComponent(
                 entity,
-                "audioSource"
-            ) as AudioSource
+                "eventSource"
+            ) as EventSource
             audioSource.position = entity.transform.position
         }
 
@@ -517,6 +518,8 @@ export class World {
             )
 
             if (hit !== null) {
+                this.playerRaycastHits = true
+
                 const hitPoint = ray.pointAt(hit.toi)
                 const altitude = vec3Distance(currentPosition, hitPoint)
                 if (this.debug) {
@@ -542,6 +545,7 @@ export class World {
                 }
             } else {
                 movementVector.y -= fallSpeed * delta
+                this.playerRaycastHits = false
 
                 if (this.debug) {
                     $("#playerPos").textContent = "No hit"
@@ -630,7 +634,7 @@ export type ComponentKind =
     | "characterController"
     | "collider"
     | "player"
-    | "audioSource"
+    | "eventSource"
     | "listener"
 
 export type Component =
@@ -641,7 +645,7 @@ export type Component =
     | CharacterController
     | Player
     | Collider
-    | AudioSource
+    | EventSource
     | Listener
 
 export interface Player {
@@ -678,16 +682,47 @@ export interface Mesh {
     mesh: Three.Object3D
 }
 
+export interface WorldEventInfo {
+    event: WorldEvent
+    source: EventSource
+}
+
+export type WorldEvent =
+    | AudioEvent
+    | MovementEvent
+    | WaitEvent
+    | ExecutionCompleteEvent
+
+export interface ExecutionCompleteEvent {
+    kind: "executionComplete"
+}
+
+export interface WaitEvent {
+    kind: "wait"
+    duration: number
+}
+
+export type MovementEvent = ForwardMovementEvent | TurnMovementEvent
+
+export interface ForwardMovementEvent {
+    kind: "forward"
+    distance: number
+}
+
+export interface TurnMovementEvent {
+    kind: "turn"
+    radians: number
+}
+
 export type AudioEvent = SpeakingAudioEvent
 
 export interface SpeakingAudioEvent {
     kind: "speaking"
     text: string
-    source: AudioSource
 }
 
-export class AudioSource {
-    kind: "audioSource" = "audioSource"
+export class EventSource {
+    kind: "eventSource" = "eventSource"
     position: Vec3
 
     constructor(position: Vec3) {
@@ -698,7 +733,7 @@ export class AudioSource {
 export interface Listener {
     kind: "listener"
 
-    notify: (event: AudioEvent) => void
+    notify: (event: WorldEventInfo) => void
 }
 
 export class Vec2 {

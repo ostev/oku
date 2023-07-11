@@ -25,7 +25,7 @@ import {
 import { Card } from "./Card"
 import { Paragraph } from "./Paragraph"
 import { Level } from "../level/Level"
-import { AudioSource, Entity, Vec3, World, getComponent } from "../World"
+import { EventSource, Entity, Vec3, World, getComponent } from "../World"
 import { DocLink } from "./Docs"
 import { View } from "../View"
 import { UserExecutionContext } from "../userExecutionContext/UserExecutionContext"
@@ -136,7 +136,6 @@ export class ID {
 }
 
 export interface LessonProps {
-    // bindings: FnBindings
     info: LessonInfo
     onGoalCompletion: (id: ID) => void
     completedGoals: ID[]
@@ -174,7 +173,19 @@ export const Lesson: FunctionComponent<LessonProps> = ({
     const executionParentRef = useRef<HTMLDivElement | null>(null)
 
     const bindings: FnBindings = {
-        wait: { fn: () => {} },
+        wait: {
+            fn: (context, duration: number) => {
+                if (worldRef.current !== null && playerRef.current !== null) {
+                    worldRef.current.activateEvent({
+                        event: { kind: "wait", duration },
+                        source: getComponent(
+                            playerRef.current,
+                            "eventSource"
+                        ) as EventSource,
+                    })
+                }
+            },
+        },
         say: {
             fn: (context: UserExecutionContext, text: string) => {
                 const utterance = new SpeechSynthesisUtterance(text)
@@ -183,17 +194,22 @@ export const Lesson: FunctionComponent<LessonProps> = ({
 
                 if (playerRef.current !== null && worldRef.current !== null) {
                     // console.log("Send out audio event")
-                    worldRef.current.activateAudioEvent({
-                        kind: "speaking",
+                    worldRef.current.activateEvent({
+                        event: {
+                            kind: "speaking",
+                            text,
+                        },
                         source: getComponent(
                             playerRef.current,
-                            "audioSource"
-                        ) as AudioSource,
-                        text,
+                            "eventSource"
+                        ) as EventSource,
                     })
                 }
 
-                setSpeechHistory([text, ...speechHistory])
+                setSpeechHistory((currentSpeechHistory) => [
+                    text,
+                    ...currentSpeechHistory,
+                ])
             },
         },
         forward: {
@@ -203,6 +219,18 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                     const startingPlayerPos =
                         playerRef.current.transform.position
                     const speed = 0.001
+
+                    worldRef.current.activateEvent({
+                        event: {
+                            kind: "forward",
+                            distance,
+                        },
+                        source: getComponent(
+                            playerRef.current,
+                            "eventSource"
+                        ) as EventSource,
+                    })
+
                     const stepFunction = (
                         delta: number,
                         time: number,
@@ -256,7 +284,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         },
         turn: {
             fn: (context, degrees: number) => {
-                if (worldRef.current !== null) {
+                if (worldRef.current !== null && playerRef.current !== null) {
                     const radians = -degToRad(degrees)
 
                     const originalRotation = worldRef.current.playerRotation
@@ -264,6 +292,17 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                     const speed = 0.005
                     const startTime = performance.now()
                     const duration = Math.abs(radians) / speed
+
+                    worldRef.current.activateEvent({
+                        event: {
+                            kind: "turn",
+                            radians,
+                        },
+                        source: getComponent(
+                            playerRef.current,
+                            "eventSource"
+                        ) as EventSource,
+                    })
 
                     const stepFunction = (
                         delta: number,
@@ -300,12 +339,20 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         },
     }
 
+    const onFinish = () => {
+        worldRef.current?.activateEvent({
+            event: { kind: "executionComplete" },
+            source: new EventSource(new Vec3(0, 0, 0)),
+        })
+    }
+
     useEffect(() => {
         if (executionParentRef.current !== null) {
             executionContextRef.current = new UserExecutionContext(
                 executionParentRef.current,
                 bindings,
-                setExecutionError
+                setExecutionError,
+                onFinish
             )
         }
     }, [])
@@ -507,6 +554,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                 readerRef={readWriteRef}
                 additionalToolbarItems={additionalToolbarItems}
                 onRun={async (code) => {
+                    setSpeechHistory([])
                     destroy()
                     await init()
 

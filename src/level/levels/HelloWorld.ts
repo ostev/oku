@@ -51,12 +51,12 @@ export class HelloWorld implements Level {
         // await world.importGLTF(suburbUrl, new Vec3(4, -2, -2.2))
         await world.importGLTF(plinthUrl, new Vec3(0, -4, 0))
 
-        const entity = world.addEntity(
+        world.addEntity(
             translation(new Vec3(0, 0, 0)),
             new Set([
                 {
                     kind: "listener",
-                    notify: (event) => {
+                    notify: ({ event }) => {
                         if (event.kind === "speaking") {
                             const lowercaseText = event.text.toLowerCase()
                             if (

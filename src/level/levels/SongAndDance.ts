@@ -43,6 +43,7 @@ export class SongAndDance implements Level {
     private previousSpotlightAnimationTime: number = 0
     private spotlights: Three.SpotLight[] = []
     private spotlightHelpers: Three.SpotLightHelper[] | undefined
+    private progress = { forward: false, turn: false, say: false, wait: false }
 
     //     css = `
     //         canvas {
@@ -81,6 +82,12 @@ export class SongAndDance implements Level {
         }
     `
 
+    private mainGoalIsComplete = () =>
+        this.progress.forward &&
+        this.progress.say &&
+        this.progress.turn &&
+        this.progress.wait
+
     init = async (world: World) => {
         world.view.sun.removeFromParent()
         world.view.ambientLight.color = new Three.Color("#5e5e5e")
@@ -89,32 +96,49 @@ export class SongAndDance implements Level {
 
         await world.importGLTF(stageUrl, new Vec3(0, -2, 0))
 
-        // const peggyPosition = new Vec3(0, 0, -2.4)
-        // const peggy = await addPeggy(world, peggyPosition)
+        world.addEntity(
+            translation(new Vec3(0, 0, 0)),
+            new Set([
+                {
+                    kind: "listener",
+                    notify: ({ event }) => {
+                        console.log("Received event", event)
+                        switch (event.kind) {
+                            case "forward":
+                                this.progress.forward = true
+                                break
+                            case "speaking":
+                                this.progress.say = true
+                                break
+                            case "turn":
+                                this.progress.turn = true
+                                break
 
-        // const peggyListener = world.addEntity(
-        //     translation(peggyPosition),
-        //     new Set([
-        //         {
-        //             kind: "listener",
-        //             notify: (event) => {
-        //                 if (event.kind === "speaking") {
-        //                     console.log("Heard", event)
-        //                     const distance = vec3Distance(
-        //                         event.source.position,
-        //                         peggyPosition
-        //                     )
-        //                     console.log("Distance: ", distance)
+                            case "wait":
+                                this.progress.wait = true
+                                break
 
-        //                     if (distance <= 1) {
-        //                         console.log("Complete 1")
-        //                         world.completeGoal(1)
-        //                     }
-        //                 }
-        //             },
-        //         },
-        //     ])
-        // )
+                            case "executionComplete":
+                                if (
+                                    world.playerRaycastHits &&
+                                    this.mainGoalIsComplete()
+                                ) {
+                                    world.completeGoal(2)
+                                    console.log("Player remained on stage")
+                                }
+                                break
+
+                            default:
+                                break
+                        }
+
+                        if (this.mainGoalIsComplete()) {
+                            world.completeGoal(1)
+                        }
+                    },
+                },
+            ])
+        )
 
         this.initSpotlights(world)
     }
