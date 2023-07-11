@@ -1,0 +1,6 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.cm-editor .cm-content { font-family: "Theme Monospace" }
+.cm-editor .cm-gutter { font-family: "Theme Monospace" }

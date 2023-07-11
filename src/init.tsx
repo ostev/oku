@@ -10,8 +10,11 @@ import { RigidBody, Vec3, World } from "./World"
 import { $ } from "./helpers"
 import { addBox } from "./level"
 
-import "./index.css"
+import "./styles/fonts.css"
+import "./styles/index.css"
+
 import "katex/dist/katex.min.css"
+
 import { App } from "./ui/App"
 
 export const init = () => render(<App />, $("#app"))

@@ -303,6 +303,8 @@
             window.addEventListener("message", (e) => {
                 if (e.data === "resume") {
                     context.resume()
+                } else if (Array.isArray(e.data) && e.data[0] === "return") {
+                    context.se
                 } else if (Array.isArray(e.data) && e.data[0] === "eval") {
                     context.evalAsync(e.data[1]).then(
                         () => {
