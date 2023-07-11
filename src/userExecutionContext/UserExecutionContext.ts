@@ -114,6 +114,11 @@ export class UserExecutionContext {
         this.onResume()
     }
 
+    returnNumber = (value: number) => {
+        this.sendMessage(["returnNumber", value])
+        this.onResume()
+    }
+
     clearOnResume = () => {
         this.onResume = () => {}
     }

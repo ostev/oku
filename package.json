@@ -57,6 +57,7 @@
         "remark-math": "^5.1.1",
         "remark-mdx-images": "^2.0.0",
         "remark-smartypants": "^2.0.0",
+        "thememirror": "^2.0.1",
         "three": "^0.153.0"
     }
 }

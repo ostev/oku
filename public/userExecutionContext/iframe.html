@@ -4,8 +4,9 @@
     <head></head>
     <body>
         <!-- <script src="/userExecutionContext/iframe.js"></script> -->
-        <script type="please don't run" id="worker">
+        <script type="no-run" id="worker">
             let executionContextBindings = undefined
+            let __syncBuffer__ = undefined
             let __syncArray__ = undefined
 
             onmessage = (e) => {
@@ -17,8 +18,12 @@
                     typeof e.data[2] === "object"
                 ) {
                     executionContextBindings = e.data[1]
-                    __syncArray__ = new Int32Array(e.data[2])
-                } else if (e.data[0] === "eval" && typeof e.data[1] === "string") {
+                    __syncBuffer__ = e.data[2]
+                    __syncArray__ = new BigInt64Array(__syncBuffer__)
+                } else if (
+                    e.data[0] === "eval" &&
+                    typeof e.data[1] === "string"
+                ) {
                     let workerResult = undefined
                     ;(() => {
                         // Remove some things from scope
@@ -37,18 +42,26 @@
                     } else if (syncInfo.delay === "parameterSeconds") {
                         return `function ${name}(delay, ...args) {
                 self.postMessage(["${name}", delay, ...args])
-                Atomics.wait(__syncArray__, 0, 0, delay * 1000)
+                Atomics.wait(__syncArray__, 0, 0n, delay * 1000)
             }`
                     } else if (syncInfo.delay === "untilResume") {
                         return `function ${name}(...args) {
-                console.log("Waiting until resume")
                 self.postMessage(["${name}", ...args])
-                Atomics.wait(__syncArray__, 0, 0)
+                Atomics.wait(__syncArray__, 0, 0n)
+            }`
+                    } else if (syncInfo.delay === "untilReturnNumber") {
+                        return `function ${name}(...args) {
+                self.postMessage(["${name}", ...args])
+                Atomics.wait(__syncArray__, 0, 0n)
+                const array = new Float64Array(__syncBuffer__)
+                const value = array[1]
+
+                return value
             }`
                     } else {
                         return `function ${name}(...args) {
                 self.postMessage(["${name}", ...args])
-                Atomics.wait(__syncArray__, 0, 0, ${syncInfo.delay})
+                Atomics.wait(__syncArray__, 0, 0n, ${syncInfo.delay})
             }`
                     }
                 })
@@ -180,12 +193,10 @@
 
             const bindingSyncInfo = {
                 say: { delay: 0 },
-
                 wait: { delay: "parameterSeconds" },
-
                 forward: { delay: "untilResume" },
-
                 turn: { delay: "untilResume" },
+                readDistance: { delay: "untilReturnNumber" },
             }
 
             const InvalidMessageReceivedFromHostApplicationError = error(
@@ -205,8 +216,8 @@
 
                 // constructor(bindings: Bindings, postMessage: (message: any[]) => void) {
                 constructor(bindings, postMessage) {
-                    this.syncBuffer = new SharedArrayBuffer(8)
-                    this.syncArray = new Int32Array(this.syncBuffer)
+                    this.syncBuffer = new SharedArrayBuffer(256)
+                    this.syncArray = new BigInt64Array(this.syncBuffer)
 
                     this.bindings = bindings
 
@@ -243,9 +254,9 @@
                 }
 
                 resume = () => {
-                    Atomics.store(this.syncArray, 0, 1)
+                    Atomics.store(this.syncArray, 0, 1n)
                     Atomics.notify(this.syncArray, 0, 1)
-                    Atomics.store(this.syncArray, 0, 0)
+                    Atomics.store(this.syncArray, 0, 0n)
                 }
 
                 // evalAsync = (script: string, timeout = 30000) => {
@@ -291,6 +302,10 @@
                         this.worker.postMessage(["eval", script])
                     })
                 }
+
+                postMessageToWorker = (message) => {
+                    this.worker.postMessage(message)
+                }
             }
 
             const context = new UserExecutionContext(
@@ -303,8 +318,15 @@
             window.addEventListener("message", (e) => {
                 if (e.data === "resume") {
                     context.resume()
-                } else if (Array.isArray(e.data) && e.data[0] === "return") {
-                    context.se
+                } else if (
+                    Array.isArray(e.data) &&
+                    e.data[0] === "returnNumber"
+                ) {
+                    if (typeof e.data[1] === "number") {
+                        const floatView = new Float64Array(context.syncBuffer)
+                        floatView[1] = e.data[1]
+                    }
+                    context.resume()
                 } else if (Array.isArray(e.data) && e.data[0] === "eval") {
                     context.evalAsync(e.data[1]).then(
                         () => {

@@ -195,7 +195,8 @@ export const Lesson: FunctionComponent<LessonProps> = ({
             },
         },
         say: {
-            fn: (context: UserExecutionContext, text: string) => {
+            fn: (context: UserExecutionContext, argText: any) => {
+                const text = argText.toString()
                 const utterance = new SpeechSynthesisUtterance(text)
 
                 speechSynthesis.speak(utterance)
@@ -343,6 +344,11 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                     }
                     worldRef.current?.registerStepFunction(stepFunction)
                 }
+            },
+        },
+        readDistance: {
+            fn: (context) => {
+                context.returnNumber(1231)
             },
         },
     }
