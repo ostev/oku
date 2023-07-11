@@ -14,7 +14,7 @@ import "./index.css"
 import "katex/dist/katex.min.css"
 import { App } from "./ui/App"
 
-render(<App />, $("#app"))
+export const init = () => render(<App />, $("#app"))
 
 // const renderer = new View()
 
