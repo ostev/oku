@@ -8,6 +8,7 @@ import {
 } from "preact"
 
 import * as Three from "three"
+import * as Rapier from "@dimforge/rapier3d"
 
 import { H1, Heading } from "./Heading"
 import { EditorReadWriter, EditorWrapper } from "./EditorWrapper"
@@ -344,7 +345,32 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         },
         readDistance: {
             fn: (context) => {
-                context.returnNumber(1231)
+                if (playerRef.current !== null && worldRef.current !== null) {
+                    const forward = forwardVector(playerRef.current.transform)
+
+                    const position = playerRef.current.transform.position
+                    const multiplier = 2 / 10
+                    const base = 0.1
+
+                    const rayOrigin = new Vec3(
+                        position.x + forward.x * multiplier + base,
+                        position.y * forward.y * multiplier + base,
+                        position.z + forward.z * multiplier + base
+                    )
+
+                    const ray = new Rapier.Ray(rayOrigin, forward)
+
+                    const hit = worldRef.current.physics.castRay(ray, 50, true)
+
+                    if (hit !== null) {
+                        const hitPoint = ray.pointAt(hit.toi)
+                        const distance = vec3Distance(position, hitPoint)
+
+                        context.returnNumber(distance)
+                    } else {
+                        context.returnNumber(Infinity)
+                    }
+                }
             },
         },
 

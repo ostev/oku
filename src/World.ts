@@ -633,7 +633,7 @@ export class World {
                 { x: 0, y: -1, z: 0 }
             )
 
-            const hit = this.physics.castRay(ray, 20, false)
+            const hit = this.physics.castRay(ray, 20, true)
 
             const fallSpeed = 0.0015
             const riseSpeed = 0.0015
