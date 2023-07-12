@@ -391,7 +391,8 @@ export const Lesson: FunctionComponent<LessonProps> = ({
             (index) =>
                 onGoalCompletion(
                     new ID(info.id.chapter, info.id.section, index)
-                )
+                ),
+            setExecutionError
         )
 
         resizeObserverRef.current = new ResizeObserver(([viewParentEntry]) => {

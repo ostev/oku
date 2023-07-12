@@ -41,6 +41,9 @@ export const getComponent = <Kind extends ComponentKind>(
 
 export type StepFunction = (delta: number, time: number, world: World) => void
 
+export const ParcelAlreadyHeldError = error("ParcelAlreadyHeldError")
+export const NoParcelNearbyError = error("NoParcelNearbyError")
+
 export class World {
     private entities: Map<EntityId, Entity> = new Map()
     private componentLookupTable: Map<ComponentKind, Set<EntityId>> = new Map()
@@ -56,6 +59,7 @@ export class World {
     code: string | undefined
 
     completeGoal: (index: number) => void
+    onError: (error: Error) => void
 
     // objectLoader = new Three.ObjectLoader()
 
@@ -63,6 +67,7 @@ export class World {
     /// Player rotation in radians
     playerRotation = 0
     playerRaycastHits = true
+    heldParcel: Entity | undefined
 
     view: View
     physics: Rapier.World
@@ -73,11 +78,48 @@ export class World {
     constructor(
         gravity: Readonly<Rapier.Vector3>,
         view: View,
-        completeGoal: (index: number) => void
+        completeGoal: (index: number) => void,
+        onError: (error: Error) => void
     ) {
         this.physics = new Rapier.World(gravity)
         this.view = view
         this.completeGoal = completeGoal
+        this.onError = onError
+    }
+
+    pickUpParcel = () => {
+        if (this.heldParcel === undefined) {
+            const player = Array.from(this.getEntities("player"))[0]
+            const parcels = this.getEntities("parcel")
+
+            let closest: { distance: number; parcel: Entity } | undefined
+
+            for (const parcel of parcels) {
+                const distance = vec3Distance(
+                    player.transform.position,
+                    parcel.transform.position
+                )
+                if (closest === undefined || distance < closest.distance) {
+                    closest = { distance, parcel }
+                }
+            }
+
+            if (closest === undefined || closest.distance > 0.5) {
+                this.onError(
+                    new NoParcelNearbyError(
+                        "There's no parcel within 0.5 metres for me to pick up!"
+                    )
+                )
+            } else {
+                this.heldParcel = closest.parcel
+            }
+        } else {
+            this.onError(
+                new ParcelAlreadyHeldError(
+                    "I'm already holding a parcel, so I can't pick up another one!"
+                )
+            )
+        }
     }
 
     registerStepFunction = (fn: StepFunction) => {
@@ -577,6 +619,14 @@ export class World {
             // )
             rigidBody.setNextKinematicRotation(rotation)
         }
+        if (this.heldParcel !== undefined) {
+            const position = entity.transform.position
+            this.heldParcel.transform.position = new Vec3(
+                position.x,
+                position.y + 1,
+                position.z
+            )
+        }
     }
 
     private animate = (time: number) => {
@@ -638,6 +688,7 @@ export type ComponentKind =
     | "player"
     | "eventSource"
     | "listener"
+    | "parcel"
 
 export type Component =
     | RigidBodyDesc
@@ -649,6 +700,11 @@ export type Component =
     | Collider
     | EventSource
     | Listener
+    | Parcel
+
+export interface Parcel {
+    kind: "parcel"
+}
 
 export interface Player {
     kind: "player"
