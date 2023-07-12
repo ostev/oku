@@ -357,18 +357,23 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                         position.y + forward.y * multiplier - 0.2,
                         position.z + forward.z * multiplier + 0.2 * forward.z
                     )
-                    worldRef.current.addEntity(
-                        translation(shapePos),
-                        new Set([
-                            {
-                                kind: "mesh",
-                                mesh: new Three.Mesh(
-                                    new Three.BoxGeometry(0.1, 0.1, 0.1),
-                                    new Three.MeshStandardMaterial()
-                                ),
-                            },
-                        ])
-                    )
+
+                    if (debug) {
+                        worldRef.current.addEntity(
+                            translation(shapePos),
+                            new Set([
+                                {
+                                    kind: "mesh",
+                                    mesh: new Three.Mesh(
+                                        new Three.BoxGeometry(0.1, 0.1, 0.1),
+                                        new Three.MeshStandardMaterial({
+                                            color: "red",
+                                        })
+                                    ),
+                                },
+                            ])
+                        )
+                    }
 
                     const shape = new Rapier.Cuboid(0.1, 0.1, 0.1)
 
