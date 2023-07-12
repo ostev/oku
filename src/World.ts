@@ -111,7 +111,7 @@ export class World {
 
                 const verticalDistance = playerPos.y - parcelPos.y
 
-                if (verticalDistance < 1.5 && verticalDistance > -0.5) {
+                if (verticalDistance < 0.5 && verticalDistance > -0.5) {
                     const distance = vec2Distance(
                         new Vec2(playerPos.x, playerPos.z),
                         new Vec2(parcelPos.x, parcelPos.z)
@@ -647,14 +647,15 @@ export class World {
             if (hit !== null) {
                 this.playerRaycastHits = true
 
-                const hitPoint = ray.pointAt(hit.toi)
-                const altitude = vec3Distance(currentPosition, hitPoint)
+                // const hitPoint = ray.pointAt(hit.toi)
+                // const altitude = vec3Distance(currentPosition, hitPoint)
+                const altitude = hit.toi
                 if (this.debug) {
                     $("#playerPos").textContent = altitude.toFixed(4)
                 }
-                if (altitude > 1) {
+                if (altitude > 0.4) {
                     movementVector.y -= fallSpeed * delta
-                } else if (altitude < 0.29) {
+                } else if (altitude < 0.1) {
                     movementVector.y += riseSpeed * delta
                 } else {
                     const animationDuration = 5_000

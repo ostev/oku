@@ -4,7 +4,7 @@ import * as Rapier from "@dimforge/rapier3d"
 import { Vec3, World, getComponent, translation } from "../../World"
 import { Level, addParcel } from "../Level"
 
-import plinthUrl from "../../assets/plinth.gltf?url"
+import pathUrl from "../../assets/path.gltf?url"
 
 export class DeliveryDriverPartI extends Level {
     css = `
@@ -29,8 +29,10 @@ export class DeliveryDriverPartI extends Level {
     init = async (world: World) => {
         world.view.setOrthographicScale(0.005)
 
-        await world.importGLTF(plinthUrl, new Vec3(0, -2, 0))
-        addParcel(world, new Vec3(0, 0, 0.5))
+        await world.importGLTF(pathUrl, new Vec3(0.2, -1, -2))
+
+        const parcelPos = new Vec3(0.1, 0, Math.random() * -1.2 - 1)
+        addParcel(world, parcelPos)
     }
 
     step = (delta: number, time: number, world: World) => {}

@@ -23,7 +23,7 @@ import {
 } from "preact/hooks"
 import { Card } from "./Card"
 import { Paragraph } from "./Paragraph"
-import { Level } from "../level/Level"
+import { Level, addTestCube } from "../level/Level"
 import {
     EventSource,
     Entity,
@@ -31,6 +31,7 @@ import {
     World,
     getComponent,
     forwardVector,
+    translation,
 } from "../World"
 import { DocLink } from "./Docs"
 import { View } from "../View"
@@ -350,23 +351,38 @@ export const Lesson: FunctionComponent<LessonProps> = ({
 
                     const position = playerRef.current.transform.position
                     const multiplier = 2 / 10
-                    const base = 0.1
 
-                    const rayOrigin = new Vec3(
-                        position.x + forward.x * multiplier + base,
-                        position.y * forward.y * multiplier + base,
-                        position.z + forward.z * multiplier + base
+                    const shapePos = new Vec3(
+                        position.x + forward.x * multiplier + 0.2 * forward.x,
+                        position.y + forward.y * multiplier - 0.2,
+                        position.z + forward.z * multiplier + 0.2 * forward.z
+                    )
+                    worldRef.current.addEntity(
+                        translation(shapePos),
+                        new Set([
+                            {
+                                kind: "mesh",
+                                mesh: new Three.Mesh(
+                                    new Three.BoxGeometry(0.1, 0.1, 0.1),
+                                    new Three.MeshStandardMaterial()
+                                ),
+                            },
+                        ])
                     )
 
-                    const ray = new Rapier.Ray(rayOrigin, forward)
+                    const shape = new Rapier.Cuboid(0.1, 0.1, 0.1)
 
-                    const hit = worldRef.current.physics.castRay(ray, 50, true)
+                    const hit = worldRef.current.physics.castShape(
+                        shapePos,
+                        new Three.Quaternion(),
+                        forward,
+                        shape,
+                        50,
+                        true
+                    )
 
                     if (hit !== null) {
-                        const hitPoint = ray.pointAt(hit.toi)
-                        const distance = vec3Distance(position, hitPoint)
-
-                        context.returnNumber(distance)
+                        context.returnNumber(hit.toi)
                     } else {
                         context.returnNumber(Infinity)
                     }
@@ -376,13 +392,25 @@ export const Lesson: FunctionComponent<LessonProps> = ({
 
         pickUp: {
             fn: (context) => {
-                worldRef.current?.pickUpParcel()
+                try {
+                    worldRef.current?.pickUpParcel()
+                } catch (error) {
+                    setExecutionError(error as Error)
+                    destroy()
+                    init()
+                }
             },
         },
 
         placeDown: {
             fn: (context) => {
-                worldRef.current?.placeDownParcel()
+                try {
+                    worldRef.current?.placeDownParcel()
+                } catch (error) {
+                    setExecutionError(error as Error)
+                    destroy()
+                    init()
+                }
             },
         },
     }
@@ -395,17 +423,6 @@ export const Lesson: FunctionComponent<LessonProps> = ({
             })
         }
     }
-
-    useEffect(() => {
-        if (executionParentRef.current !== null) {
-            executionContextRef.current = new UserExecutionContext(
-                executionParentRef.current,
-                bindings,
-                setExecutionError,
-                onFinish
-            )
-        }
-    }, [])
 
     const debug = import.meta.env.DEV
 
@@ -435,6 +452,15 @@ export const Lesson: FunctionComponent<LessonProps> = ({
             )
         })
         resizeObserverRef.current.observe(viewParentRef.current as Element)
+
+        if (executionParentRef.current !== null) {
+            executionContextRef.current = new UserExecutionContext(
+                executionParentRef.current,
+                bindings,
+                setExecutionError,
+                onFinish
+            )
+        }
 
         // addBox(
         //     worldRef.current,
@@ -517,6 +543,8 @@ export const Lesson: FunctionComponent<LessonProps> = ({
 
         resizeObserverRef.current?.unobserve(viewParentRef.current as Element)
         resizeObserverRef.current?.disconnect()
+
+        executionContextRef.current?.destroy()
     }
 
     useEffect(() => {
