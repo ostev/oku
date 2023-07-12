@@ -1,16 +1,23 @@
 import * as Rapier from "@dimforge/rapier3d"
-import { Vec3 } from "./World"
+import { Vec2, Vec3 } from "./World"
 
 export function degToRad(degrees: number): number {
     return degrees * (Math.PI / 180)
 }
 
 export function vec3Distance(v1: Vec3, v2: Vec3): number {
-    var dx = v1.x - v2.x
-    var dy = v1.y - v2.y
-    var dz = v1.z - v2.z
+    const dx = v1.x - v2.x
+    const dy = v1.y - v2.y
+    const dz = v1.z - v2.z
 
     return Math.sqrt(dx * dx + dy * dy + dz * dz)
+}
+
+export function vec2Distance(v1: Vec2, v2: Vec2): number {
+    const dx = v1.x - v2.x
+    const dy = v1.y - v2.y
+
+    return Math.sqrt(dx * dx + dy * dy)
 }
 
 export function easeInOutQuad(x: number): number {

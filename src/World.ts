@@ -4,7 +4,7 @@ import * as Three from "three"
 import { $, error, range, uint32Range, withDefault } from "./helpers"
 import { intersection } from "./setHelpers"
 import { View } from "./View"
-import { vec3Distance, degToRad, easeInOutSine } from "./maths"
+import { vec3Distance, degToRad, easeInOutSine, vec2Distance } from "./maths"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
 import { toIndexedGeometry } from "./geometry"
 
@@ -20,9 +20,9 @@ export const NoIndicesFoundOnGeometryError = error(
     "NoIndicesFoundOnGeometryError"
 )
 
-export const getComponent = <Kind extends ComponentKind>(
+export const getComponent = (
     entity: Readonly<Entity>,
-    kind: Kind
+    kind: Readonly<ComponentKind>
 ): Component => {
     const component = entity.components.get(kind)
 
@@ -39,10 +39,23 @@ export const getComponent = <Kind extends ComponentKind>(
     return undefined as any
 }
 
+export const removeComponent = (
+    entity: Readonly<Entity>,
+    kind: Readonly<ComponentKind>
+): boolean => entity.components.delete(kind)
+
+export const forwardVector = (transform: Transform) => {
+    const forward = new Three.Vector3(0, 0, -1).applyQuaternion(
+        transform.rotation
+    )
+    return forward
+}
+
 export type StepFunction = (delta: number, time: number, world: World) => void
 
 export const ParcelAlreadyHeldError = error("ParcelAlreadyHeldError")
 export const NoParcelNearbyError = error("NoParcelNearbyError")
+export const NoParcelHeldError = error("NoParcelHeldError")
 
 export class World {
     private entities: Map<EntityId, Entity> = new Map()
@@ -59,7 +72,6 @@ export class World {
     code: string | undefined
 
     completeGoal: (index: number) => void
-    onError: (error: Error) => void
 
     // objectLoader = new Three.ObjectLoader()
 
@@ -78,46 +90,122 @@ export class World {
     constructor(
         gravity: Readonly<Rapier.Vector3>,
         view: View,
-        completeGoal: (index: number) => void,
-        onError: (error: Error) => void
+        completeGoal: (index: number) => void
     ) {
         this.physics = new Rapier.World(gravity)
         this.view = view
         this.completeGoal = completeGoal
-        this.onError = onError
     }
 
     pickUpParcel = () => {
         if (this.heldParcel === undefined) {
             const player = Array.from(this.getEntities("player"))[0]
+            const playerPos = player.transform.position
+
             const parcels = this.getEntities("parcel")
 
             let closest: { distance: number; parcel: Entity } | undefined
 
             for (const parcel of parcels) {
-                const distance = vec3Distance(
-                    player.transform.position,
-                    parcel.transform.position
-                )
-                if (closest === undefined || distance < closest.distance) {
-                    closest = { distance, parcel }
+                const parcelPos = parcel.transform.position
+
+                const verticalDistance = playerPos.y - parcelPos.y
+
+                if (verticalDistance < 1.5 && verticalDistance > -0.5) {
+                    const distance = vec2Distance(
+                        new Vec2(playerPos.x, playerPos.z),
+                        new Vec2(parcelPos.x, parcelPos.z)
+                    )
+                    if (closest === undefined || distance < closest.distance) {
+                        closest = { distance, parcel }
+                    }
                 }
             }
 
-            if (closest === undefined || closest.distance > 0.5) {
-                this.onError(
-                    new NoParcelNearbyError(
-                        "There's no parcel within 0.5 metres for me to pick up!"
-                    )
+            console.log(closest?.distance)
+
+            if (closest === undefined || closest.distance > 1) {
+                throw new NoParcelNearbyError(
+                    "There's no parcel within 1 metre for me to pick up!"
                 )
             } else {
                 this.heldParcel = closest.parcel
+
+                const { collider, rigidBody } = getComponent(
+                    this.heldParcel,
+                    "rigidBody"
+                ) as RigidBody
+                const translation = rigidBody.translation()
+
+                const kinematicBodyDesc =
+                    Rapier.RigidBodyDesc.kinematicPositionBased()
+                        .setAdditionalMass(rigidBody.mass())
+                        .setTranslation(
+                            translation.x,
+                            translation.y,
+                            translation.z
+                        )
+
+                const kinematicBody =
+                    this.physics.createRigidBody(kinematicBodyDesc)
+                const newCollider = this.physics.createCollider(
+                    new Rapier.ColliderDesc(collider.shape),
+                    kinematicBody
+                )
+
+                removeComponent(this.heldParcel, "rigidBody")
+                this.addComponentToEntity(this.heldParcel, {
+                    kind: "rigidBody",
+                    rigidBody: kinematicBody,
+                    collider: newCollider,
+                })
+
+                this.physics.removeRigidBody(rigidBody)
             }
         } else {
-            this.onError(
-                new ParcelAlreadyHeldError(
-                    "I'm already holding a parcel, so I can't pick up another one!"
+            throw new ParcelAlreadyHeldError(
+                "I'm already holding a parcel, so I can't pick up another one!"
+            )
+        }
+    }
+
+    placeDownParcel = () => {
+        if (this.heldParcel !== undefined) {
+            const oldRigidBodyComponent = getComponent(
+                this.heldParcel,
+                "rigidBody"
+            ) as RigidBody
+
+            if (oldRigidBodyComponent.rigidBody.isKinematic()) {
+                const collider = oldRigidBodyComponent.collider
+                const kinematicBody = oldRigidBodyComponent.rigidBody
+
+                const translation = kinematicBody.translation()
+
+                const rigidBodyDesc = Rapier.RigidBodyDesc.dynamic()
+                    .setAdditionalMass(kinematicBody.mass())
+                    .setTranslation(translation.x, translation.y, translation.z)
+
+                const rigidBody = this.physics.createRigidBody(rigidBodyDesc)
+                const newCollider = this.physics.createCollider(
+                    new Rapier.ColliderDesc(collider.shape),
+                    rigidBody
                 )
+
+                removeComponent(this.heldParcel, "rigidBody")
+                this.addComponentToEntity(this.heldParcel, {
+                    kind: "rigidBody",
+                    rigidBody,
+                    collider: newCollider,
+                })
+
+                this.physics.removeRigidBody(kinematicBody)
+            }
+
+            this.heldParcel = undefined
+        } else {
+            throw new NoParcelHeldError(
+                "I'm not currently holding a parcel, so I can't place it down!"
             )
         }
     }
@@ -372,22 +460,17 @@ export class World {
         return this.entities.get(id)
     }
 
-    addComponentToEntity = (
-        id: Readonly<EntityId>,
-        component: Readonly<Component>
-    ) => {
-        const entity = this.entities.get(id) as Entity
-
+    addComponentToEntity = (entity: Entity, component: Component) => {
         const finalisedComponent = this.initComponent(entity, component)
 
         entity.components.set(finalisedComponent.kind, finalisedComponent)
 
         const ids = this.componentLookupTable.get(finalisedComponent.kind)
         if (ids !== undefined) {
-            ids.add(id)
+            ids.add(entity.id)
         } else {
             const ids: Set<EntityId> = new Set()
-            ids.add(id)
+            ids.add(entity.id)
             this.componentLookupTable.set(finalisedComponent.kind, ids)
         }
     }
@@ -621,11 +704,21 @@ export class World {
         }
         if (this.heldParcel !== undefined) {
             const position = entity.transform.position
-            this.heldParcel.transform.position = new Vec3(
-                position.x,
-                position.y + 1,
-                position.z
-            )
+            const { rigidBody } = getComponent(
+                this.heldParcel,
+                "rigidBody"
+            ) as RigidBody
+
+            if (rigidBody.isKinematic()) {
+                const forward = forwardVector(entity.transform)
+                rigidBody.setNextKinematicTranslation(
+                    new Rapier.Vector3(
+                        position.x + forward.x / 2,
+                        position.y + forward.y / 2,
+                        position.z + forward.z / 2
+                    )
+                )
+            }
         }
     }
 

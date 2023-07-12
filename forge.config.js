@@ -10,6 +10,9 @@ module.exports = {
             name: "@electron-forge/maker-zip",
             platforms: ["darwin"],
         },
+        {
+            name: "@rabbitholesyndrome/electron-forge-maker-portable",
+        },
         // {
         //   name: '@electron-forge/maker-deb',
         //   config: {},

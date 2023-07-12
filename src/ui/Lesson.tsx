@@ -23,7 +23,14 @@ import {
 import { Card } from "./Card"
 import { Paragraph } from "./Paragraph"
 import { Level } from "../level/Level"
-import { EventSource, Entity, Vec3, World, getComponent } from "../World"
+import {
+    EventSource,
+    Entity,
+    Vec3,
+    World,
+    getComponent,
+    forwardVector,
+} from "../World"
 import { DocLink } from "./Docs"
 import { View } from "../View"
 import { UserExecutionContext } from "../userExecutionContext/UserExecutionContext"
@@ -262,21 +269,10 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                                 } else {
                                     // world.playerMovementVector.z =
                                     //     -speed * delta
-                                    const rotation =
-                                        new Three.Quaternion().setFromEuler(
-                                            new Three.Euler(
-                                                0,
-                                                world.playerRotation,
-                                                0,
-                                                "YXZ"
-                                            )
-                                        )
+                                    const forward = forwardVector(
+                                        player.transform
+                                    )
 
-                                    const forward = new Three.Vector3(
-                                        0,
-                                        0,
-                                        -1
-                                    ).applyQuaternion(rotation)
                                     world.playerMovementVector =
                                         forward.multiplyScalar(speed * delta)
 
@@ -351,6 +347,18 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                 context.returnNumber(1231)
             },
         },
+
+        pickUp: {
+            fn: (context) => {
+                worldRef.current?.pickUpParcel()
+            },
+        },
+
+        placeDown: {
+            fn: (context) => {
+                worldRef.current?.placeDownParcel()
+            },
+        },
     }
 
     const onFinish = () => {
@@ -391,8 +399,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
             (index) =>
                 onGoalCompletion(
                     new ID(info.id.chapter, info.id.section, index)
-                ),
-            setExecutionError
+                )
         )
 
         resizeObserverRef.current = new ResizeObserver(([viewParentEntry]) => {
@@ -438,28 +445,32 @@ export const Lesson: FunctionComponent<LessonProps> = ({
 
                     worldRef.current?.registerStepFunction(level.step)
 
-                    if (worldRef.current !== null) {
-                        level.init(worldRef.current).then(() => {
-                            if (viewParentRef.current !== null) {
-                                viewRef.current?.appendToElement(
-                                    viewParentRef.current
-                                )
-                            } else {
-                                throw new RefAccessedBeforeComponentMountedError(
-                                    "View parent ref is null"
-                                )
-                            }
+                    try {
+                        if (worldRef.current !== null) {
+                            level.init(worldRef.current).then(() => {
+                                if (viewParentRef.current !== null) {
+                                    viewRef.current?.appendToElement(
+                                        viewParentRef.current
+                                    )
+                                } else {
+                                    throw new RefAccessedBeforeComponentMountedError(
+                                        "View parent ref is null"
+                                    )
+                                }
 
-                            levelRef.current = level
+                                levelRef.current = level
 
-                            setLevelCss(level.css)
+                                setLevelCss(level.css)
 
-                            worldRef.current?.start()
+                                worldRef.current?.start()
 
-                            resolve()
-                        })
-                    } else {
-                        reject()
+                                resolve()
+                            })
+                        } else {
+                            reject()
+                        }
+                    } catch (e) {
+                        setExecutionError(e as Error)
                     }
                 })
             } else {
