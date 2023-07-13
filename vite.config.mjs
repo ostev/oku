@@ -9,6 +9,7 @@ import mdx from "@mdx-js/rollup"
 import smartypants from "remark-smartypants"
 import remarkMdxImages from "remark-mdx-images"
 import remarkMath from "remark-math"
+import remarkGfm from "remark-gfm"
 import rehypeKatex from "rehype-katex"
 import { resolve } from "path"
 
@@ -25,7 +26,12 @@ export default defineConfig({
         preact(),
         mdx({
             providerImportSource: "@mdx-js/preact",
-            remarkPlugins: [smartypants, remarkMdxImages, remarkMath],
+            remarkPlugins: [
+                smartypants,
+                remarkMdxImages,
+                remarkMath,
+                remarkGfm,
+            ],
             rehypePlugins: [rehypeKatex],
         }),
     ],
