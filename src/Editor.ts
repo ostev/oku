@@ -3,17 +3,9 @@ import * as Rapier from "@dimforge/rapier3d"
 import { EditorView, basicSetup } from "codemirror"
 import { javascript } from "@codemirror/lang-javascript"
 
-import { UserExecutionContext } from "./userExecutionContext/UserExecutionContext"
-import {
-    CharacterController,
-    Entity,
-    Joint,
-    RigidBody,
-    World,
-    getComponent,
-} from "./World"
-import { addPlayer } from "./Player"
-import { FnBindings } from "./userExecutionContext/bindings"
+import { dracula } from "thememirror"
+
+import { Entity } from "./World"
 
 export class Editor {
     private view: EditorView
@@ -38,7 +30,7 @@ export class Editor {
         // })
 
         this.view = new EditorView({
-            extensions: [basicSetup, javascript()],
+            extensions: [basicSetup, javascript(), dracula],
             parent,
         })
         // helloThere: { fn: () => console.log("Hi!") },
