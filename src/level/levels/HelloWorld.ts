@@ -49,7 +49,7 @@ export class HelloWorld extends Level {
         world.view.setOrthographicScale(0.005)
 
         // await world.importGLTF(suburbUrl, new Vec3(4, -2, -2.2))
-        await world.importGLTF(plinthUrl, new Vec3(0, -4, 0))
+        await world.importGLTF(plinthUrl, new Vec3(0, -1, 0))
 
         world.addEntity(
             translation(new Vec3(0, 0, 0)),
