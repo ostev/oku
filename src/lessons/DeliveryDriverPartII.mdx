@@ -1,0 +1,114 @@
+export const title = "Delivery Driver, Part II: Lethal Consequences"
+export const chapter = 2
+export const section = 3
+
+export const goals = ["main"]
+import { HelloWorld } from "../level/levels/HelloWorld"
+export const level = HelloWorld
+
+Now that I've learnt how to carry parcels, it's time to deliver Arnold's bird feed! Arnold lives in a house opposite the road, up a long driveway blocked by a large gate. It's pretty darn heavy--it's built for humans, not for birds or robots! Arnold's owners exit and enter the house at irregular intervals in their huge vehicles to "run errands" and "work", whatever that means. I need to check whether the gate is open or not before I can proceed up the driveway. I can do that using the <DocLink symbol="readDistance">`readDistance`</DocLink> <DocLink symbol="function">function</DocLink>:
+
+```javascript
+// 1
+let distance = readDistance()
+
+say(distance)
+```
+
+If I say a value less than 1, the gate is closed. Otherwise, the gate is opened. Simple logic, right? We can communicate this to my internal computer more or less the same way I just said: using something known as an <DocLink symbol="if">`if`</DocLink> <DocLink symbol="statement">statement</DocLink>. <DocLink symbol="statement">Statements</DocLink> are individual lines of code seperated by a newline, each of which is a command. We covered these earlier, and they look like this:
+
+```javascript
+// 2
+say("Hey!")
+wait(2)
+forward(1)
+turn(90)
+```
+
+An <DocLink symbol="if">`if`</DocLink> <DocLink symbol="statement">statement</DocLink> is a *special* kind of statement that allows me to make decisions. You, the programmer, specify a condition. If that condition is true, I run the code that follows the <DocLink symbol="if">`if`</DocLink> <DocLink symbol="statement">statement</DocLink>:
+
+```javascript
+// 3
+// no-run
+if ([insert condition here]) {
+    [insert code here]
+}
+```
+
+The <DocLink symbol="paranthesis">parantheses</DocLink> tell me where the condition starts and ends, and the <DocLink symbol="curly-braces">curly braces (`{` and `}`)</DocLink> let me know when the code you want me to run starts and ends. If you don't include these little bits of punctuation, you'll get an <DocLink symbol="error">error</DocLink>. It's like forgetting to put a full stop or a comma in an English sentence, except, as a robot, I can't guess what you mean if you put them in the wrong place.
+
+Programmers call this <DocLink symbol="boolean">boolean logic</DocLink>, named after [George Boole](https://en.wikipedia.org/wiki/George_Boole), a 19th-century English mathematician, statistician and logician. A <DocLink symbol="boolean">boolean</DocLink> value, or "bool" for short, can be one of two things: <DocLink symbol="true">`true`</DocLink> or <DocLink symbol="false">`false`</DocLink>:
+
+```javascript
+// 4
+say(true)
+wait(2)
+
+say(false)
+wait(2)
+
+// Just for fun 🤣
+say(true + "dat.")
+```
+
+So, using these new <DocLink symbol="boolean">boolean</DocLink> values, I can determine whether I should execute some code or not:
+
+```javascript
+// 5
+// Run this...
+if (true) {
+    say("Hey there!")
+}
+
+// ...but not this
+if (false) {
+    say("You'll never here this message.")
+}
+```
+
+That doesn't seem very useful! If you just use <DocLink symbol="true">`true`</DocLink> and <DocLink symbol="false">`false`</DocLink> as conditions, you might as well not have the <DocLink symbol="if">`if`</DocLink> <DocLink symbol="statement">statement</DocLink> in the first place! Instead, we can use one of several new <DocLink symbol="operator">operators</DocLink>:
+
+| Operator | Description                                                | Example                  |
+|----------|------------------------------------------------------------|--------------------------|
+| `x === y`| Checks whether value $$x$$ is equal to value $$y$$         | `(1 + 2 === 3) === true` |
+| `x > y`  | Checks whether value $$x$$ is greater than value $$y$$.    | `2 > 1 === true`         |
+| `x < y`  | Checks whether value $$x$$ is less than value $$y$$.       | `2 < 1 === false`        |
+
+These <DocLink symbol="operator">operators</DocLink> are kind of like the arithmetic operators we met earlier, but they give back a <DocLink symbol="boolean">boolean</DocLink> value rather than a number--that is, <DocLink symbol="true">`true`</DocLink> or <DocLink symbol="false">`false`</DocLink> rather than $$1$$, $$2$$, $$3$$, etc. This means we can use them in the <DocLink symbol="condition">condition</DocLink> portion of our <DocLink symbol="if">`if`</DocLink> <DocLink symbol="statement">statement</DocLink>:
+
+```javascript
+// 6
+// This will run...
+if (5 > 3) {
+    say("5 is indeed greater than three!")
+}
+
+wait(2)
+
+// ...so will this...
+if (2 === 2) {
+    say("2 does indeed equal 2!")
+}
+
+wait(2)
+
+// ...but this won't...
+if (5 < 3) {
+    say("Unfortunately, 5 is not less than three.")
+}
+```
+
+When we combine this with <DocLink symbol="variable">variables</DocLink>, as we learnt about in the previous two lessons, we get something that's actually useful:
+
+```javascript
+// 7
+
+// Get the distance between me and the closest object
+// in front of me and store it in `distance`.
+let distance = readDistance()
+
+// Check whether the gate is closed
+if (distance < 1) {
+    say("Unfortunately, the gate is closed.")
+}
+```
