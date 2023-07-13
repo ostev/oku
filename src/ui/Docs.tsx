@@ -6,6 +6,7 @@ import {
 } from "preact"
 
 import * as Quotes from "../lessons/docs/Quotes.mdx"
+import * as ReadDistance from "../lessons/docs/ReadDistance.mdx"
 import { Tooltip } from "./Tooltip"
 
 const createDoc = (module: typeof Quotes) => {
@@ -20,6 +21,7 @@ export const docs: Record<
     { full: FunctionComponent; summary: FunctionComponent }
 > = {
     quotes: createDoc(Quotes),
+    readDistance: createDoc(ReadDistance),
 }
 
 export const DocLink: FunctionComponent<{
