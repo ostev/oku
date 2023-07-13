@@ -16,6 +16,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js"
 
 import { paintFragment } from "./render/shaders/paint"
 import { simpleVertex } from "./render/shaders/simple"
+import { Vec3 } from "./World"
 
 export class View {
     camera: Three.OrthographicCamera
@@ -323,15 +324,24 @@ class ColorGUIHelper {
     }
 }
 
-function makeXYZGUI(
+export const makeXYZGUI = (
     gui: GUI,
-    vector3: Three.Vector3,
+    vector3: Vec3,
     name: string,
-    onChangeFn: Function
-) {
+    onChangeFn: Function,
+    range?: number
+) => {
+    const rangeWithDefault = range === undefined ? 100 : range
+
     const folder = gui.addFolder(name)
-    folder.add(vector3, "x", -100, 100).onChange(onChangeFn)
-    folder.add(vector3, "y", -100, 100).onChange(onChangeFn)
-    folder.add(vector3, "z", -100, 100).onChange(onChangeFn)
+    folder
+        .add(vector3, "x", -rangeWithDefault, rangeWithDefault)
+        .onChange(onChangeFn)
+    folder
+        .add(vector3, "y", -rangeWithDefault, rangeWithDefault)
+        .onChange(onChangeFn)
+    folder
+        .add(vector3, "z", -rangeWithDefault, rangeWithDefault)
+        .onChange(onChangeFn)
     folder.open()
 }

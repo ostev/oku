@@ -122,8 +122,6 @@ export class World {
                 }
             }
 
-            console.log(closest?.distance)
-
             if (closest === undefined || closest.distance > 1) {
                 throw new NoParcelNearbyError(
                     "There's no parcel within 1 metre for me to pick up!"
@@ -131,36 +129,38 @@ export class World {
             } else {
                 this.heldParcel = closest.parcel
 
-                const { collider, rigidBody } = getComponent(
+                const { rigidBody } = getComponent(
                     this.heldParcel,
                     "rigidBody"
                 ) as RigidBody
-                const translation = rigidBody.translation()
+                // const translation = rigidBody.translation()
 
-                const kinematicBodyDesc =
-                    Rapier.RigidBodyDesc.kinematicPositionBased()
-                        .setAdditionalMass(rigidBody.mass())
-                        .setTranslation(
-                            translation.x,
-                            translation.y,
-                            translation.z
-                        )
+                rigidBody.setEnabled(false)
 
-                const kinematicBody =
-                    this.physics.createRigidBody(kinematicBodyDesc)
-                const newCollider = this.physics.createCollider(
-                    new Rapier.ColliderDesc(collider.shape),
-                    kinematicBody
-                )
+                // const kinematicBodyDesc =
+                //     Rapier.RigidBodyDesc.kinematicPositionBased()
+                //         .setAdditionalMass(rigidBody.mass())
+                //         .setTranslation(
+                //             translation.x,
+                //             translation.y,
+                //             translation.z
+                //         )
 
-                removeComponent(this.heldParcel, "rigidBody")
-                this.addComponentToEntity(this.heldParcel, {
-                    kind: "rigidBody",
-                    rigidBody: kinematicBody,
-                    collider: newCollider,
-                })
+                // const kinematicBody =
+                //     this.physics.createRigidBody(kinematicBodyDesc)
+                // const newCollider = this.physics.createCollider(
+                //     new Rapier.ColliderDesc(collider.shape),
+                //     kinematicBody
+                // )
 
-                this.physics.removeRigidBody(rigidBody)
+                // removeComponent(this.heldParcel, "rigidBody")
+                // this.addComponentToEntity(this.heldParcel, {
+                //     kind: "rigidBody",
+                //     rigidBody: kinematicBody,
+                //     collider: newCollider,
+                // })
+
+                // this.physics.removeRigidBody(rigidBody)
             }
         } else {
             throw new ParcelAlreadyHeldError(
@@ -171,36 +171,49 @@ export class World {
 
     placeDownParcel = () => {
         if (this.heldParcel !== undefined) {
-            const oldRigidBodyComponent = getComponent(
+            const { rigidBody } = getComponent(
                 this.heldParcel,
                 "rigidBody"
             ) as RigidBody
 
-            if (oldRigidBodyComponent.rigidBody.isKinematic()) {
-                const collider = oldRigidBodyComponent.collider
-                const kinematicBody = oldRigidBodyComponent.rigidBody
+            const position = this.heldParcel.transform.position
+            const forward = forwardVector(this.heldParcel.transform)
+            this.heldParcel.transform.position = new Vec3(
+                position.x + forward.x / 2,
+                position.y + forward.y / 2,
+                position.z + forward.z / 2
+            )
 
-                const translation = kinematicBody.translation()
+            rigidBody.setTranslation(this.heldParcel.transform.position, true)
+            rigidBody.setRotation(this.heldParcel.transform.rotation, true)
 
-                const rigidBodyDesc = Rapier.RigidBodyDesc.dynamic()
-                    .setAdditionalMass(kinematicBody.mass())
-                    .setTranslation(translation.x, translation.y, translation.z)
+            rigidBody.setEnabled(true)
 
-                const rigidBody = this.physics.createRigidBody(rigidBodyDesc)
-                const newCollider = this.physics.createCollider(
-                    new Rapier.ColliderDesc(collider.shape),
-                    rigidBody
-                )
+            // if (oldRigidBodyComponent.rigidBody.isKinematic()) {
+            //     const collider = oldRigidBodyComponent.collider
+            //     const kinematicBody = oldRigidBodyComponent.rigidBody
 
-                removeComponent(this.heldParcel, "rigidBody")
-                this.addComponentToEntity(this.heldParcel, {
-                    kind: "rigidBody",
-                    rigidBody,
-                    collider: newCollider,
-                })
+            //     const translation = kinematicBody.translation()
 
-                this.physics.removeRigidBody(kinematicBody)
-            }
+            //     const rigidBodyDesc = Rapier.RigidBodyDesc.dynamic()
+            //         .setAdditionalMass(kinematicBody.mass())
+            //         .setTranslation(translation.x, translation.y, translation.z)
+
+            //     const rigidBody = this.physics.createRigidBody(rigidBodyDesc)
+            //     const newCollider = this.physics.createCollider(
+            //         new Rapier.ColliderDesc(collider.shape),
+            //         rigidBody
+            //     )
+
+            //     removeComponent(this.heldParcel, "rigidBody")
+            //     this.addComponentToEntity(this.heldParcel, {
+            //         kind: "rigidBody",
+            //         rigidBody,
+            //         collider: newCollider,
+            //     })
+
+            //     this.physics.removeRigidBody(kinematicBody)
+            // }
 
             this.heldParcel = undefined
         } else {
@@ -533,37 +546,22 @@ export class World {
     }
 
     step = (delta: number) => {
-        for (const entity of intersection(
-            this.getEntities("rigidBody"),
-            this.getEntities("mesh")
-        )) {
+        for (const entity of this.getEntities("rigidBody")) {
             const rigidBody = (entity.components.get("rigidBody") as RigidBody)
                 .rigidBody
 
-            const position = rigidBody.translation()
-            const rotation = rigidBody.rotation()
+            if (rigidBody.isEnabled()) {
+                const position = rigidBody.translation()
+                const rotation = rigidBody.rotation()
 
-            entity.transform.position = position
-            entity.transform.rotation = new Three.Quaternion(
-                rotation.x,
-                rotation.y,
-                rotation.z,
-                rotation.w
-            )
-            const mesh = (entity.components.get("mesh") as Mesh).mesh
-
-            mesh.position.set(
-                entity.transform.position.x,
-                entity.transform.position.y,
-                entity.transform.position.z
-            )
-            mesh.rotation.setFromQuaternion(entity.transform.rotation)
-            mesh.scale.set(
-                entity.transform.scale.x,
-                entity.transform.scale.y,
-                entity.transform.scale.z
-            )
-
+                entity.transform.position = position
+                entity.transform.rotation = new Three.Quaternion(
+                    rotation.x,
+                    rotation.y,
+                    rotation.z,
+                    rotation.w
+                )
+            }
             // if (this.keys["w"]) {
             //     rigidBody.applyImpulse(new Three.Vector3(0.5, 0, 0), true)
             // }
@@ -590,6 +588,22 @@ export class World {
         //     const targetAltitude = (getComponent(entity, "rigidBody") as Hover)
         //         .altitude
         // }
+
+        for (const entity of this.getEntities("mesh")) {
+            const mesh = (entity.components.get("mesh") as Mesh).mesh
+
+            mesh.position.set(
+                entity.transform.position.x,
+                entity.transform.position.y,
+                entity.transform.position.z
+            )
+            mesh.rotation.setFromQuaternion(entity.transform.rotation)
+            mesh.scale.set(
+                entity.transform.scale.x,
+                entity.transform.scale.y,
+                entity.transform.scale.z
+            )
+        }
 
         for (const entity of this.getEntities("eventSource")) {
             const audioSource = getComponent(
@@ -705,21 +719,13 @@ export class World {
         }
         if (this.heldParcel !== undefined) {
             const position = entity.transform.position
-            const { rigidBody } = getComponent(
-                this.heldParcel,
-                "rigidBody"
-            ) as RigidBody
 
-            if (rigidBody.isKinematic()) {
-                const forward = forwardVector(entity.transform)
-                rigidBody.setNextKinematicTranslation(
-                    new Rapier.Vector3(
-                        position.x + forward.x / 2,
-                        position.y + forward.y / 2,
-                        position.z + forward.z / 2
-                    )
-                )
-            }
+            // const forward = forwardVector(entity.transform)
+            this.heldParcel.transform.position = new Rapier.Vector3(
+                position.x,
+                position.y + 1.5,
+                position.z
+            )
         }
     }
 
@@ -774,6 +780,7 @@ export type EntityId = number
 
 export type ComponentKind =
     | "rigidBody"
+    // | "disabledRigidBody"
     | "mesh"
     | "rigidBodyDesc"
     | "joint"
@@ -788,6 +795,7 @@ export type Component =
     | RigidBodyDesc
     | Mesh
     | RigidBody
+    // | DisabledRigidBody
     | Joint
     | CharacterController
     | Player
@@ -814,6 +822,11 @@ export interface RigidBody {
     rigidBody: Rapier.RigidBody
     collider: Rapier.Collider
 }
+
+// export interface DisabledRigidBody {
+//     kind: "disabledRigidBody"
+//     rigidBody: RigidBody
+// }
 
 export interface Collider {
     kind: "collider"

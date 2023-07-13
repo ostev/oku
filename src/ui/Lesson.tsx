@@ -353,9 +353,9 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                     const multiplier = 2 / 10
 
                     const shapePos = new Vec3(
-                        position.x + forward.x * multiplier + 0.2 * forward.x,
+                        position.x + forward.x * multiplier + 0.3 * forward.x,
                         position.y + forward.y * multiplier - 0.2,
-                        position.z + forward.z * multiplier + 0.2 * forward.z
+                        position.z + forward.z * multiplier + 0.3 * forward.z
                     )
 
                     if (debug) {
@@ -387,6 +387,27 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                     )
 
                     if (hit !== null) {
+                        if (debug) {
+                            worldRef.current.addEntity(
+                                translation(hit.witness1),
+                                new Set([
+                                    {
+                                        kind: "mesh",
+                                        mesh: new Three.Mesh(
+                                            new Three.BoxGeometry(
+                                                0.1,
+                                                0.1,
+                                                0.1
+                                            ),
+                                            new Three.MeshStandardMaterial({
+                                                color: "purple",
+                                            })
+                                        ),
+                                    },
+                                ])
+                            )
+                        }
+
                         context.returnNumber(hit.toi)
                     } else {
                         context.returnNumber(Infinity)
