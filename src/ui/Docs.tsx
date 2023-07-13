@@ -7,6 +7,7 @@ import {
 
 import * as Quotes from "../lessons/docs/Quotes.mdx"
 import * as ReadDistance from "../lessons/docs/ReadDistance.mdx"
+import * as Parenthesis from "../lessons/docs/Parenthesis.mdx"
 import { Tooltip } from "./Tooltip"
 
 const createDoc = (module: typeof Quotes) => {
@@ -22,6 +23,7 @@ export const docs: Record<
 > = {
     quotes: createDoc(Quotes),
     readDistance: createDoc(ReadDistance),
+    paranthesis: createDoc(Parenthesis),
 }
 
 export const DocLink: FunctionComponent<{
