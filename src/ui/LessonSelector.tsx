@@ -154,7 +154,7 @@ export const LessonSelector: FunctionalComponent<{
 
     return (
         <div class="flex h-screen">
-            <div class="z-50 grid grid-flow-col columns-3 space-x-10 w-auto p-10 m-auto my-auto bg-slate-200 bg-opacity-80 backdrop-blur-xl rounded-lg drop-shadow-2xl">
+            <div class="z-50 grid grid-cols-3 gap-7 p-10 m-auto my-auto bg-slate-200 bg-opacity-80 backdrop-blur-xl rounded-lg drop-shadow-2xl">
                 {lessonStatus}
             </div>
         </div>
