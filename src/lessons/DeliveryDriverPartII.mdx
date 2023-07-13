@@ -74,7 +74,9 @@ That doesn't seem very useful! If you just use <DocLink symbol="true">`true`</Do
 | `x > y`  | Checks whether value $$x$$ is greater than value $$y$$.    | `2 > 1 === true`         |
 | `x < y`  | Checks whether value $$x$$ is less than value $$y$$.       | `2 < 1 === false`        |
 
-These <DocLink symbol="operator">operators</DocLink> are kind of like the arithmetic operators we met earlier, but they give back a <DocLink symbol="boolean">boolean</DocLink> value rather than a number--that is, <DocLink symbol="true">`true`</DocLink> or <DocLink symbol="false">`false`</DocLink> rather than $$1$$, $$2$$, $$3$$, etc. This means we can use them in the <DocLink symbol="condition">condition</DocLink> portion of our <DocLink symbol="if">`if`</DocLink> <DocLink symbol="statement">statement</DocLink>:
+The equality operator is the only one we've met so far that has a symbol different to mathematics--`===` instead of $$=$$. This is to avoid confusion with <DocLink symbol="variable">variable</DocLink> declarations, since the <DocLink symbol="assignment">`=` operator</DocLink> is already used for assigning names to things. Unlike human mathematicians, I can't easily intuit what you mean from context--instead, I require explicit instruction.
+
+TThese <DocLink symbol="operator">operators</DocLink> are kind of like the arithmetic operators we met earlier, but they give back a <DocLink symbol="boolean">boolean</DocLink> value rather than a number--that is, <DocLink symbol="true">`true`</DocLink> or <DocLink symbol="false">`false`</DocLink> rather than $$1$$, $$2$$, $$3$$, etc. his means we can use them in the <DocLink symbol="condition">condition</DocLink> portion of our <DocLink symbol="if">`if`</DocLink> <DocLink symbol="statement">statement</DocLink>:
 
 ```javascript
 // 6
@@ -98,6 +100,8 @@ if (5 < 3) {
 }
 ```
 
+<Goal index={1}>Replace `5 < 3` with a condition that will cause the last <DocLink symbol="say">`say`</DocLink> commands to run.</Goal>
+
 When we combine this with <DocLink symbol="variable">variables</DocLink>, as we learnt about in the previous two lessons, we get something that's actually useful:
 
 ```javascript
@@ -109,6 +113,12 @@ let distance = readDistance()
 
 // Check whether the gate is closed
 if (distance < 1) {
-    say("Unfortunately, the gate is closed.")
+    say("Unfortunately, the gate is closed. How sad!")
 }
 ```
+
+<Goal index={2}>Add some flair to the code inside that <DocLink symbol="if">`if`</DocLink> <DocLink symbol="statement">statement</DocLink>. Perhaps I need to dance the robot? 🤖</Goal>
+
+<Goal index={3}>Replace the condition `distance < 1` with one that checks whether the gate is open (whether distance is greater than one).</Goal>
+
+We have one last thing to learn about before we can deliver this bird feed, which we'll cover in the next lesson.
