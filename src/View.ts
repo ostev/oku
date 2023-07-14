@@ -66,13 +66,13 @@ export class View {
         // const lightHelper = new Three.DirectionalLightHelper(this.sun, 5, "red")
 
         {
-            const size = 10
+            const size = 8
             this.sun.shadow.camera.left = -size
             this.sun.shadow.camera.right = size
             this.sun.shadow.camera.top = size
             this.sun.shadow.camera.bottom = -size
 
-            const res = 2048
+            const res = 1024
             this.sun.shadow.mapSize.width = res
             this.sun.shadow.mapSize.height = res
         }

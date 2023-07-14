@@ -194,7 +194,7 @@ export class PopConcert extends Level {
             }
         }
 
-        Tween.update()
+        Tween.update(time)
     }
 
     destroy = (world: World) => {

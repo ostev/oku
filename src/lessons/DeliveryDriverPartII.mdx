@@ -1,10 +1,10 @@
-export const title = "Delivery Driver, Part II: Lethal Consequences"
+export const title = "Delivery Driver, Part II"
 export const chapter = 2
 export const section = 3
 
-export const goals = ["main"]
-import { HelloWorld } from "../level/levels/HelloWorld"
-export const level = HelloWorld
+export const goals = ["main", "main", "main"]
+import { DeliveryDriverPartII } from "../level/levels/DeliveryDriverPartII"
+export const level = DeliveryDriverPartII
 
 Now that I've learnt how to carry parcels, it's time to deliver Arnold's bird feed! Arnold lives in a house opposite the road, up a long driveway blocked by a large gate. It's pretty darn heavy--it's built for humans, not for birds or robots! Arnold's owners exit and enter the house at irregular intervals in their huge vehicles to "run errands" and "work", whatever that means. I need to check whether the gate is open or not before I can proceed up the driveway. I can do that using the <DocLink symbol="readDistance">`readDistance`</DocLink> <DocLink symbol="function">function</DocLink>:
 
@@ -48,7 +48,7 @@ say(false)
 wait(2)
 
 // Just for fun 🤣
-say(true + "dat.")
+say(true + " dat.")
 ```
 
 So, using these new <DocLink symbol="boolean">boolean</DocLink> values, I can determine whether I should execute some code or not:
@@ -62,7 +62,7 @@ if (true) {
 
 // ...but not this
 if (false) {
-    say("You'll never here this message.")
+    say("You'll never hear this message.")
 }
 ```
 
@@ -117,7 +117,7 @@ if (distance < 1) {
 }
 ```
 
-<Goal index={2}>Add some flair to the code inside that <DocLink symbol="if">`if`</DocLink> <DocLink symbol="statement">statement</DocLink>. Perhaps I need to dance the robot? 🤖</Goal>
+<Goal index={2}>Add some flair to the code inside that <DocLink symbol="if">`if`</DocLink> <DocLink symbol="statement">statement</DocLink>. Party time! 🎉</Goal>
 
 <Goal index={3}>Replace the condition `distance < 1` with one that checks whether the gate is open (whether distance is greater than one).</Goal>
 

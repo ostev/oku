@@ -324,6 +324,7 @@ export class World {
         const entityDescriptions: {
             transform: Transform
             components: Set<Component>
+            label?: string
         }[] = []
 
         const objects: Three.Object3D[] = []
@@ -336,8 +337,8 @@ export class World {
             )
         })
 
-        return entityDescriptions.map(({ transform, components }) =>
-            this.addEntity(transform, components)
+        return entityDescriptions.map(({ transform, components, label }) =>
+            this.addEntity(transform, components, label)
         )
     }
 
@@ -345,8 +346,7 @@ export class World {
         object: Three.Object3D,
         translation: Vec3,
         useShadows: boolean
-    ): { transform: Transform; components: Set<Component> } => {
-        console.log(object)
+    ): { transform: Transform; components: Set<Component>; label?: string } => {
         const position = object.getWorldPosition(new Three.Vector3())
         const transform: Transform = {
             position: {
@@ -415,14 +415,19 @@ export class World {
         // console.log(components)
         // console.log(object)
 
-        return { transform, components }
+        return {
+            transform,
+            components,
+            label: object.name.trim() !== "" ? object.name : undefined,
+        }
 
         // console.log(this)
     }
 
     addEntity = (
         transform: Transform,
-        components: ReadonlySet<Component>
+        components: ReadonlySet<Component>,
+        label?: string
     ): Entity => {
         this.idCount += 1
 
@@ -443,6 +448,7 @@ export class World {
             id,
             components: new Map(),
             transform,
+            label,
         }
 
         for (const [kind, component] of uninitialisedEntity.components) {
@@ -471,6 +477,18 @@ export class World {
 
     getEntity = (id: Readonly<EntityId>): Readonly<Entity> | undefined => {
         return this.entities.get(id)
+    }
+
+    findEntity = (
+        predicate: (entity: Readonly<Entity>) => boolean
+    ): Entity | undefined => {
+        for (const entity of this.entities.values()) {
+            if (predicate(entity)) {
+                return entity
+            }
+        }
+
+        return undefined
     }
 
     addComponentToEntity = (entity: Entity, component: Component) => {
@@ -667,9 +685,9 @@ export class World {
                 if (this.debug) {
                     $("#playerPos").textContent = altitude.toFixed(4)
                 }
-                if (altitude > 0.4) {
+                if (altitude > 0.3) {
                     movementVector.y -= fallSpeed * delta
-                } else if (altitude < 0.1) {
+                } else if (altitude < 0.05) {
                     movementVector.y += riseSpeed * delta
                 } else {
                     const animationDuration = 5_000
@@ -774,6 +792,7 @@ export interface Entity {
     id: EntityId
     components: Map<ComponentKind, Component>
     transform: Transform
+    label?: string
 }
 
 export type EntityId = number
