@@ -17,14 +17,14 @@ import { $ } from "../../helpers"
 import { makeXYZGUI } from "../../View"
 
 export class DeliveryDriverPartI extends Level {
-    receptaclePosition: Vec3 = new Rapier.Vector3(0.02, -0.63, -3)
-    receptacleDimensions: Vec3 = new Rapier.Vector3(0.6, 0.1, 0.6)
-    receptacleShape: Rapier.Shape = new Rapier.Cuboid(
+    private receptaclePosition: Vec3 = new Rapier.Vector3(0.02, -0.63, -3)
+    private receptacleDimensions: Vec3 = new Rapier.Vector3(0.6, 0.1, 0.6)
+    private receptacleShape: Rapier.Shape = new Rapier.Cuboid(
         this.receptacleDimensions.x / 2,
         this.receptacleDimensions.y / 2,
         this.receptacleDimensions.z / 2
     )
-    receptacleDebugEntity: Entity | undefined
+    private receptacleDebugEntity: Entity | undefined
 
     private intersectionStart: number | undefined
 

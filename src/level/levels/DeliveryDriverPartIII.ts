@@ -1,0 +1,242 @@
+import * as Three from "three"
+import * as Tween from "three/addons/libs/tween.module.js"
+import * as Rapier from "@dimforge/rapier3d"
+
+import {
+    Entity,
+    Mesh,
+    Vec3,
+    World,
+    getComponent,
+    translation,
+} from "../../World"
+import { Level } from "../Level"
+
+import houseUrl from "../../assets/house.gltf?url"
+import { makeXYZGUI } from "../../View"
+import { $ } from "../../helpers"
+
+export class DeliveryDriverPartIII extends Level {
+    private gate: Entity | undefined
+    private gateText: Entity | undefined
+    private isGateOpen = false
+    private gateStartingY = 0
+    private gateTextStartingY = 0
+
+    private boundaryPosition: Vec3 = new Rapier.Vector3(0.3, -0.7, -1.4)
+    private boundaryDimensions: Vec3 = new Rapier.Vector3(2, 0.75, 0.17)
+    private boundaryShape: Rapier.Shape = new Rapier.Cuboid(
+        this.boundaryDimensions.x / 2,
+        this.boundaryDimensions.y / 2,
+        this.boundaryDimensions.z / 2
+    )
+    private boundaryDebugEntity: Entity | undefined
+
+    css = `
+        canvas {
+            background-image: linear-gradient(
+                45deg,
+                hsl(128deg 16% 65%) 0%,
+                hsl(157deg 30% 58%) 27%,
+                hsl(174deg 51% 47%) 40%,
+                hsl(184deg 100% 38%) 50%,
+                hsl(193deg 100% 44%) 60%,
+                hsl(200deg 100% 49%) 69%,
+                hsl(203deg 100% 50%) 77%,
+                hsl(207deg 100% 50%) 85%,
+                hsl(251deg 100% 71%) 92%,
+                hsl(291deg 85% 58%) 100%
+            );
+
+        }
+    `
+
+    tween = () => {
+        if (this.gate !== undefined && this.gateText !== undefined) {
+            const duration = Math.random() * 100 + 2000
+            const easing = Tween.Easing.Quadratic.Out
+            const gateTo = {
+                y: this.isGateOpen
+                    ? this.gateStartingY + 3
+                    : this.gateStartingY,
+            }
+
+            new Tween.Tween(this.gate.transform.position)
+                .to(gateTo, duration)
+                .easing(easing)
+                .start()
+
+            new Tween.Tween(this.gateText.transform.position)
+                .to(
+                    {
+                        y: this.isGateOpen
+                            ? this.gateTextStartingY + 3
+                            : this.gateTextStartingY,
+                    },
+                    duration
+                )
+                .easing(easing)
+                .start()
+        }
+    }
+
+    private updateGate = () => {
+        setTimeout(() => {
+            this.isGateOpen = !this.isGateOpen
+            this.tween()
+            this.updateGate()
+        }, Math.random() * 4000 + 6000)
+    }
+
+    init = async (world: World) => {
+        world.view.setOrthographicScale(0.005)
+        world.view.sun.position.set(0.6, 3, 3.2)
+
+        const entities = await world.importGLTF(houseUrl, new Vec3(-2, -1, 0.2))
+        this.gate = entities.find(
+            ({ label }) => label !== undefined && label.includes("MoveableGate")
+        )
+        this.gateText = entities.find(
+            ({ label }) =>
+                label !== undefined && label.includes("GateWarningText")
+        )
+
+        if (this.gate !== undefined) {
+            const position = this.gate.transform.position
+            this.gateStartingY = position.y
+        }
+
+        if (this.gateText !== undefined) {
+            this.gateTextStartingY = this.gateText.transform.position.y
+        }
+
+        if (Math.random() > 0.4) {
+            setTimeout(this.updateGate, Math.random() * 10_000)
+        } else {
+            this.updateGate()
+        }
+
+        world.addEntity(
+            translation(new Vec3(0, 0, 0)),
+            new Set([
+                {
+                    kind: "listener",
+                    notify: ({ event }) => {
+                        if (world.code !== undefined) {
+                            const cleanedCode = world.code.replace(/\s+/g, "")
+
+                            if (event.kind === "speaking") {
+                                const cleanedText = event.text
+                                    .toLowerCase()
+                                    .replace(/\s+/g, "")
+                                if (
+                                    cleanedText.includes("gateisclosed") &&
+                                    (cleanedCode.includes("if(distance<1)") ||
+                                        cleanedCode.includes(
+                                            "if(readDistance()<1)"
+                                        ))
+                                ) {
+                                    world.completeGoal(1)
+                                }
+                            }
+                        }
+                    },
+                },
+            ])
+        )
+
+        if (world.debug) {
+            this.boundaryDebugEntity = world.addEntity(
+                translation(this.boundaryPosition),
+                new Set([
+                    {
+                        kind: "mesh",
+                        mesh: new Three.Mesh(
+                            new Three.BoxGeometry(
+                                this.boundaryDimensions.x,
+                                this.boundaryDimensions.y,
+                                this.boundaryDimensions.z
+                            ),
+                            new Three.MeshStandardMaterial({ color: "orange" })
+                        ),
+                    },
+                ])
+            )
+        }
+
+        if (world.debug && world.view.gui !== undefined) {
+            const folder = world.view.gui.addFolder("Boundary")
+            makeXYZGUI(
+                folder,
+                this.boundaryPosition,
+                "Position",
+                this.updateBoundaryPosition,
+                5
+            )
+            makeXYZGUI(
+                folder,
+                this.boundaryDimensions,
+                "Dimensions",
+                this.updateBoundaryDimensions,
+                2
+            )
+            folder.open()
+        }
+    }
+
+    step = (delta: number, time: number, world: World) => {
+        if (
+            world.physics.intersectionWithShape(
+                this.boundaryPosition,
+                new Three.Quaternion(),
+                this.boundaryShape
+            )
+        ) {
+            if (world.debug) {
+                $("#other").textContent = "Intersect"
+            }
+            if (world.code !== undefined) {
+                const cleanedCode = world.code.toLowerCase().replace(/\s+/g, "")
+                if (cleanedCode.includes("else{")) {
+                    world.completeGoal(2)
+                }
+            }
+        } else {
+            if (world.debug) {
+                $("#other").textContent = "No intersect"
+            }
+        }
+
+        Tween.update(time)
+    }
+
+    destroy = () => {}
+
+    private updateBoundaryPosition = () => {
+        if (this.boundaryDebugEntity !== undefined) {
+            this.boundaryDebugEntity.transform.position = this.boundaryPosition
+        }
+    }
+
+    private updateBoundaryDimensions = () => {
+        if (this.boundaryDebugEntity !== undefined) {
+            const { mesh: object3D } = getComponent(
+                this.boundaryDebugEntity,
+                "mesh"
+            ) as Mesh
+            const mesh = object3D as Three.Mesh
+            mesh.geometry.dispose()
+            mesh.geometry = new Three.BoxGeometry(
+                this.boundaryDimensions.x,
+                this.boundaryDimensions.y,
+                this.boundaryDimensions.z
+            )
+        }
+
+        this.boundaryShape = new Rapier.Cuboid(
+            this.boundaryDimensions.x / 2,
+            this.boundaryDimensions.y / 2,
+            this.boundaryDimensions.z / 2
+        )
+    }
+}

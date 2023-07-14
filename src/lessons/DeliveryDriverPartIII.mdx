@@ -1,0 +1,33 @@
+export const title = "Delivery Driver, Part III"
+export const chapter = 2
+export const section = 4
+
+export const goals = ["main", "main"]
+import { DeliveryDriverPartIII } from "../level/levels/DeliveryDriverPartIII"
+export const level = DeliveryDriverPartIII
+
+Now that we can run code conditionally using <DocLink symbol="if">`if`</DocLink> <DocLink symbol="statement">statement</DocLink>, we can enter Arnold's house if the gate is open. But what about when the gate is closed? Since the gate could be open *or* closed at any point, you have to hit "Run" again and again and hope for the best. That's not especially convenient, and requires manual supervision of my actions on your part. Well, <DocLink symbol="if">`if`</DocLink> has a counterpart built for exactly this purpose: <DocLink synbol="else">`else`</DocLink>.
+
+<DocLink symbol="else">`else`</DocLink> <DocLink symbol="statement">statements</DocLink> always come after an <DocLink symbol="if">`if`</DocLink> <DocLink symbol="statement">statement</DocLink>. Unlike <DocLink symbol="if">`if`</DocLink>s, they don't have a condition, and the code inside runs if the condition provided in the <DocLink symbol="if">`if`</DocLink> <DocLink symbol="statement">statement</DocLink> is <DocLink symbol="false">`false`</DocLink>, rather than if it is <DocLink symbol="true">`true`</DocLink>
+
+```javascript
+// 1
+// no-run
+if ([insert condition]) {
+    [this code runs if the condition is true]
+} else {
+    [this code runs if the condition is false]
+}
+```
+
+If you forget to include the <DocLink symbol="curly-braces">curly braces (`{` and `}`)</DocLink>, you'll likely get an error.
+
+<YourTurn>
+<Goal index={1}>Write a program that proclaims "The gate is closed!" if the gate is closed using an <DocLink symbol="if">`if`</DocLink> <DocLink symbol="statement">statement</DocLink>.</Goal>
+
+<Goal index={2}>Using this new tool, extend your program to attempt to enter the house if the gate is open.</Goal>
+
+```javascript
+// 2
+```
+</YourTurn>
