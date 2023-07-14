@@ -3,6 +3,7 @@ import * as Tween from "three/addons/libs/tween.module.js"
 import * as Rapier from "@dimforge/rapier3d"
 
 import {
+    Collider,
     Entity,
     Mesh,
     Vec3,
@@ -14,7 +15,7 @@ import { Level } from "../Level"
 
 import houseUrl from "../../assets/house.gltf?url"
 import { makeXYZGUI } from "../../View"
-import { $ } from "../../helpers"
+import { $, TweenHelper } from "../../helpers"
 
 export class DeliveryDriverPartIII extends Level {
     private gate: Entity | undefined
@@ -64,6 +65,19 @@ export class DeliveryDriverPartIII extends Level {
             new Tween.Tween(this.gate.transform.position)
                 .to(gateTo, duration)
                 .easing(easing)
+                .onUpdate(({ y }) => {
+                    if (this.gate !== undefined) {
+                        const position = this.gate.transform.position
+
+                        const { collider } = getComponent(
+                            this.gate,
+                            "collider"
+                        ) as Collider
+                        collider.setTranslation(
+                            new Rapier.Vector3(position.x, y, position.z)
+                        )
+                    }
+                })
                 .start()
 
             new Tween.Tween(this.gateText.transform.position)
@@ -85,7 +99,7 @@ export class DeliveryDriverPartIII extends Level {
             this.isGateOpen = !this.isGateOpen
             this.tween()
             this.updateGate()
-        }, Math.random() * 4000 + 6000)
+        }, Math.random() * 2000 + 3000)
     }
 
     init = async (world: World) => {
@@ -110,9 +124,13 @@ export class DeliveryDriverPartIII extends Level {
             this.gateTextStartingY = this.gateText.transform.position.y
         }
 
-        if (Math.random() > 0.4) {
-            setTimeout(this.updateGate, Math.random() * 10_000)
+        if (Math.random() > 0.6) {
+            console.log("Start closed")
+            setTimeout(this.updateGate, Math.random() * 30_000)
         } else {
+            console.log("Start open")
+            this.isGateOpen = true
+            this.tween()
             this.updateGate()
         }
 

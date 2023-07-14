@@ -51,3 +51,15 @@ export const findIndexRight = <T>(
     }
     return undefined
 }
+
+export class TweenHelper<T> {
+    private updateFunction: (value: T) => void
+
+    public set value(value: T) {
+        this.updateFunction(value)
+    }
+
+    constructor(updateFunction: (value: T) => void) {
+        this.updateFunction = updateFunction
+    }
+}

@@ -7,6 +7,7 @@ import * as PopConcert from "../lessons/PopConcert.mdx"
 import * as DeliveryDriverPartI from "../lessons/DeliveryDriverPartI.mdx"
 import * as DeliveryDriverPartII from "../lessons/DeliveryDriverPartII.mdx"
 import * as DeliveryDriverPartIII from "../lessons/DeliveryDriverPartIII.mdx"
+import * as DeliveryDriverPartIV from "../lessons/DeliveryDriverPartIV.mdx"
 
 import { Goals, ID, LessonID, LessonInfo } from "./Lesson"
 import { useMemo } from "preact/hooks"
@@ -69,6 +70,7 @@ export const lessons: Record<string, LessonInfo> = Object.fromEntries(
         "2-2": DeliveryDriverPartI,
         "2-3": DeliveryDriverPartII,
         "2-4": DeliveryDriverPartIII,
+        "2-5": DeliveryDriverPartIV,
     }).map(([key, module_]) => [key, getLessonInfo(module_)])
 )
 

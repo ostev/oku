@@ -1,0 +1,46 @@
+export const title = "Delivery Driver, Part IV"
+export const chapter = 2
+export const section = 5
+
+export const goals = ["main", "main"]
+import { DeliveryDriverPartIII } from "../level/levels/DeliveryDriverPartIII"
+export const level = DeliveryDriverPartIII
+
+Right now, the program only checks whether the gate is open once. If it's closed, I'm out of luck, and you have to press "Run" again. What if I could keep trying to enter until the gate opened? Well, that's a surprisingly common task in computer programming, and JavaScript has a tool built-in to help us: <DocLink symbol="loop">loops</DocLink>.
+
+The simplest kind of <DocLink symbol="loop">loop</DocLink> in JavaScript is the <DocLink symbol="while">`while` loop</DocLink>. Like <DocLink symbol="if">`if`</DocLink>, <DocLink symbol="while">`while`</DocLink> requires a condition, which it uses to determine whether the code should run:
+
+```javascript
+// 1
+while (5 < 3) {
+    say("5 is less than 3.")
+    wait(4)
+}
+```
+
+If you hit "Run" on this block of code, I'll proclaim "5 is less than 3" forever. This is because the condition `5 < 3` is *always* <DocLink symbol="true">`true`</DocLink>, which causes the code to execute. <DocLink symbol="while">`while` loops</DocLink> repeat the code contained within them until the condition is false. Since the condition `5 < 3` never changes, the loop repeats forever. We might as well have written this:
+
+```javascript
+// 2
+while (true) {
+    say("True is true. What is the truth?")
+    wait(4)
+}
+```
+
+Like with <DocLink symbol="if">`if` statements</DocLink>, you must remember to place <DocLink symbol="paranthesis">parantheses</DocLink> around the condition, or you'll get an error.
+
+While *(ha ha)* infinitely repeating loops are sometimes useful, more often than not we want our loops to end. We can do this by writing a condition that changes over time, using <DocLink symbol="function">functions</DocLink> like <DocLink symbol="readDistance">`readDistance`</DocLink>. Here's an example:
+
+```javascript
+// 3
+// Loops until the gate is open
+while (readDistance() < 1) {
+    say("The gate is closed! Noooooooo!")
+    wait(4)
+}
+
+say("Freedom!")
+```
+
+Any code *after* the <DocLink symbol="while">`while` loop</DocLink> will only execute once the loop has finished. In this example, I will proclaim "Freedom!" once the gate has opened.

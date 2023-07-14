@@ -2,10 +2,18 @@ import * as Three from "three"
 import * as Tween from "three/addons/libs/tween.module.js"
 import * as Rapier from "@dimforge/rapier3d"
 
-import { Entity, Vec3, World, getComponent, translation } from "../../World"
+import {
+    Collider,
+    Entity,
+    Vec3,
+    World,
+    getComponent,
+    translation,
+} from "../../World"
 import { Level } from "../Level"
 
 import houseUrl from "../../assets/house.gltf?url"
+import { TweenHelper } from "../../helpers"
 
 export class DeliveryDriverPartII extends Level {
     private gate: Entity | undefined
@@ -48,6 +56,42 @@ export class DeliveryDriverPartII extends Level {
                     duration
                 )
                 .easing(easing)
+                .onUpdate(({ y }) => {
+                    if (this.gate !== undefined) {
+                        const position = this.gate.transform.position
+
+                        const { collider } = getComponent(
+                            this.gate,
+                            "collider"
+                        ) as Collider
+                        collider.setTranslation(
+                            new Rapier.Vector3(position.x, y, position.z)
+                        )
+                    }
+                })
+                .start()
+
+            const { collider } = getComponent(this.gate, "collider") as Collider
+
+            new Tween.Tween(
+                new TweenHelper<number>((y) => {
+                    if (this.gate !== undefined) {
+                        const position = this.gate.transform.position
+                        collider.setTranslation(
+                            new Rapier.Vector3(position.x, y, position.z)
+                        )
+                    }
+                })
+            )
+                .to(
+                    {
+                        value: this.isGateOpen
+                            ? this.gateStartingY + 3
+                            : this.gateStartingY,
+                    },
+                    duration
+                )
+                .easing(easing)
                 .start()
             new Tween.Tween(this.gateText.transform.position)
                 .to(
@@ -68,7 +112,7 @@ export class DeliveryDriverPartII extends Level {
             this.isGateOpen = !this.isGateOpen
             this.tween()
             this.updateGate()
-        }, Math.random() * 4000 + 6000)
+        }, Math.random() * 2000 + 3000)
     }
 
     init = async (world: World) => {
@@ -92,9 +136,11 @@ export class DeliveryDriverPartII extends Level {
             this.gateTextStartingY = this.gateText.transform.position.y
         }
 
-        if (Math.random() > 0.4) {
-            setTimeout(this.updateGate, Math.random() * 10_000)
+        if (Math.random() > 0.5) {
+            setTimeout(this.updateGate, Math.random() * 5000)
         } else {
+            this.isGateOpen = true
+            this.tween()
             this.updateGate()
         }
 
