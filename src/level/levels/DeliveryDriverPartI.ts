@@ -26,8 +26,6 @@ export class DeliveryDriverPartI extends Level {
     )
     private receptacleDebugEntity: Entity | undefined
 
-    private intersectionStart: number | undefined
-
     css = `
         canvas {
             background-image: linear-gradient(

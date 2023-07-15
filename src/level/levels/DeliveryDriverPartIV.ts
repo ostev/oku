@@ -11,13 +11,13 @@ import {
     getComponent,
     translation,
 } from "../../World"
-import { Level } from "../Level"
+import { Level, addParcel } from "../Level"
 
 import houseUrl from "../../assets/house.gltf?url"
 import { makeXYZGUI } from "../../View"
 import { $, TweenHelper } from "../../helpers"
 
-export class DeliveryDriverPartIII extends Level {
+export class DeliveryDriverPartIV extends Level {
     private gate: Entity | undefined
     private gateText: Entity | undefined
     private isGateOpen = false
@@ -32,6 +32,15 @@ export class DeliveryDriverPartIII extends Level {
         this.boundaryDimensions.z / 2
     )
     private boundaryDebugEntity: Entity | undefined
+
+    private receptaclePosition: Vec3 = new Rapier.Vector3(1.6, -0.9, -2.8)
+    private receptacleDimensions: Vec3 = new Rapier.Vector3(1.164, 0.5, 0.48)
+    private receptacleShape: Rapier.Shape = new Rapier.Cuboid(
+        this.receptacleDimensions.x / 2,
+        this.receptacleDimensions.y / 2,
+        this.receptacleDimensions.z / 2
+    )
+    private receptacleDebugEntity: Entity | undefined
 
     css = `
         canvas {
@@ -124,44 +133,7 @@ export class DeliveryDriverPartIII extends Level {
             this.gateTextStartingY = this.gateText.transform.position.y
         }
 
-        if (Math.random() > 0.6) {
-            console.log("Start closed")
-            setTimeout(this.updateGate, Math.random() * 5000)
-        } else {
-            console.log("Start open")
-            this.isGateOpen = true
-            this.tween()
-            this.updateGate()
-        }
-
-        world.addEntity(
-            translation(new Vec3(0, 0, 0)),
-            new Set([
-                {
-                    kind: "listener",
-                    notify: ({ event }) => {
-                        if (world.code !== undefined) {
-                            const cleanedCode = world.code.replace(/\s+/g, "")
-
-                            if (event.kind === "speaking") {
-                                const cleanedText = event.text
-                                    .toLowerCase()
-                                    .replace(/\s+/g, "")
-                                if (
-                                    cleanedText.includes("gateisclosed") &&
-                                    (cleanedCode.includes("if(distance<1)") ||
-                                        cleanedCode.includes(
-                                            "if(readDistance()<1)"
-                                        ))
-                                ) {
-                                    world.completeGoal(1)
-                                }
-                            }
-                        }
-                    },
-                },
-            ])
-        )
+        setTimeout(this.updateGate, Math.random() * 5_000 + 400)
 
         if (world.debug) {
             this.boundaryDebugEntity = world.addEntity(
@@ -180,26 +152,96 @@ export class DeliveryDriverPartIII extends Level {
                     },
                 ])
             )
+
+            this.receptacleDebugEntity = world.addEntity(
+                translation(this.receptaclePosition),
+                new Set([
+                    {
+                        kind: "mesh",
+                        mesh: new Three.Mesh(
+                            new Three.BoxGeometry(
+                                this.receptacleDimensions.x,
+                                this.receptacleDimensions.y,
+                                this.receptacleDimensions.z
+                            ),
+                            new Three.MeshStandardMaterial({ color: "purple" })
+                        ),
+                    },
+                ])
+            )
         }
 
         if (world.debug && world.view.gui !== undefined) {
-            const folder = world.view.gui.addFolder("Boundary")
-            makeXYZGUI(
-                folder,
-                this.boundaryPosition,
-                "Position",
-                this.updateBoundaryPosition,
-                5
-            )
-            makeXYZGUI(
-                folder,
-                this.boundaryDimensions,
-                "Dimensions",
-                this.updateBoundaryDimensions,
-                2
-            )
-            folder.open()
+            {
+                const folder = world.view.gui.addFolder("Boundary")
+                makeXYZGUI(
+                    folder,
+                    this.boundaryPosition,
+                    "Position",
+                    this.updateBoundaryPosition,
+                    5
+                )
+                makeXYZGUI(
+                    folder,
+                    this.boundaryDimensions,
+                    "Dimensions",
+                    this.updateBoundaryDimensions,
+                    2
+                )
+                folder.open()
+            }
+            {
+                const folder = world.view.gui.addFolder("Receptacle")
+                makeXYZGUI(
+                    folder,
+                    this.receptaclePosition,
+                    "Position",
+                    () => {
+                        if (
+                            this.receptacleDebugEntity !== undefined &&
+                            world.debug
+                        ) {
+                            this.receptacleDebugEntity.transform.position =
+                                this.receptaclePosition
+                        }
+                    },
+                    5
+                )
+                makeXYZGUI(
+                    folder,
+                    this.receptacleDimensions,
+                    "Dimensions",
+                    () => {
+                        if (
+                            this.receptacleDebugEntity !== undefined &&
+                            world.debug
+                        ) {
+                            const { mesh: object3D } = getComponent(
+                                this.receptacleDebugEntity,
+                                "mesh"
+                            ) as Mesh
+                            const mesh = object3D as Three.Mesh
+                            mesh.geometry.dispose()
+                            mesh.geometry = new Three.BoxGeometry(
+                                this.receptacleDimensions.x,
+                                this.receptacleDimensions.y,
+                                this.receptacleDimensions.z
+                            )
+                        }
+
+                        this.receptacleShape = new Rapier.Cuboid(
+                            this.receptacleDimensions.x / 2,
+                            this.receptacleDimensions.y / 2,
+                            this.receptacleDimensions.z / 2
+                        )
+                    },
+                    2
+                )
+                folder.open()
+            }
         }
+
+        addParcel(world, new Vec3(0.3, 0, 0))
     }
 
     step = (delta: number, time: number, world: World) => {
@@ -210,19 +252,42 @@ export class DeliveryDriverPartIII extends Level {
                 this.boundaryShape
             )
         ) {
+            if (world.code !== undefined) {
+                const cleanedCode = world.code.toLowerCase().replace(/\s+/g, "")
+                if (
+                    cleanedCode.match(
+                        /while\(readDistance\(\)<\d+\){\s+.*\s+}/
+                    ) !== null
+                ) {
+                    world.completeGoal(1)
+                }
+            }
+        }
+
+        if (
+            world.physics.intersectionWithShape(
+                this.receptaclePosition,
+                new Three.Quaternion(),
+                this.receptacleShape
+            )
+        ) {
             if (world.debug) {
                 $("#other").textContent = "Intersect"
             }
             if (world.code !== undefined) {
                 const cleanedCode = world.code.toLowerCase().replace(/\s+/g, "")
-                if (cleanedCode.includes("else{")) {
+                if (
+                    cleanedCode.match(
+                        /while\(readDistance\(\)<\d+\){\s+.*\s+}/
+                    ) !== null &&
+                    cleanedCode.includes("pickUp()") &&
+                    cleanedCode.includes("placeDown")
+                ) {
                     world.completeGoal(2)
                 }
             }
-        } else {
-            if (world.debug) {
-                $("#other").textContent = "No intersect"
-            }
+        } else if (world.debug) {
+            $("#other").textContent = "No intersect"
         }
 
         Tween.update(time)

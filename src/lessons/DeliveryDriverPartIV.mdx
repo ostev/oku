@@ -3,8 +3,8 @@ export const chapter = 2
 export const section = 5
 
 export const goals = ["main", "main"]
-import { DeliveryDriverPartIII } from "../level/levels/DeliveryDriverPartIII"
-export const level = DeliveryDriverPartIII
+import { DeliveryDriverPartIV } from "../level/levels/DeliveryDriverPartIV"
+export const level = DeliveryDriverPartIV
 
 Right now, the program only checks whether the gate is open once. If it's closed, I'm out of luck, and you have to press "Run" again. What if I could keep trying to enter until the gate opened? Well, that's a surprisingly common task in computer programming, and JavaScript has a tool built-in to help us: <DocLink symbol="loop">loops</DocLink>.
 
@@ -44,3 +44,33 @@ say("Freedom!")
 ```
 
 Any code *after* the <DocLink symbol="while">`while` loop</DocLink> will only execute once the loop has finished. In this example, I will proclaim "Freedom!" once the gate has opened.
+
+<YourTurn>
+<Goal index={1}>
+Using a <DocLink symbol="while">`while` loop</DocLink>, write a program that waits until the gate is open before attempting to enter the house.
+</Goal>
+
+<Hint index={1}>
+Here's a pseudocode scaffold:
+
+```javascript
+// 4
+// no-run
+while (gate is closed) {
+    wait for a bit
+}
+
+// Quick! The gate is open
+move forward through gate
+```
+</Hint>
+
+```javascript
+// 4
+```
+
+<Goal index={2}>
+Modify your program to first pick up the parcel to my right, take it through the gate and place it in front of Arnold's tree in the top-right corner.
+</Goal>
+
+</YourTurn>

@@ -37,7 +37,7 @@ export const addTestCube = (world: World): Entity => {
 
 export const addParcel = (world: World, position: Vec3): Entity => {
     const mesh = new Three.Mesh(
-        new Three.BoxGeometry(0.5, 0.4, 0.5),
+        new Three.BoxGeometry(0.4, 0.4, 0.4),
         new Three.MeshStandardMaterial({ color: "white" })
     )
     const rigidBodyDesc = Rapier.RigidBodyDesc.dynamic()
@@ -45,7 +45,7 @@ export const addParcel = (world: World, position: Vec3): Entity => {
         .setAdditionalMass(2)
     const rigidBody = world.physics.createRigidBody(rigidBodyDesc)
     const collider = world.physics.createCollider(
-        Rapier.ColliderDesc.cuboid(0.25, 0.2, 0.25),
+        Rapier.ColliderDesc.cuboid(0.2, 0.2, 0.2),
         rigidBody
     )
 
