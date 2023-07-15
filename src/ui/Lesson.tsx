@@ -454,6 +454,28 @@ export const Lesson: FunctionComponent<LessonProps> = ({
 
     const cssRendererRef = useRef<HTMLDivElement | null>(null)
 
+    // useEffect(() => {
+    //     const onWindowFocus = () => {
+    //         if (worldRef.current !== null && !worldRef.current.isRunning) {
+    //             worldRef.current.start()
+    //         }
+    //     }
+
+    //     const onWindowBlur = () => {
+    //         if (worldRef.current !== null && worldRef.current.isRunning) {
+    //             worldRef.current.stop()
+    //         }
+    //     }
+
+    //     window.addEventListener("focus", onWindowFocus)
+    //     window.addEventListener("blur", onWindowBlur)
+
+    //     return () => {
+    //         window.removeEventListener("focus", onWindowFocus)
+    //         window.removeEventListener("blur", onWindowBlur)
+    //     }
+    // }, [])
+
     const init = async () => {
         viewRef.current = new View(cssRendererRef.current as HTMLElement)
         worldRef.current = new World(
