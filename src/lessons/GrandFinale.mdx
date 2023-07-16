@@ -1,0 +1,142 @@
+export const title = "The GrandFinale"
+export const chapter = 3
+export const section = 1
+
+export const goals = ["main", "main"]
+import { GrandFinale } from "../level/levels/GrandFinale"
+export const level = GrandFinale
+
+There is but one last level, one final dance fight, one dance champion to rule them all!
+
+*...Sorry.* Got a bit carried away there. Peggy has challenged me to a dance battle, an epic showdown of the highest prestige, a performing arts spectacular. I need to up my game in order to compete, and I need *you* to help me.
+
+Remember our <Ref chapter={1} section={3}>song and dance</Ref> and <Ref chapter={2} section={1}>pop concert</Ref> from earlier? We can <DocLink symbol="refactor">*refactor*</DocLink> and extend our existing programs using the new concepts we've learnt since, as well as a brand new one.
+
+If you take a look at your old code for those levels, you'll likely find that it's rather repetitive. *Every single time* you wanted to move backward you had to write two instructions:
+
+```javascript
+// 1
+turn(180)
+forward(1)
+```
+
+*Every single time* you wanted to sing the chorus line you had to write out a `say` command:
+
+```javascript
+// 2
+say("I love singing!")
+say("I love singing!")
+say("I love singing!")
+```
+
+Isn't that annoying?
+
+Over the course of this adventure, you've become familiar with various <DocLink symbol="function">functions</DocLink> like <DocLink symbol="move">`move`</DocLink>, <DocLink symbol="say">`say`</DocLink> and <DocLink symbol="wait">`wait`</DocLink>. You've learnt that <DocLink symbol="function">functions</DocLink> like <DocLink symbol="turn">`turn`</DocLink> can take <DocLink symbol="parameter">parameters</DocLink>, and that <DocLink symbol="function">functions</DocLink> like <DocLink symbol="readDistance">`readDistance`</DocLink> can give back or <DocLink symbol="return">*return*</DocLink> a value. In JavaScript, we also have the ability to define our *own* <DocLink symbol="function">functions</DocLink>, not just use the provided ones. We can create a <DocLink symbol="function">function</DocLink> like this:
+
+```javascript
+// 3
+// no-run
+(parameter1, parameter2) => {
+    // Insert code to execute inside function here
+}
+```
+
+Inside the <DocLink symbol="paranthesis">parantheses</DocLink> we put the <DocLink symbol="parameter">parameters</DocLink> our <DocLink symbol="function">function</DocLink> accepts. A function can accept more than one <DocLink symbol="parameter">parameter</DocLink>. If it does, we separate the <DocLink symbol="parameter">parameters</DocLink> with <DocLink symbol="comma">commas (`,`)</DocLink>. Inside the <DocLink symbol="curly-brace">curly braces (`{` and `}`)</DocLink>, we put the code we want to run when we execute the <DocLink symbol="function">function</DocLink>. The <DocLink symbol="arrow">arrow (`=>`)</DocLink> tells me that this you're writing a <DocLink symbol="function">function</DocLink> and not some other kind of value.
+
+<DocLink symbol="function">Functions</DocLink> are values just like <DocLink symbol="number">numbers</DocLink> and <DocLink symbol="string">strings</DocLink>. As such, we can assign one to a <DocLink symbol="variable"></DocLink> and give it a name, just like a <DocLink symbol="number">number</DocLink> or <DocLink symbol="string">string</DocLink>:
+
+```javascript
+// 4
+let myFunkyFunction = (waitTime) => {
+    say("I was walking down the street")
+    wait(waitTime)
+    say("In the depths of the city")
+    wait(waitTime)
+    say("Ooh yeah")
+}
+
+let backward = (distance) => {
+    // Turn 180 degrees and move forward by the `distance` parameter
+    turn(180)
+    forward(distance)
+}
+```
+
+We can then run that function just like <DocLink symbol="move">`move`</DocLink> or <DocLink symbol="turn">`turn`</DocLink>:
+
+```javascript
+// 5
+let myFunkyFunction = (waitTime) => {
+    say("I was walking down the street")
+    wait(waitTime)
+    say("In the depths of the city")
+    wait(waitTime)
+    say("Ooh yeah")
+}
+
+myFunkyFunction(2)
+myFunkyFunction(3)
+```
+
+<Goal index={1}>Write a <DocLink symbol="function">function</DocLink> called `singChorus` that sings the chorus line for a song you like. Execute that function twice.</Goal>
+
+{/* We can also write <DocLink symbol="function">functions</DocLink> like <DocLink symbol="readDistance">`readDistance`</DocLink> that <DocLink symbol="return">return</DocLink> values:
+
+```javascript
+// 6
+let isGateClosed = () => {
+    let distance = readDistance()
+
+    return distance < 1
+}
+
+let gateStatus = isGateClosed()
+
+say(gateStatus)
+
+if (isGateClosed()) {
+    say("Oh no! It's closed!")
+}
+```
+
+Like <DocLink symbol="readDistance">`readDistance`</DocLink>, we can use our little function in conditions, as well as assign its result to a <DocLink symbol="variable">variable</DocLink>.
+
+<Goal index={2}>
+Write a function that checks whether a
+</Goal> */}
+
+Since <DocLink symbol="function">function</DocLink> are just like any other value, we can even give them as <DocLink symbol="parameter">parameters</DocLink> to other <DocLink symbol="function">function</DocLink>! I know it's a bit confusing, but bear with me for a bit. The <DocLink symbol="function">function</DocLink> <DocLink symbol="repeat">`repeat`</DocLink> is a takes a <DocLink symbol="number">number</DocLink> and a <DocLink symbol="function">function</DocLink> as a <DocLink symbol="parameter">parameters</DocLink>:
+
+```javascript
+// 6
+repeat(4, () => {
+    // This code executes four times.
+    say("Laaa laaa laaa")
+    wait(4)
+})
+```
+
+Remember that multiple <DocLink symbol="parameter">parameters</DocLink> to a function are seperated by <DocLink symbol="comma">commas (`,`)</DocLink>. If you forget them, you'll get an error.
+
+We can even pass a variable to <DocLink symbol="repeat">`repeat`</DocLink>, like so:
+
+```javascript
+// 7
+let myFunkyFunction = () => {
+    say("This function is very funky")
+    wait(4)
+}
+
+// Execute `myFunkyFunction` 4 times
+repeat(4, myFunkyFunction)
+```
+
+<Goal index={2}>Use <DocLink symbol="repeat">`repeat`</DocLink> to... well... repeat a dance routine multiple times.</Goal>
+
+<YourTurn>
+It's now time to put all of the things we've learnt over the past little while to good use!
+
+<Goal index={3}>
+In order to defeat Peggy and be crowned dance champion, I need to bust out some new moves. Write a program using <DocLink symbol="variable">variables</DocLink>, <DocLink symbol="if">`if`</DocLink>, <DocLink symbol="else">`else`</DocLink>, <DocLink symbol="while">`while`</DocLink> and custom <DocLink symbol="function">functions</DocLink>.
+</Goal>
+</YourTurn>

@@ -429,7 +429,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         },
 
         placeDown: {
-            fn: (context) => {
+            fn: (_context) => {
                 try {
                     worldRef.current?.placeDownParcel()
                 } catch (error) {
@@ -437,6 +437,12 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                     destroy()
                     init()
                 }
+            },
+        },
+
+        random: {
+            fn: (context) => {
+                context.returnNumber(Math.random())
             },
         },
     }
