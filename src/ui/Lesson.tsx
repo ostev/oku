@@ -439,12 +439,6 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                 }
             },
         },
-
-        random: {
-            fn: (context) => {
-                context.returnNumber(Math.random())
-            },
-        },
     }
 
     const onFinish = () => {

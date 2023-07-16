@@ -9,7 +9,12 @@ export interface FnBindingInfo {
 export type Bindings = Record<string, SyncInfo>
 
 export interface SyncInfo {
-    delay: number | "parameterSeconds" | "untilResume" | "untilReturnNumber"
+    delay:
+        | number
+        | "parameterSeconds"
+        | "untilResume"
+        | "untilReturnNumber"
+        | "local"
 }
 
 // export const stripFn = (fnBindings: FnBindings): Bindings => {

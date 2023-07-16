@@ -58,6 +58,18 @@
 
                 return value
             }`
+                    } else if (syncInfo.delay === "local") {
+                        if (name === "random") {
+                            return `function random() {
+                return Math.random()
+            }`
+                        } else if (name === "repeat") {
+                            return `function repeat(times, fn) {
+                for (let i = 0; i < times; i++) {
+                    fn()
+                }
+            }`
+                        }
                     } else {
                         return `function ${name}(...args) {
                 self.postMessage(["${name}", ...args])
@@ -199,7 +211,8 @@
                 readDistance: { delay: "untilReturnNumber" },
                 pickUp: { delay: 0 },
                 placeDown: { delay: 0 },
-                random: { delay: "untilReturnNumber" },
+                random: { delay: "local" },
+                repeat: { delay: "local" },
             }
 
             const InvalidMessageReceivedFromHostApplicationError = error(
