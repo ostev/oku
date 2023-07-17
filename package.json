@@ -2,7 +2,7 @@
     "name": "programming-game",
     "private": true,
     "version": "0.0.0",
-    "main": ".vite/build/main.js",
+    "main": "./out/main/index.js",
     "author": {
         "name": "Oscar Stevens"
     },
@@ -10,22 +10,16 @@
     "scripts": {
         "dev": "vite",
         "build": "tsc && vite build",
-        "build-no-tsc": "vite build",
+        "build:no-tsc": "vite build",
+        "build:electron-vite": "electron-vite build",
         "preview": "vite preview",
         "preview-host": "vite preview --host",
-        "start": "electron-forge start",
-        "package": "electron-forge package",
-        "make": "electron-forge make",
-        "publish": "electron-forge publish"
+        "build:win": "npm run build:electron-vite && electron-builder --win portable --config",
+        "postinstall": "electron-builder install-app-deps"
     },
     "devDependencies": {
-        "@electron-forge/cli": "^6.2.1",
-        "@electron-forge/maker-deb": "^6.2.1",
-        "@electron-forge/maker-rpm": "^6.2.1",
-        "@electron-forge/maker-squirrel": "^6.2.1",
-        "@electron-forge/maker-zip": "^6.2.1",
-        "@electron-forge/plugin-auto-unpack-natives": "^6.2.1",
-        "@electron-forge/plugin-vite": "^6.2.1",
+        "@electron-toolkit/tsconfig": "^1.0.1",
+        "@electron/notarize": "^2.1.0",
         "@preact/preset-vite": "^2.5.0",
         "@rabbitholesyndrome/electron-forge-maker-portable": "^0.1.1",
         "@types/chroma-js": "^2.4.0",
@@ -33,7 +27,8 @@
         "autoprefixer": "^10.4.14",
         "cssnano": "^6.0.1",
         "electron": "^25.2.0",
-        "electron-vite": "^1.0.24",
+        "electron-builder": "^24.4.0",
+        "electron-vite": "^1.0.25",
         "postcss": "^8.4.24",
         "rehype-katex": "^6.0.3",
         "remark-gfm": "^3.0.1",
@@ -49,6 +44,8 @@
     "dependencies": {
         "@codemirror/lang-javascript": "^6.1.9",
         "@dimforge/rapier3d": "^0.11.2",
+        "@electron-toolkit/preload": "^2.0.0",
+        "@electron-toolkit/utils": "^1.0.2",
         "@mdx-js/preact": "^2.3.0",
         "@mdx-js/rollup": "^2.3.0",
         "@types/katex": "^0.16.0",
@@ -60,5 +57,6 @@
         "preact": "^10.15.1",
         "thememirror": "^2.0.1",
         "three": "^0.153.0"
-    }
+    },
+    "packageManager": "yarn@3.6.1"
 }
