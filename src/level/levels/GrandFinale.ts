@@ -2,7 +2,7 @@ import * as Three from "three"
 import * as Tween from "three/addons/libs/tween.module.js"
 import * as Rapier from "@dimforge/rapier3d"
 
-import { Vec3, World, getComponent, translation } from "../../World"
+import { Entity, Vec3, World, getComponent, translation } from "../../World"
 import { Level } from "../Level"
 
 import stageUrl from "../../assets/stage.gltf?url"
@@ -34,7 +34,10 @@ function tween(light: Three.SpotLight) {
         .start()
 
     new Tween.Tween(light.rotation)
-        .to({ x: 0, y: 0, z: Math.random() * 2 - 1 }, Math.random() * 1000)
+        .to(
+            { x: 0, y: 0, z: Math.random() * 2 - 1 },
+            Math.random() * 1000 + 1000
+        )
         .easing(Tween.Easing.Quadratic.Out)
         .start()
 }
@@ -43,26 +46,15 @@ export class GrandFinale extends Level {
     private previousSpotlightAnimationTime: number = 0
     private spotlights: Three.SpotLight[] = []
     private spotlightHelpers: Three.SpotLightHelper[] | undefined
-    private progress = { forward: false, turn: false, say: false, wait: false }
+    private progress = {
+        forward: false,
+        turn: false,
+        say: false,
+        wait: false,
+        repeat: false,
+    }
 
-    //     css = `
-    //         canvas {
-    //             background-image: linear-gradient(
-    //   45deg,
-    //   hsl(240deg 100% 20%) 0%,
-    //   hsl(262deg 90% 27%) 22%,
-    //   hsl(271deg 78% 35%) 33%,
-    //   hsl(278deg 70% 43%) 42%,
-    //   hsl(285deg 66% 50%) 51%,
-    //   hsl(291deg 85% 58%) 59%,
-    //   hsl(291deg 85% 69%) 67%,
-    //   hsl(292deg 86% 77%) 75%,
-    //   hsl(294deg 87% 85%) 82%,
-    //   hsl(295deg 88% 93%) 90%,
-    //   hsl(0deg 0% 100%) 99%
-    // );
-    //         }
-    // `
+    private peggy: Entity | undefined
 
     css = `
         canvas {
@@ -86,7 +78,8 @@ export class GrandFinale extends Level {
         this.progress.forward &&
         this.progress.say &&
         this.progress.turn &&
-        this.progress.wait
+        this.progress.wait &&
+        this.progress.repeat
 
     init = async (world: World) => {
         world.view.sun.removeFromParent()
@@ -95,6 +88,8 @@ export class GrandFinale extends Level {
         world.view.setOrthographicScale(0.007)
 
         await world.importGLTF(stageUrl, new Vec3(0, -2, 0))
+
+        this.peggy = (await addPeggy(world, new Vec3(1, 0, 0)))[0]
 
         world.addEntity(
             translation(new Vec3(0, 0, 0)),
@@ -118,27 +113,52 @@ export class GrandFinale extends Level {
                                 this.progress.wait = true
                                 break
 
+                            case "repeat":
+                                this.progress.repeat = true
+                                break
+
                             case "executionComplete":
-                                if (
-                                    world.code !== undefined &&
-                                    this.mainGoalIsComplete()
-                                ) {
-                                    {
-                                        const regex =
-                                            /(let|var|const) (.+) =(.*)/
-                                        const match = world.code.match(regex)
+                                if (world.code !== undefined) {
+                                    const cleanedCode = world.code.replace(
+                                        /\s+/g,
+                                        ""
+                                    )
+
+                                    const namedFunctionRegex =
+                                        /let\s+(singChorus|singchorus|SINGCHORUS|SINGchorus|singCHORUS|sing|chorus|SING|CHORUS)\s*=\s*\(.*\)\s*=>\s*{[\s\S]*}/
+
+                                    const repeatRegex =
+                                        /repeat\((0x.+|0b\d(\d|_)*|\d(\d|_)*|),(.+)\)/
+
+                                    const whileLoopRegex = /while\(.*\){.*\}/
+
+                                    if (this.progress.say) {
+                                        const match =
+                                            world.code.match(namedFunctionRegex)
+                                        if (match !== null) {
+                                            world.completeGoal(1)
+                                        }
+                                    }
+
+                                    if (this.progress.repeat) {
+                                        const match =
+                                            cleanedCode.match(repeatRegex)
                                         if (match !== null) {
                                             world.completeGoal(2)
                                         }
                                     }
 
-                                    {
-                                        const regex = /\+\s*"(.*)"/
-                                        const match = world.code.match(regex)
-                                        console.log(match)
-                                        if (match !== null) {
-                                            world.completeGoal(3)
-                                        }
+                                    if (
+                                        this.mainGoalIsComplete() &&
+                                        cleanedCode.includes("if") &&
+                                        cleanedCode.includes("else") &&
+                                        cleanedCode.match(repeatRegex) !==
+                                            null &&
+                                        cleanedCode.includes(")=>{") &&
+                                        cleanedCode.match(whileLoopRegex) !==
+                                            null
+                                    ) {
+                                        world.completeGoal(3)
                                     }
                                 }
                                 break
@@ -187,7 +207,10 @@ export class GrandFinale extends Level {
     }
 
     step = (delta: number, time: number, world: World) => {
-        if (time - this.previousSpotlightAnimationTime >= 1100) {
+        if (
+            time - this.previousSpotlightAnimationTime >=
+            Math.random() * 2000 + 3000
+        ) {
             this.previousSpotlightAnimationTime = time
             for (const spotlight of this.spotlights) {
                 tween(spotlight)

@@ -32,6 +32,8 @@ import {
     getComponent,
     forwardVector,
     translation,
+    forward,
+    turn,
 } from "../World"
 import { DocLink } from "./Docs"
 import { View } from "../View"
@@ -232,115 +234,31 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         },
         forward: {
             fn: (context: UserExecutionContext, distance: number) => {
-                console.log("Forward")
-                if (worldRef.current !== null && playerRef.current !== null) {
-                    const startingPlayerPos =
-                        playerRef.current.transform.position
-                    const speed = 0.001
-
-                    worldRef.current.activateEvent({
-                        event: {
-                            kind: "forward",
-                            distance,
-                        },
-                        source: getComponent(
-                            playerRef.current,
-                            "eventSource"
-                        ) as EventSource,
-                    })
-
-                    const stepFunction = (
-                        delta: number,
-                        time: number,
-                        world: World
-                    ) => {
-                        if (playerRef.current !== null) {
-                            const player = world.getEntity(playerRef.current.id)
-                            if (player !== undefined) {
-                                if (
-                                    vec3Distance(
-                                        startingPlayerPos,
-                                        player.transform.position
-                                    ) > distance
-                                ) {
-                                    world.playerMovementVector =
-                                        new Three.Vector3(0, 0, 0)
-                                    world.unregisterStepFunction(stepFunction)
-
-                                    context.resume()
-                                } else {
-                                    // world.playerMovementVector.z =
-                                    //     -speed * delta
-                                    const forward = forwardVector(
-                                        player.transform
-                                    )
-
-                                    world.playerMovementVector =
-                                        forward.multiplyScalar(speed * delta)
-
-                                    // $(
-                                    //     "#other"
-                                    // ).textContent = `${world.playerMovementVector.x}, ${world.playerMovementVector.y}, ${world.playerMovementVector.z}`
-                                }
-                            }
-                        }
-                    }
-                    worldRef.current.registerStepFunction(stepFunction)
+                if (playerRef.current !== null && worldRef.current !== null) {
+                    forward(
+                        distance,
+                        worldRef.current,
+                        playerRef.current,
+                        context.resume
+                    )
                 }
             },
         },
         turn: {
             fn: (context, degrees: number) => {
                 if (worldRef.current !== null && playerRef.current !== null) {
-                    const radians = -degToRad(degrees)
-
-                    const originalRotation = worldRef.current.playerRotation
-
-                    const speed = 0.005
-                    const startTime = performance.now()
-                    const duration = Math.abs(radians) / speed
-
-                    worldRef.current.activateEvent({
-                        event: {
-                            kind: "turn",
-                            radians,
-                        },
-                        source: getComponent(
-                            playerRef.current,
-                            "eventSource"
-                        ) as EventSource,
-                    })
-
-                    const stepFunction = (
-                        delta: number,
-                        time: number,
-                        world: World
-                    ) => {
-                        let linearProgress = (time - startTime) / duration
-                        if (linearProgress > 1) {
-                            linearProgress = 1
-                        }
-                        const progress = easeInOutSine(linearProgress)
-
-                        world.playerRotation =
-                            originalRotation + radians * progress
-
-                        if (debug) {
-                            $(
-                                "#other"
-                            ).textContent = `Turn progress: ${progress}`
-                        }
-
-                        if (linearProgress === 1) {
-                            world.unregisterStepFunction(stepFunction)
-                            context.resume()
-
-                            if (debug) {
-                                $("#other").textContent = ""
+                    turn(
+                        degrees,
+                        worldRef.current.playerRotation,
+                        worldRef.current,
+                        playerRef.current,
+                        (radians) => {
+                            if (worldRef.current !== null) {
+                                worldRef.current.playerRotation = radians
                             }
-                        }
-                    }
-                    worldRef.current?.registerStepFunction(stepFunction)
+                        },
+                        context.resume
+                    )
                 }
             },
         },
@@ -437,6 +355,16 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                     destroy()
                     init()
                 }
+            },
+        },
+
+        repeat: {
+            fn: (_context, times: number) => {
+                console.log(`Repeat ${times} times`)
+                worldRef.current?.activateEvent({
+                    event: { kind: "repeat", times },
+                    source: new EventSource(Vec3.zero),
+                })
             },
         },
     }

@@ -65,6 +65,7 @@
             }`
                         } else if (name === "repeat") {
                             return `function repeat(times, fn) {
+                self.postMessage(["repeat", times])
                 for (let i = 0; i < times; i++) {
                     fn()
                 }

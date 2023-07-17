@@ -875,7 +875,13 @@ export type WorldEvent =
     | AudioEvent
     | MovementEvent
     | WaitEvent
+    | RepeatEvent
     | ExecutionCompleteEvent
+
+export interface RepeatEvent {
+    kind: "repeat"
+    times: number
+}
 
 export interface ExecutionCompleteEvent {
     kind: "executionComplete"
@@ -935,9 +941,106 @@ export class Vec3 {
     y: number
     z: number
 
+    static zero = new Vec3(0, 0, 0)
+
     constructor(x: number, y: number, z: number) {
         this.x = x
         this.y = y
         this.z = z
     }
+}
+
+export const forward = (
+    distance: number,
+    world: World,
+    entity: Entity,
+    onComplete: () => void
+) => {
+    const startingPlayerPos = entity.transform.position
+    const speed = 0.001
+
+    world.activateEvent({
+        event: {
+            kind: "forward",
+            distance,
+        },
+        source: getComponent(entity, "eventSource") as EventSource,
+    })
+
+    const stepFunction = (delta: number, time: number, world: World) => {
+        const player = world.getEntity(entity.id)
+        if (player !== undefined) {
+            if (
+                vec3Distance(startingPlayerPos, player.transform.position) >
+                distance
+            ) {
+                world.playerMovementVector = new Three.Vector3(0, 0, 0)
+                world.unregisterStepFunction(stepFunction)
+
+                onComplete()
+            } else {
+                // world.playerMovementVector.z =
+                //     -speed * delta
+                const forward = forwardVector(player.transform)
+
+                world.playerMovementVector = forward.multiplyScalar(
+                    speed * delta
+                )
+
+                // $(
+                //     "#other"
+                // ).textContent = `${world.playerMovementVector.x}, ${world.playerMovementVector.y}, ${world.playerMovementVector.z}`
+            }
+        }
+    }
+    world.registerStepFunction(stepFunction)
+}
+
+export const turn = (
+    degrees: number,
+    startingRadianRotation: number,
+    world: World,
+    entity: Entity,
+    setRotation: (radians: number) => void,
+    onComplete: () => void
+) => {
+    const radians = -degToRad(degrees)
+
+    const originalRotation = startingRadianRotation
+
+    const speed = 0.005
+    const startTime = performance.now()
+    const duration = Math.abs(radians) / speed
+
+    world.activateEvent({
+        event: {
+            kind: "turn",
+            radians,
+        },
+        source: getComponent(entity, "eventSource") as EventSource,
+    })
+
+    const stepFunction = (delta: number, time: number, world: World) => {
+        let linearProgress = (time - startTime) / duration
+        if (linearProgress > 1) {
+            linearProgress = 1
+        }
+        const progress = easeInOutSine(linearProgress)
+
+        world.playerRotation = originalRotation + radians * progress
+
+        if (world.debug) {
+            $("#other").textContent = `Turn progress: ${progress}`
+        }
+
+        if (linearProgress === 1) {
+            world.unregisterStepFunction(stepFunction)
+            onComplete()
+
+            if (world.debug) {
+                $("#other").textContent = ""
+            }
+        }
+    }
+    world.registerStepFunction(stepFunction)
 }
