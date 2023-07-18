@@ -30,4 +30,4 @@ dist-ssr
 out
 
 # Yarn
-.yarn
+.yarn/cache
