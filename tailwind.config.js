@@ -5,6 +5,8 @@ export default {
         extend: {},
         fontFamily: {
             mono: ["Theme Monospace", "monospace"],
+            sans: ["Theme Sans", "sans-serif"],
+            serif: ["Theme Serif", "serif"],
         },
     },
     plugins: [],

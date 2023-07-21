@@ -11,7 +11,7 @@ export const InvalidHeadingLevelError = error("InvalidHeadingLevelError")
 export const Heading: FunctionalComponent<HeadingProps> = ({
     level,
     children,
-    className
+    className,
 }) => {
     if (level <= 3 && level > 0) {
         let textSize
@@ -27,9 +27,9 @@ export const Heading: FunctionalComponent<HeadingProps> = ({
         return h(
             `h${level}`,
             {
-                className: `${textSize} font-bold mb-2 ${
-                    className ? className : ""
-                }`
+                className: `${textSize} ${
+                    level < 3 ? "font-serif font-black" : "font-bold"
+                } mb-2 ${className ? className : ""}`,
             },
             children
         )
@@ -42,7 +42,7 @@ export const Heading: FunctionalComponent<HeadingProps> = ({
 
 export const H1: FunctionalComponent<{ className?: string }> = ({
     children,
-    className
+    className,
 }) => (
     <Heading level={1} className={className}>
         {children}

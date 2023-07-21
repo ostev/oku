@@ -10,7 +10,6 @@ import { RigidBody, Vec3, World } from "./World"
 import { $ } from "./helpers"
 import { addBox } from "./level"
 
-import "./styles/fonts.css"
 import "./styles/index.css"
 
 import "katex/dist/katex.min.css"
