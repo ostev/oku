@@ -8,13 +8,10 @@
     },
     "description": "Untitled programming game for 2023 Australian Student Game Challenge",
     "scripts": {
-        "dev": "vite",
-        "build": "tsc && vite build",
-        "build:no-tsc": "vite build",
-        "build:electron-vite": "electron-vite build",
-        "preview": "vite preview",
-        "preview-host": "vite preview --host",
-        "build:win": "npm run build:electron-vite && electron-builder --win portable --config",
+        "dev": "electron-vite dev",
+        "build": "electron-vite build",
+        "preview": "electron-vite preview",
+        "build:win": "npm run build && electron-builder --win portable --config",
         "postinstall": "electron-builder install-app-deps"
     },
     "devDependencies": {

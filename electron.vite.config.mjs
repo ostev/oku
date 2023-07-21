@@ -28,6 +28,12 @@ export default defineConfig({
         },
     },
     renderer: {
+        server: {
+            headers: {
+                "Cross-Origin-Opener-Policy": "same-origin",
+                "Cross-Origin-Embedder-Policy": "require-corp",
+            },
+        },
         plugins: [
             wasm(),
             topLevelAwait(),

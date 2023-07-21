@@ -9,7 +9,7 @@ const api = {}
 // just add to the DOM global.
 if (process.contextIsolated) {
     try {
-        contextBridge.exposeInMainWorld("electron", electronAPI)
+        // contextBridge.exposeInMainWorld("electron", electronAPI)
         contextBridge.exposeInMainWorld("api", api)
     } catch (error) {
         console.error(error)

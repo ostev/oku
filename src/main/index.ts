@@ -3,6 +3,8 @@ import { join } from "path"
 import { electronApp, optimizer, is } from "@electron-toolkit/utils"
 // import icon from "../../resources/icon.png?asset"
 
+app.commandLine.appendSwitch("enable-features", "SharedArrayBuffer")
+
 function createWindow(): void {
     // Create the browser window.
     const mainWindow = new BrowserWindow({
@@ -16,6 +18,26 @@ function createWindow(): void {
             sandbox: false,
         },
     })
+
+    mainWindow.webContents.session.webRequest.onHeadersReceived(
+        (details, callback) => {
+            if (details.responseHeaders !== undefined) {
+                details.responseHeaders["Cross-Origin-Opener-Policy"] = [
+                    "same-origin",
+                ]
+                details.responseHeaders["Cross-Origin-Embedder-Policy"] = [
+                    "require-corp",
+                ]
+            } else {
+                details.responseHeaders = {
+                    "Cross-Origin-Opener-Policy": ["same-origin"],
+                    "Cross-Origin-Embedder-Policy": ["require-corp"],
+                }
+            }
+
+            callback({ responseHeaders: details.responseHeaders })
+        }
+    )
 
     mainWindow.on("ready-to-show", () => {
         mainWindow.show()

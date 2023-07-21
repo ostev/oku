@@ -1,15 +1,15 @@
 @font-face {
   font-family: "Theme Monospace";
-  src: url("/fonts/CascadiaMono/variable/CascadiaMono.woff2") format("woff2 supports variations"),
-        url("/fonts/CascadiaMono/variable/CascadiaMono.woff2") format("woff2-variations");
+  src: url("../fonts/CascadiaMono/variable/CascadiaMono.woff2") format("woff2 supports variations"),
+        url("../fonts/CascadiaMono/variable/CascadiaMono.woff2") format("woff2-variations");
   font-weight: 100 1000;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Theme Monospace";
-  src: url("/fonts/CascadiaMono/variable/CascadiaMonoItalic.woff2") format("woff2 supports variations"),
-        url("/fonts/CascadiaMono/variable/CascadiaMonoItalic.woff2") format("woff2-variations");
+  src: url("../fonts/CascadiaMono/variable/CascadiaMonoItalic.woff2") format("woff2 supports variations"),
+        url("../fonts/CascadiaMono/variable/CascadiaMonoItalic.woff2") format("woff2-variations");
   font-weight: 100 1000;
   font-style: italic;
 }

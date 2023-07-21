@@ -2,6 +2,8 @@ import { error } from "../helpers"
 import { FnBindings } from "./bindings"
 // import userExecutionContextIFrameScriptUrl from "./userExecutionContextIFrame.js?url"
 
+import iframeUrl from "./iframe.html?url"
+
 export class UserExecutionContext {
     private iframe: HTMLIFrameElement | undefined
     private onError: (error: Error) => void
@@ -24,7 +26,7 @@ export class UserExecutionContext {
     }
 
     initialiseIFrame = (parent: Element): Promise<void> => {
-        return fetch("/userExecutionContext/iframe.html", {
+        return fetch(iframeUrl, {
             mode: "cors",
             headers: {
                 Accept: "text/html",
