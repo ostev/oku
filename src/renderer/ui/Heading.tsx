@@ -28,7 +28,7 @@ export const Heading: FunctionalComponent<HeadingProps> = ({
             `h${level}`,
             {
                 className: `${textSize} ${
-                    level < 3 ? "font-serif font-black" : "font-bold"
+                    level === 1 ? "font-serif font-black" : "font-bold"
                 } mb-2 ${className ? className : ""}`,
             },
             children
