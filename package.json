@@ -11,7 +11,7 @@
         "dev": "electron-vite dev",
         "build": "electron-vite build",
         "preview": "electron-vite preview",
-        "build:win": "npm run build && electron-builder --win portable --config",
+        "build:win": "yarn build && electron-builder --win portable --config",
         "postinstall": "electron-builder install-app-deps"
     },
     "devDependencies": {

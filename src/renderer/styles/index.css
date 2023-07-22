@@ -6,3 +6,11 @@
 
 .cm-editor .cm-content { font-family: "Theme Monospace" }
 .cm-editor .cm-gutter { font-family: "Theme Monospace" }
+
+em {
+    font-style: oblique 10deg;
+}
+
+.italic:not(.font-serif .font-mono) {
+    font-style: oblique 10deg;
+}

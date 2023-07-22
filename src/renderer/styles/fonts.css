@@ -18,7 +18,7 @@
   font-family: "Theme Sans";
   src: url("../fonts/Inter/variable/Inter-VariableFont_slnt_wght.ttf");
   font-weight: 100 1000;
-  font-style: normal italic;
+  font-style: oblique 0deg 12deg;
 }
 
 @font-face {
@@ -34,3 +34,4 @@
   font-weight: 100 1000;
   font-style: italic;
 }
+
