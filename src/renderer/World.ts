@@ -348,14 +348,11 @@ export class World {
         useShadows: boolean
     ): { transform: Transform; components: Set<Component>; label?: string } => {
         const position = object.getWorldPosition(new Three.Vector3())
+        const scale = object.getWorldScale(new Three.Vector3())
         const transform: Transform = {
-            position: {
-                x: position.x,
-                y: position.y,
-                z: position.z,
-            },
+            position: new Vec3(position.x, position.y, position.z),
             rotation: object.getWorldQuaternion(new Three.Quaternion()),
-            scale: object.getWorldScale(new Three.Vector3()),
+            scale: new Vec3(scale.x, scale.y, scale.z),
         }
 
         const components = new Set<Component>()
@@ -572,7 +569,7 @@ export class World {
                 const position = rigidBody.translation()
                 const rotation = rigidBody.rotation()
 
-                entity.transform.position = position
+                entity.transform.position = Vec3.fromXYZ(position)
                 entity.transform.rotation = new Three.Quaternion(
                     rotation.x,
                     rotation.y,
@@ -739,7 +736,7 @@ export class World {
             const position = entity.transform.position
 
             // const forward = forwardVector(entity.transform)
-            this.heldParcel.transform.position = new Rapier.Vector3(
+            this.heldParcel.transform.position = new Vec3(
                 position.x,
                 position.y + 1.5,
                 position.z
@@ -948,6 +945,17 @@ export class Vec3 {
         this.y = y
         this.z = z
     }
+
+    static fromXYZ = ({ x, y, z }: { x: number; y: number; z: number }) =>
+        new Vec3(x, y, z)
+
+    scale = (other: Vec3) =>
+        new Vec3(this.x * other.x, this.y * other.y, this.z * other.z)
+
+    add = (other: Vec3) =>
+        new Vec3(this.x + other.x, this.y + other.y, this.z + other.z)
+
+    prettyPrint = () => `${this.x}, ${this.y}, ${this.z}`
 }
 
 export const forward = (
@@ -958,14 +966,6 @@ export const forward = (
 ) => {
     const startingPlayerPos = entity.transform.position
     const speed = 0.001
-
-    world.activateEvent({
-        event: {
-            kind: "forward",
-            distance,
-        },
-        source: getComponent(entity, "eventSource") as EventSource,
-    })
 
     const stepFunction = (delta: number, time: number, world: World) => {
         const player = world.getEntity(entity.id)
@@ -1011,14 +1011,6 @@ export const turn = (
     const speed = 0.005
     const startTime = performance.now()
     const duration = Math.abs(radians) / speed
-
-    world.activateEvent({
-        event: {
-            kind: "turn",
-            radians,
-        },
-        source: getComponent(entity, "eventSource") as EventSource,
-    })
 
     const stepFunction = (delta: number, time: number, world: World) => {
         let linearProgress = (time - startTime) / duration

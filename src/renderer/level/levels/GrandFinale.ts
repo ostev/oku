@@ -2,12 +2,24 @@ import * as Three from "three"
 import * as Tween from "three/addons/libs/tween.module.js"
 import * as Rapier from "@dimforge/rapier3d"
 
-import { Entity, Vec3, World, getComponent, translation } from "../../World"
+import {
+    Entity,
+    Vec3,
+    World,
+    forward,
+    getComponent,
+    translation,
+    turn,
+} from "../../World"
 import { Level } from "../Level"
 
 import stageUrl from "../../assets/stage.gltf?url"
 import { addPeggy } from "../../characters/peggy"
 import { vec3Distance } from "../../maths"
+import { $, pickValue } from "../../helpers"
+
+/** Beat length in milliseconds */
+const beatDuration = 250
 
 function tween(light: Three.SpotLight) {
     new Tween.Tween(light)
@@ -89,7 +101,11 @@ export class GrandFinale extends Level {
 
         await world.importGLTF(stageUrl, new Vec3(0, -2, 0))
 
-        this.peggy = (await addPeggy(world, new Vec3(1, 0, 0)))[0]
+        const entities = await addPeggy(world, new Vec3(1, 0, 0))
+        console.log(entities)
+        this.peggy = entities[0]
+
+        setInterval(() => this.updatePeggy(world), beatDuration * 10)
 
         world.addEntity(
             translation(new Vec3(0, 0, 0)),
@@ -229,6 +245,83 @@ export class GrandFinale extends Level {
             for (const spotlightHelper of this.spotlightHelpers) {
                 spotlightHelper.removeFromParent()
             }
+        }
+    }
+
+    peggyActions = [
+        (world: World) => {
+            if (this.peggy !== undefined) {
+                const duration = Math.random() * 1000 + 500
+                const speed = 0.01
+
+                const direction = pickValue(
+                    [
+                        new Vec3(1, 0, 0),
+                        new Vec3(-1, 0, 0),
+                        new Vec3(0, 0, 1),
+                        new Vec3(0, 0, -1),
+                    ],
+                    Math.random()
+                )
+                console.log("forward")
+
+                const step = (delta: number, time: number, world: World) => {
+                    if (this.peggy !== undefined) {
+                        const movement = speed * delta
+
+                        this.peggy.transform.position =
+                            this.peggy.transform.position.add(
+                                new Vec3(movement, movement, movement).scale(
+                                    direction
+                                )
+                            )
+                        $("#other").textContent =
+                            this.peggy.transform.position.prettyPrint()
+                    }
+                }
+                world.registerStepFunction(step)
+                setTimeout(() => {
+                    console.log("done")
+                    $("#other").textContent = "done"
+                    world.unregisterStepFunction(step)
+                }, duration)
+            }
+        },
+        // (_world: World) => {
+        //     const lines = ["Take that!", "Laaaa deee daaaa"]
+        //     const line = pickValue(lines, Math.random())
+
+        //     const utterance = new SpeechSynthesisUtterance(line)
+        //     utterance.voice = speechSynthesis.getVoices()[1]
+        //     speechSynthesis.speak(utterance)
+        // },
+        // (world: World) => {
+        //     if (this.peggy !== undefined) {
+        //         turn(
+        //             (Math.random() > 0.6 ? 1 : -1) * Math.random() * 360,
+        //             new Three.Euler().setFromQuaternion(
+        //                 this.peggy.transform.rotation
+        //             ).y,
+        //             world,
+        //             this.peggy,
+        //             (radians) => {
+        //                 if (this.peggy !== undefined) {
+        //                     this.peggy.transform.rotation =
+        //                         new Three.Quaternion().setFromEuler(
+        //                             new Three.Euler(0, radians, 0, "YXZ")
+        //                         )
+        //                 }
+        //             },
+        //             () => {}
+        //         )
+        //     }
+        // },
+    ]
+
+    updatePeggy = (world: World) => {
+        if (world.isRunning) {
+            const action = pickValue(this.peggyActions, Math.random())
+            action(world)
         }
     }
 }

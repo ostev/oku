@@ -32,6 +32,12 @@ export const error = (name: string) => {
     }
 }
 
+/**
+ * Pick a value from an array based on a number between `0` and `1`.
+ */
+export const pickValue = <T>(array: ArrayLike<T>, x: number) =>
+    array[Math.floor(x * array.length)]
+
 export const NotYetImplementedError = error("NotYetImplementedError")
 
 export const RefAccessedBeforeComponentMountedError = error(

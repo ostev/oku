@@ -209,6 +209,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
             fn: (context: UserExecutionContext, argText: any) => {
                 const text = argText.toString()
                 const utterance = new SpeechSynthesisUtterance(text)
+                utterance.voice = speechSynthesis.getVoices()[0]
 
                 speechSynthesis.speak(utterance)
 
@@ -235,6 +236,16 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         forward: {
             fn: (context: UserExecutionContext, distance: number) => {
                 if (playerRef.current !== null && worldRef.current !== null) {
+                    worldRef.current.activateEvent({
+                        event: {
+                            kind: "forward",
+                            distance,
+                        },
+                        source: getComponent(
+                            playerRef.current,
+                            "eventSource"
+                        ) as EventSource,
+                    })
                     forward(
                         distance,
                         worldRef.current,
@@ -247,6 +258,17 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         turn: {
             fn: (context, degrees: number) => {
                 if (worldRef.current !== null && playerRef.current !== null) {
+                    worldRef.current.activateEvent({
+                        event: {
+                            kind: "turn",
+                            radians: degToRad(degrees),
+                        },
+                        source: getComponent(
+                            playerRef.current,
+                            "eventSource"
+                        ) as EventSource,
+                    })
+
                     turn(
                         degrees,
                         worldRef.current.playerRotation,

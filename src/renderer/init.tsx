@@ -16,6 +16,27 @@ import "katex/dist/katex.min.css"
 
 import { App } from "./ui/App"
 
+if (import.meta.env.DEV) {
+    const el = $("#debug")
+    el.innerHTML = `
+        <p
+            id="fps"
+            style="
+                position: fixed;
+                top: 0;
+                right: 0;
+                backdrop-filter: blur(10px);
+            "
+        ></p>
+        <p id="playerPos" style="position: fixed; bottom: 0; right: 0"></p>
+        <p
+            id="other"
+            style="position: fixed; bottom: 0; right: 30%"
+            class="bg-white bg-opacity-60 backdrop-blur-lg p-4 rounded-lg text-center"
+        ></p>
+    `
+}
+
 export const init = () => render(<App />, $("#app"))
 
 // const renderer = new View()
