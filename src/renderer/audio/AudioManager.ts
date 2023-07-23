@@ -53,6 +53,8 @@ export class AudioManager {
 
     key: Key
 
+    private playing: Tone.Player[] = []
+
     private barLoop: Tone.Loop | undefined
 
     set bpm(tempo: number) {
@@ -99,8 +101,26 @@ export class AudioManager {
         this.barLoop.start()
     }
 
-    play = (player: Tone.Player) => {
+    playBackground = (player: Tone.Player) => {
+        player.start()
+        this.playing.push(player)
+
         player.onstop = () => {
+            const index = this.playing.findIndex(
+                (otherPlayer) => otherPlayer === player
+            )
+            this.playing.splice(index)
+        }
+    }
+
+    play = (player: Tone.Player) => {
+        this.playing.push(player)
+        player.onstop = () => {
+            const index = this.playing.findIndex(
+                (otherPlayer) => otherPlayer === player
+            )
+            this.playing.splice(index)
+
             if (this.queue.onStop.length > 0) {
                 const next = this.queue.onStop[this.queue.onStop.length - 1]
 
@@ -118,5 +138,15 @@ export class AudioManager {
 
     scheduleOnStop = (player: Tone.Player) => {
         this.queue.onStop.push(player)
+    }
+
+    destroy = () => {
+        this.barLoop?.stop()
+        this.barLoop?.dispose()
+        this.barLoop = undefined
+
+        for (const player of this.playing) {
+            player.stop()
+        }
     }
 }

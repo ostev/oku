@@ -108,6 +108,11 @@ export class World {
             tonality: MinorTonality.Natural,
             tonic: { letter: NoteLetter.D, accidental: NoteAccidental.None },
         })
+
+        this.addEntity(
+            translation(Vec3.zero),
+            new Set([{ kind: "listener", notify: () => {} }])
+        )
     }
 
     pickUpParcel = () => {
@@ -259,6 +264,7 @@ export class World {
     destroy = () => {
         this.stop()
         this.view.destroy()
+        this.audioManager.destroy()
         this.entities = null as any
     }
 
@@ -957,7 +963,9 @@ export class Vec3 {
     y: number
     z: number
 
-    static zero = new Vec3(0, 0, 0)
+    static get zero(): Vec3 {
+        return new Vec3(0, 0, 0)
+    }
 
     constructor(x: number, y: number, z: number) {
         this.x = x
