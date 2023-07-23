@@ -1,5 +1,6 @@
 import * as Three from "three"
 import * as Rapier from "@dimforge/rapier3d"
+import parcelUrl from "../assets/crate.gltf?url"
 
 import { Entity, Vec3, World, translation } from "../World"
 
@@ -35,11 +36,16 @@ export const addTestCube = (world: World): Entity => {
     )
 }
 
-export const addParcel = (world: World, position: Vec3): Entity => {
-    const mesh = new Three.Mesh(
-        new Three.BoxGeometry(0.4, 0.4, 0.4),
-        new Three.MeshStandardMaterial({ color: "white" })
-    )
+export const addParcel = async (
+    world: World,
+    position: Vec3
+): Promise<Entity> => {
+    // const mesh = new Three.Mesh(
+    //     new Three.BoxGeometry(0.4, 0.4, 0.4),
+    //     new Three.MeshStandardMaterial({ color: "white" })
+    // )
+    const entity = (await world.importGLTF(parcelUrl, Vec3.zero))[1]
+
     const rigidBodyDesc = Rapier.RigidBodyDesc.dynamic()
         .setTranslation(position.x, position.y, position.z)
         .setAdditionalMass(2)
@@ -49,12 +55,13 @@ export const addParcel = (world: World, position: Vec3): Entity => {
         rigidBody
     )
 
-    return world.addEntity(
-        translation(position),
-        new Set([
-            { kind: "mesh", mesh },
-            { kind: "rigidBody", rigidBody, collider },
-            { kind: "parcel" },
-        ])
-    )
+    entity.transform.position = position
+    world.addComponentToEntity(entity, {
+        kind: "rigidBody",
+        rigidBody,
+        collider,
+    })
+    world.addComponentToEntity(entity, { kind: "parcel" })
+
+    return entity
 }
