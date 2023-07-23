@@ -6,7 +6,14 @@ import { intersection } from "./setHelpers"
 import { View } from "./View"
 import { vec3Distance, degToRad, easeInOutSine, vec2Distance } from "./maths"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
-import { toIndexedGeometry } from "./geometry"
+
+import {
+    AudioManager,
+    MinorTonality,
+    NoteAccidental,
+    NoteLetter,
+} from "./audio/AudioManager"
+import * as Sounds from "./audio/sounds"
 
 export const MeshComponentNotFoundInThreeJSSceneError = error(
     "MeshComponentNotFoundInThreeJSSceneError"
@@ -87,6 +94,8 @@ export class World {
     debug = import.meta.env.DEV
     // keys: Record<string, boolean> = {}
 
+    audioManager: AudioManager
+
     constructor(
         gravity: Readonly<Rapier.Vector3>,
         view: View,
@@ -95,6 +104,10 @@ export class World {
         this.physics = new Rapier.World(gravity)
         this.view = view
         this.completeGoal = completeGoal
+        this.audioManager = new AudioManager(80, {
+            tonality: MinorTonality.Natural,
+            tonic: { letter: NoteLetter.D, accidental: NoteAccidental.None },
+        })
     }
 
     pickUpParcel = () => {
@@ -136,6 +149,8 @@ export class World {
                 // const translation = rigidBody.translation()
 
                 rigidBody.setEnabled(false)
+
+                this.audioManager.play(Sounds.pickUp)
 
                 // const kinematicBodyDesc =
                 //     Rapier.RigidBodyDesc.kinematicPositionBased()
@@ -216,6 +231,8 @@ export class World {
             // }
 
             this.heldParcel = undefined
+
+            this.audioManager.play(Sounds.placeDown)
         } else {
             throw new NoParcelHeldError(
                 "I'm not currently holding a parcel, so I can't place it down!"
