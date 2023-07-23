@@ -329,7 +329,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                     if (hit !== null) {
                         if (debug) {
                             worldRef.current.addEntity(
-                                translation(hit.witness1),
+                                translation(Vec3.fromXYZ(hit.witness1)),
                                 new Set([
                                     {
                                         kind: "mesh",
@@ -650,7 +650,11 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                     setStoredCode(code)
 
                     if (executionContextRef.current !== undefined) {
-                        await executionContextRef.current.evalAsync(code)
+                        setTimeout(() => {
+                            if (executionContextRef.current !== undefined) {
+                                executionContextRef.current.evalAsync(code)
+                            }
+                        }, 200)
                     }
                 }}
                 onFocus={() => {

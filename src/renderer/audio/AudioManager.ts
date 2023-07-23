@@ -1,6 +1,9 @@
 import * as Tone from "tone"
 import { ToneAudioNode } from "tone"
 
+import * as Sounds from "./sounds"
+import { Vec3 } from "../World"
+
 export interface Layer {}
 
 export class Queue {
@@ -78,6 +81,9 @@ export class AudioManager {
     constructor(bpm: number, startingKey: Key) {
         this.bpm = bpm
         this.key = startingKey
+
+        // this.background.itemHover.loop = true
+        // this.background.itemHover.loopStart = 0.3
     }
 
     connect = () => {
@@ -103,7 +109,6 @@ export class AudioManager {
                 }
             }
         }
-        console.log("Play")
         player.start()
     }
 

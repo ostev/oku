@@ -17,8 +17,8 @@ import { $ } from "../../helpers"
 import { makeXYZGUI } from "../../View"
 
 export class DeliveryDriverPartI extends Level {
-    private receptaclePosition: Vec3 = new Rapier.Vector3(0.02, -0.63, -3)
-    private receptacleDimensions: Vec3 = new Rapier.Vector3(0.6, 0.1, 0.6)
+    private receptaclePosition: Vec3 = new Vec3(0.02, -0.63, -3)
+    private receptacleDimensions: Vec3 = new Vec3(0.6, 0.1, 0.6)
     private receptacleShape: Rapier.Shape = new Rapier.Cuboid(
         this.receptacleDimensions.x / 2,
         this.receptacleDimensions.y / 2,
@@ -51,7 +51,7 @@ export class DeliveryDriverPartI extends Level {
         await world.importGLTF(pathUrl, new Vec3(0.2, -1, -2))
 
         const parcelPos = new Vec3(0.1, 0, Math.random() * -1.2 - 1)
-        addParcel(world, parcelPos)
+        await addParcel(world, parcelPos)
 
         if (world.debug) {
             this.receptacleDebugEntity = world.addEntity(

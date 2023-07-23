@@ -151,6 +151,7 @@ export class World {
                 rigidBody.setEnabled(false)
 
                 this.audioManager.play(Sounds.pickUp)
+                Sounds.itemHover.start()
 
                 // const kinematicBodyDesc =
                 //     Rapier.RigidBodyDesc.kinematicPositionBased()
@@ -233,6 +234,7 @@ export class World {
             this.heldParcel = undefined
 
             this.audioManager.play(Sounds.placeDown)
+            Sounds.itemHover.stop()
         } else {
             throw new NoParcelHeldError(
                 "I'm not currently holding a parcel, so I can't place it down!"

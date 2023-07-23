@@ -24,8 +24,8 @@ export class DeliveryDriverPartIV extends Level {
     private gateStartingY = 0
     private gateTextStartingY = 0
 
-    private boundaryPosition: Vec3 = new Rapier.Vector3(0.3, -0.7, -1.4)
-    private boundaryDimensions: Vec3 = new Rapier.Vector3(2, 0.75, 0.17)
+    private boundaryPosition: Vec3 = new Vec3(0.3, -0.7, -1.4)
+    private boundaryDimensions: Vec3 = new Vec3(2, 0.75, 0.17)
     private boundaryShape: Rapier.Shape = new Rapier.Cuboid(
         this.boundaryDimensions.x / 2,
         this.boundaryDimensions.y / 2,
@@ -33,8 +33,8 @@ export class DeliveryDriverPartIV extends Level {
     )
     private boundaryDebugEntity: Entity | undefined
 
-    private receptaclePosition: Vec3 = new Rapier.Vector3(1.6, -0.9, -2.8)
-    private receptacleDimensions: Vec3 = new Rapier.Vector3(1.164, 0.5, 0.48)
+    private receptaclePosition: Vec3 = new Vec3(1.6, -0.9, -2.8)
+    private receptacleDimensions: Vec3 = new Vec3(1.164, 0.5, 0.48)
     private receptacleShape: Rapier.Shape = new Rapier.Cuboid(
         this.receptacleDimensions.x / 2,
         this.receptacleDimensions.y / 2,
@@ -83,7 +83,7 @@ export class DeliveryDriverPartIV extends Level {
                             "collider"
                         ) as Collider
                         collider.setTranslation(
-                            new Rapier.Vector3(position.x, y, position.z)
+                            new Vec3(position.x, y, position.z)
                         )
                     }
                 })
@@ -241,7 +241,7 @@ export class DeliveryDriverPartIV extends Level {
             }
         }
 
-        addParcel(world, new Vec3(0.3, 0, 0))
+        await addParcel(world, new Vec3(0.3, 0, 0))
     }
 
     step = (delta: number, time: number, world: World) => {
