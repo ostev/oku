@@ -37,7 +37,8 @@ Picking up and placing objects is more straightforward: we simply use the <DocLi
 // 3
 forward(1)
 pickUp()
-backward(1)
+turn(180)
+forward(1)
 placeDown()
 ```
 
@@ -46,16 +47,19 @@ Using this <DocLink symbol="function">function</DocLink>, we can tell the distan
 <YourTurn>
 
 <Goal index={1}>
-Using the <DocLink symbol="readDistance">`readDistance`</DocLink>, <DocLink symbol="pickUp">`pickUp`</DocLink> and <DocLink symbol="placeDown">`placeDown`</DocLink> functions, place the parcel in the receptacle. The position of the parcel relative to me will change each run.
+    Using the <DocLink symbol="readDistance">`readDistance`</DocLink>,{" "}
+    <DocLink symbol="pickUp">`pickUp`</DocLink> and{" "}
+    <DocLink symbol="placeDown">`placeDown`</DocLink> functions, place the
+    parcel in the receptacle. The position of the parcel relative to me will
+    change each run.
 </Goal>
 
 <Hint index={1}>
-You'll have to measure the distance between me and the parcel, and then between me and the stone at the end of the path.
+    You'll have to measure the distance between me and the parcel, and then
+    between me and the stone at the end of the path.
 </Hint>
 
-<Hint index={2}>
-Move forward by about the measured amounts.
-</Hint>
+<Hint index={2}>Move forward by about the measured amounts.</Hint>
 
 ```javascript
 // 4
