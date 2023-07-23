@@ -50,6 +50,8 @@ import { Button, ButtonKind } from "./Button"
 import { Modal } from "./Modal"
 import { degToRad, easeInOutSine, vec3Distance } from "../maths"
 
+import completeGoalAnimUrl from "../assets/win.webm"
+
 export interface LessonID {
     chapter: number
     section: number
@@ -185,6 +187,11 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         undefined
     )
     const [speechHistory, setSpeechHistory] = useState<string[]>([])
+
+    const [completeGoalAnim, setCompleteGoalAnim] = useState<
+        number | undefined
+    >(undefined)
+    const completeGoalAnimPlayer = useRef<HTMLVideoElement | null>(null)
 
     const executionContextRef = useRef<UserExecutionContext | undefined>(
         undefined
@@ -360,6 +367,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
             fn: (context) => {
                 try {
                     worldRef.current?.pickUpParcel()
+                    setTimeout(context.resume, 200)
                 } catch (error) {
                     setExecutionError(error as Error)
                     destroy()
@@ -369,9 +377,10 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         },
 
         placeDown: {
-            fn: (_context) => {
+            fn: (context) => {
                 try {
                     worldRef.current?.placeDownParcel()
+                    setTimeout(context.resume, 200)
                 } catch (error) {
                     setExecutionError(error as Error)
                     destroy()
@@ -437,10 +446,14 @@ export const Lesson: FunctionComponent<LessonProps> = ({
             //         new ID(info.chapter, info.section, index),
             //     ])
             // )
-            (index) =>
+            (index) => {
+                setCompleteGoalAnim(index)
+
+                setTimeout(() => setCompleteGoalAnim(undefined), 8000)
                 onGoalCompletion(
                     new ID(info.id.chapter, info.id.section, index)
                 )
+            }
         )
 
         resizeObserverRef.current = new ResizeObserver(([viewParentEntry]) => {
@@ -773,6 +786,34 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                 ></div> */}
                 <style>{levelCss}</style>
             </div>
+            {completeGoalAnim !== undefined ? (
+                <div>
+                    <video
+                        ref={completeGoalAnimPlayer}
+                        src={completeGoalAnimUrl}
+                        controls={false}
+                        autoPlay={true}
+                        style={{
+                            height: "60vh",
+                            position: "fixed",
+                            right: "5vw",
+                            top: "45%",
+                            margin: 0,
+                        }}
+                    ></video>
+                    <div
+                        style={{
+                            height: "60vh",
+                            position: "fixed",
+                            right: "5vw",
+                            top: "45%",
+                            margin: 0,
+                        }}
+                    >
+                        <Heading level={1}>{completeGoalAnim}</Heading>
+                    </div>
+                </div>
+            ) : undefined}
             {executionError === undefined ? undefined : <ErrorModal />}
             {speechHistory.length > 0 ? (
                 <div

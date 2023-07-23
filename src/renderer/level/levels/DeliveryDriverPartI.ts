@@ -123,6 +123,8 @@ export class DeliveryDriverPartI extends Level {
         }
     }
 
+    private isIntersecting = false
+
     step = (delta: number, time: number, world: World) => {
         if (
             world.physics.intersectionWithShape(
@@ -134,11 +136,17 @@ export class DeliveryDriverPartI extends Level {
             if (world.debug) {
                 $("#other").textContent = "Intersect"
             }
-            world.completeGoal(1)
+
+            if (!this.isIntersecting) {
+                world.completeGoal(1)
+            }
+            this.isIntersecting = true
         } else {
             if (world.debug) {
                 $("#other").textContent = "No intersect"
             }
+
+            this.isIntersecting = false
         }
     }
 
