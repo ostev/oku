@@ -99,15 +99,13 @@ export class World {
     constructor(
         gravity: Readonly<Rapier.Vector3>,
         view: View,
-        completeGoal: (index: number) => void
+        completeGoal: (index: number) => void,
+        audioManager: AudioManager
     ) {
         this.physics = new Rapier.World(gravity)
         this.view = view
         this.completeGoal = completeGoal
-        this.audioManager = new AudioManager(80, {
-            tonality: MinorTonality.Natural,
-            tonic: { letter: NoteLetter.D, accidental: NoteAccidental.None },
-        })
+        this.audioManager = audioManager
 
         this.addEntity(
             translation(Vec3.zero),
@@ -264,7 +262,6 @@ export class World {
     destroy = () => {
         this.stop()
         this.view.destroy()
-        this.audioManager.destroy()
         this.entities = null as any
     }
 

@@ -51,6 +51,7 @@ import { Modal } from "./Modal"
 import { degToRad, easeInOutSine, vec3Distance } from "../maths"
 
 import completeGoalAnimUrl from "../assets/win.webm"
+import { AudioManager } from "../audio/AudioManager"
 
 export interface LessonID {
     chapter: number
@@ -160,12 +161,14 @@ export interface LessonProps {
     info: LessonInfo
     onGoalCompletion: (id: ID) => void
     completedGoals: ID[]
+    audioManager: AudioManager
 }
 
 export const Lesson: FunctionComponent<LessonProps> = ({
     info,
     onGoalCompletion,
     completedGoals,
+    audioManager,
 }: LessonProps) => {
     // const [completedGoals, setCompletedGoals] = useStorage<ID[]>(
     //     `${info.chapter}-${info.section}_completedGoals`,
@@ -449,11 +452,12 @@ export const Lesson: FunctionComponent<LessonProps> = ({
             (index) => {
                 setCompleteGoalAnim(index)
 
-                setTimeout(() => setCompleteGoalAnim(undefined), 8000)
+                setTimeout(() => setCompleteGoalAnim(undefined), 3000)
                 onGoalCompletion(
                     new ID(info.id.chapter, info.id.section, index)
                 )
-            }
+            },
+            audioManager
         )
 
         resizeObserverRef.current = new ResizeObserver(([viewParentEntry]) => {
@@ -654,21 +658,21 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                     setSpeechHistory([])
                     destroy()
 
-                    await init()
-
                     if (worldRef.current !== null) {
                         worldRef.current.code = code
                     }
 
                     setStoredCode(code)
 
-                    if (executionContextRef.current !== undefined) {
-                        setTimeout(() => {
-                            if (executionContextRef.current !== undefined) {
-                                executionContextRef.current.evalAsync(code)
-                            }
-                        }, 200)
-                    }
+                    init().then(() => {
+                        if (executionContextRef.current !== undefined) {
+                            setTimeout(() => {
+                                if (executionContextRef.current !== undefined) {
+                                    executionContextRef.current.evalAsync(code)
+                                }
+                            }, 500)
+                        }
+                    })
                 }}
                 onFocus={() => {
                     if (worldRef.current?.isRunning) {
@@ -786,9 +790,9 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                 ></div> */}
                 <style>{levelCss}</style>
             </div>
-            {completeGoalAnim !== undefined ? (
-                <div>
-                    <video
+            {
+                // <div>
+                /* <video
                         ref={completeGoalAnimPlayer}
                         src={completeGoalAnimUrl}
                         controls={false}
@@ -811,9 +815,23 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                         }}
                     >
                         <Heading level={1}>{completeGoalAnim}</Heading>
-                    </div>
+                    </div> */
+                // </div>
+            }
+            <div class={`fixed right-5 h-screen grid place-items-center`}>
+                <div
+                    class={`rounded-xl shadow-xl backdrop-blur-xl grid place-items-center p-4 challenge-complete-box ${
+                        completeGoalAnim === undefined
+                            ? ""
+                            : "challenge-complete"
+                    }`}
+                >
+                    <Heading level={1}>
+                        <span class="party">🎉</span> Goal {completeGoalAnim}{" "}
+                        completed!
+                    </Heading>
                 </div>
-            ) : undefined}
+            </div>
             {executionError === undefined ? undefined : <ErrorModal />}
             {speechHistory.length > 0 ? (
                 <div

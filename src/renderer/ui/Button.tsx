@@ -4,6 +4,7 @@ export enum ButtonKind {
     Normal,
     Danger,
     Green,
+    Underline,
 }
 
 export const Button: FunctionalComponent<{
@@ -15,21 +16,35 @@ export const Button: FunctionalComponent<{
     const dangerClass = "bg-red-600 hover:bg-red-800"
     const greenClass = "bg-green-600 hover:bg-green-800"
 
-    return (
-        <button
-            type="button"
-            class={`${
-                kind === ButtonKind.Normal || kind === undefined
-                    ? primaryClass
-                    : kind === ButtonKind.Danger
-                    ? dangerClass
-                    : greenClass
-            }  text-white font-bold py-1 px-4 rounded drop-shadow-lg ${
-                className !== undefined ? className : ""
-            }`}
-            onClick={onClick}
-        >
-            {children}
-        </button>
-    )
+    if (kind !== ButtonKind.Underline) {
+        return (
+            <button
+                type="button"
+                class={`${
+                    kind === ButtonKind.Normal || kind === undefined
+                        ? primaryClass
+                        : kind === ButtonKind.Danger
+                        ? dangerClass
+                        : greenClass
+                }  text-white font-bold py-1 px-4 rounded drop-shadow-lg ${
+                    className !== undefined ? className : ""
+                }`}
+                onClick={onClick}
+            >
+                {children}
+            </button>
+        )
+    } else {
+        return (
+            <button
+                type="button"
+                class={`underline--magical py-1 px-4 font-serif ${
+                    className !== undefined ? className : ""
+                }`}
+                onClick={onClick}
+            >
+                {children}
+            </button>
+        )
+    }
 }

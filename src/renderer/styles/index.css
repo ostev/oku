@@ -14,3 +14,42 @@ em {
 .italic:not(.font-serif .font-mono) {
     font-style: oblique 10deg;
 }
+
+.amber-bg {
+	background-color: rgb(252 211 77);
+}
+
+.lime-bg {
+    background-color: rgb(217 249 157);
+}
+
+.teal-bg {
+    background-color: rgb(94 234 212);
+}
+
+.underline--magical {
+    background-image: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+    background-repeat: no-repeat;
+    background-size: 100% 0.2em;
+    background-position: 0 88%;
+    transition: background-size 0.25s ease-in;
+}
+
+.underline--magical:hover {
+    background-size: 100% 88%;
+}
+
+.challenge-complete-box {
+    transition-property: transform;
+    transition-duration: 2s;
+    transition-timing-function: ease-in-out;
+    transform: scale(0);
+}
+
+.challenge-complete {
+    transform: scale(1);
+}
+
+.party {
+    font-size: 20rem;
+}

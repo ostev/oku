@@ -2,7 +2,6 @@
 export default {
     content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
     theme: {
-        extend: {},
         fontFamily: {
             mono: ["Theme Monospace", "monospace"],
             sans: ["Theme Sans", "sans-serif"],

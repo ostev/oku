@@ -29,8 +29,17 @@ import {
     lessons,
 } from "./LessonSelector"
 import { Button, ButtonKind } from "./Button"
+import { pickValue } from "../helpers"
+import { Heading } from "./Heading"
+import {
+    AudioManager,
+    MinorTonality,
+    NoteAccidental,
+    NoteLetter,
+} from "../audio/AudioManager"
 
 export const App = () => {
+    const [isShowingMainMenu, setIsShowingMainMenu] = useState(true)
     const [progress, setProgress] = useStorage<Progress>("progress", {})
     const [currentLesson, setCurrentLesson] = useStorage<LessonID | undefined>(
         "currentLesson",
@@ -45,6 +54,18 @@ export const App = () => {
 
     const [showLessonPicker, setShowLessonPicker] = useState(false)
 
+    const audioManagerRef = useRef<AudioManager | null>(null)
+
+    useEffect(() => {
+        audioManagerRef.current = new AudioManager(80, {
+            tonality: MinorTonality.Natural,
+            tonic: { letter: NoteLetter.D, accidental: NoteAccidental.None },
+        })
+        return () => {
+            audioManagerRef.current?.destroy()
+        }
+    })
+
     // const lessonInfo: LessonInfo = {
     //     title: (HelloWorld as any).title,
     //     chapter: (HelloWorld as any).chapter,
@@ -54,99 +75,131 @@ export const App = () => {
     // }
 
     // return <div class="">{/* <div class="border-r h-screen p-2"> */}</div>
-    let lessonElement
 
-    if (currentLesson !== undefined) {
-        const key = `${currentLesson.chapter}-${currentLesson.section}`
-
-        const lesson = lessons[key]
-
-        lessonElement = (
-            <Lesson
-                completedGoals={getGoalsCompleted(
-                    progress,
-                    lesson.id.chapter,
-                    lesson.id.section
-                )}
-                onGoalCompletion={(id) => {
-                    console.log("Completed goal", id)
-
-                    setProgress((progress) => {
-                        const goalsCompleted = getGoalsCompleted(
-                            progress,
-                            currentLesson.chapter,
-                            currentLesson.section
-                        )
-
-                        if (goalsCompleted.find(id.equals) === undefined) {
-                            const updatedProgress = { ...progress }
-                            updatedProgress[key] = {
-                                goalsCompleted: [...goalsCompleted, id],
-                            }
-
-                            console.log("Updated progress to:", updatedProgress)
-
-                            return updatedProgress
-                        } else {
-                            return progress
-                        }
-                    })
-                }}
-                info={lesson}
-            />
+    if (isShowingMainMenu) {
+        const color = pickValue(
+            ["bg-orange-300", "amber-bg", "lime-bg"],
+            Math.random()
+        )
+        return (
+            <div class={`w-screen h-screen ${color}`}>
+                <div class={`h-full w-full m-4 grid place-items-center`}>
+                    <div class={"grid place-items-center"}>
+                        <Heading level={1} className="">
+                            Untitled
+                        </Heading>
+                        <Button
+                            onClick={() => setIsShowingMainMenu(false)}
+                            kind={ButtonKind.Underline}
+                            className="tracking-wider"
+                        >
+                            {Object.keys(progress).length === 0
+                                ? "Begin"
+                                : "Continue"}
+                        </Button>
+                    </div>
+                </div>
+            </div>
         )
     } else {
-        lessonElement = undefined
-    }
+        let lessonElement
 
-    return (
-        // <Lesson
-        //     info={lessonInfo}
-        //     onGoalCompletion={(id) => {
-        //         setProgress({
-        //             ...progress,
-        //             "1-1": {
-        //                 goalsCompleted: [
-        //                     ...getGoalsCompleted(progress, 1, 1),
-        //                     id,
-        //                 ],
-        //             },
-        //         })
-        //     }}
-        //     completedGoals={getGoalsCompleted(progress, 1, 1)}
-        // />
-        <div>
-            {lessonElement}
-            {showLessonPicker ? (
-                <LessonSelector
-                    progress={progress}
-                    onSelectLesson={(id) => {
-                        setShowLessonPicker(false)
-                        setCurrentLesson(id)
+        if (currentLesson !== undefined && audioManagerRef.current !== null) {
+            const key = `${currentLesson.chapter}-${currentLesson.section}`
+
+            const lesson = lessons[key]
+
+            lessonElement = (
+                <Lesson
+                    audioManager={audioManagerRef.current}
+                    completedGoals={getGoalsCompleted(
+                        progress,
+                        lesson.id.chapter,
+                        lesson.id.section
+                    )}
+                    onGoalCompletion={(id) => {
+                        console.log("Completed goal", id)
+
+                        setProgress((progress) => {
+                            const goalsCompleted = getGoalsCompleted(
+                                progress,
+                                currentLesson.chapter,
+                                currentLesson.section
+                            )
+
+                            if (goalsCompleted.find(id.equals) === undefined) {
+                                const updatedProgress = { ...progress }
+                                updatedProgress[key] = {
+                                    goalsCompleted: [...goalsCompleted, id],
+                                }
+
+                                console.log(
+                                    "Updated progress to:",
+                                    updatedProgress
+                                )
+
+                                return updatedProgress
+                            } else {
+                                return progress
+                            }
+                        })
                     }}
+                    info={lesson}
                 />
-            ) : null}
+            )
+        } else {
+            lessonElement = undefined
+        }
 
-            {showLessonPicker ? null : (
-                <Button
-                    kind={ButtonKind.Green}
-                    onClick={() => {
-                        setShowLessonPicker(true)
-                    }}
-                    className="fixed bottom-5 right-5"
-                >
-                    Show lessons
-                </Button>
-            )}
+        return (
+            // <Lesson
+            //     info={lessonInfo}
+            //     onGoalCompletion={(id) => {
+            //         setProgress({
+            //             ...progress,
+            //             "1-1": {
+            //                 goalsCompleted: [
+            //                     ...getGoalsCompleted(progress, 1, 1),
+            //                     id,
+            //                 ],
+            //             },
+            //         })
+            //     }}
+            //     completedGoals={getGoalsCompleted(progress, 1, 1)}
+            // />
+            <div>
+                {lessonElement}
+                {showLessonPicker ? (
+                    <LessonSelector
+                        progress={progress}
+                        onSelectLesson={(id) => {
+                            setShowLessonPicker(false)
+                            setCurrentLesson(id)
+                        }}
+                    />
+                ) : null}
 
-            {showLessonPicker ? (
-                <Button
-                    onClick={() => setShowLessonPicker(false)}
-                    className="fixed bottom-5 right-6"
-                >
-                    Hide lessons
-                </Button>
-            ) : null}
-        </div>
-    )
+                {showLessonPicker ? null : (
+                    <Button
+                        kind={ButtonKind.Green}
+                        onClick={() => {
+                            setShowLessonPicker(true)
+                        }}
+                        className="fixed bottom-5 right-5"
+                    >
+                        Show lessons
+                    </Button>
+                )}
+
+                {showLessonPicker ? (
+                    <Button
+                        onClick={() => setShowLessonPicker(false)}
+                        className="fixed bottom-5 right-6"
+                    >
+                        Hide lessons
+                    </Button>
+                ) : null}
+            </div>
+        )
+    }
 }
