@@ -641,7 +641,10 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         const additionalToolbarItems = (
             <Button
                 kind={ButtonKind.Danger}
-                onClick={() => setStoredCode(initialCode)}
+                onClick={() => {
+                    audioManager.sounds.alert.start()
+                    setStoredCode(initialCode)
+                }}
             >
                 Reset
             </Button>
@@ -656,6 +659,8 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                 runnable={runnable}
                 onRun={async (code) => {
                     audioManager.sounds.itemHover.stop()
+                    audioManager.sounds.okay.start()
+
                     setSpeechHistory([])
                     destroy()
 
