@@ -21,7 +21,7 @@ import { $, pickValue } from "../../helpers"
 /** Beat length in milliseconds */
 const beatDuration = 250
 
-function tween(light: Three.SpotLight) {
+const tween = (light: Three.SpotLight) => {
     new Tween.Tween(light)
         .to(
             {
@@ -36,9 +36,9 @@ function tween(light: Three.SpotLight) {
     new Tween.Tween(light.position)
         .to(
             {
-                x: Math.random() * 3 - 1.5,
-                y: Math.random() * 1 + 1.5,
-                z: Math.random() * 3 - 1.5,
+                x: Math.random() * 4 - 2,
+                y: Math.random() * 3 + 3,
+                z: Math.random() * 4 - 2,
             },
             Math.random() * 700 + 2000
         )
@@ -93,6 +93,10 @@ export class GrandFinale extends Level {
         this.progress.wait &&
         this.progress.repeat
 
+    onRun = (world: World) => {
+        world.audioManager.playBackground(world.audioManager.sounds.concert)
+    }
+
     init = async (world: World) => {
         world.view.sun.removeFromParent()
         world.view.ambientLight.color = new Three.Color("#5e5e5e")
@@ -102,8 +106,7 @@ export class GrandFinale extends Level {
         await world.importGLTF(stageUrl, new Vec3(0, -2, 0))
 
         const entities = await addPeggy(world, new Vec3(1, 0, 0))
-        console.log(entities)
-        this.peggy = entities[0]
+        this.peggy = entities[1]
 
         setInterval(() => this.updatePeggy(world), beatDuration * 10)
 
@@ -112,13 +115,14 @@ export class GrandFinale extends Level {
             new Set([
                 {
                     kind: "listener",
-                    notify: ({ event }) => {
+                    notify: ({ event }, world) => {
                         console.log("Received event", event)
                         switch (event.kind) {
                             case "forward":
                                 this.progress.forward = true
                                 break
                             case "speaking":
+                                console.log("Spoke")
                                 this.progress.say = true
                                 break
                             case "turn":
@@ -134,6 +138,8 @@ export class GrandFinale extends Level {
                                 break
 
                             case "executionComplete":
+                                world.audioManager.sounds.concert.stop()
+
                                 if (world.code !== undefined) {
                                     const cleanedCode = world.code.replace(
                                         /\s+/g,
@@ -252,7 +258,8 @@ export class GrandFinale extends Level {
         (world: World) => {
             if (this.peggy !== undefined) {
                 const duration = Math.random() * 1000 + 500
-                const speed = 0.01
+                const speed = 0.001
+                const rotSpeed = 0.001
 
                 const direction = pickValue(
                     [
@@ -263,7 +270,10 @@ export class GrandFinale extends Level {
                     ],
                     Math.random()
                 )
-                console.log("forward")
+
+                const targetRot = new Three.Quaternion().random()
+
+                const startTime = performance.now()
 
                 const step = (delta: number, time: number, world: World) => {
                     if (this.peggy !== undefined) {
@@ -277,12 +287,15 @@ export class GrandFinale extends Level {
                             )
                         $("#other").textContent =
                             this.peggy.transform.position.prettyPrint()
+
+                        const progress = (time - startTime) / duration
+                        this.peggy.transform.rotation.slerp(targetRot, progress)
                     }
                 }
+
                 world.registerStepFunction(step)
                 setTimeout(() => {
                     console.log("done")
-                    $("#other").textContent = "done"
                     world.unregisterStepFunction(step)
                 }, duration)
             }

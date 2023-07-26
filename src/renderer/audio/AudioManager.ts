@@ -143,6 +143,10 @@ export class AudioManager {
         this.sounds.menu.fadeIn = 1
         this.sounds.menu.fadeOut = 2
 
+        this.sounds.concert.loop = true
+        this.sounds.concert.fadeIn = 0.5
+        this.sounds.concert.fadeOut = 2
+
         // this.background.itemHover.loop = true
         // this.background.itemHover.loopStart = 0.3
     }

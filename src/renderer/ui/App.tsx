@@ -82,8 +82,6 @@ export const App = () => {
                 }
             }
         )
-
-        return () => audioManagerRef.current?.destroy()
     })
 
     // const lessonInfo: LessonInfo = {

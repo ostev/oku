@@ -659,13 +659,19 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                     setSpeechHistory([])
                     destroy()
 
-                    if (worldRef.current !== null) {
-                        worldRef.current.code = code
-                    }
-
                     setStoredCode(code)
 
-                    init().then(() => {
+                    return init().then(() => {
+                        if (worldRef.current !== null) {
+                            worldRef.current.code = code
+                        }
+
+                        if (
+                            worldRef.current !== null &&
+                            levelRef.current !== null
+                        ) {
+                            levelRef.current.onRun(worldRef.current)
+                        }
                         if (executionContextRef.current !== undefined) {
                             setTimeout(() => {
                                 if (executionContextRef.current !== undefined) {

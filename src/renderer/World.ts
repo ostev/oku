@@ -312,7 +312,7 @@ export class World {
                 "listener"
             ) as Listener
 
-            listener.notify(event)
+            listener.notify(event, this)
         }
     }
 
@@ -941,7 +941,7 @@ export class EventSource {
 export interface Listener {
     kind: "listener"
 
-    notify: (event: WorldEventInfo) => void
+    notify: (event: WorldEventInfo, world: World) => void
 }
 
 export class Vec2 {

@@ -9,6 +9,7 @@ export class Level {
     init: (world: World) => Promise<void> = async () => {}
     step: (delta: number, time: number, world: World) => void = () => {}
     destroy: (world: World) => void = () => {}
+    onRun: (world: World) => void = () => {}
 
     constructor() {}
 }
