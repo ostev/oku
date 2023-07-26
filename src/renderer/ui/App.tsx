@@ -36,6 +36,7 @@ import {
     MinorTonality,
     NoteAccidental,
     NoteLetter,
+    Sound,
 } from "../audio/AudioManager"
 
 export const App = () => {
@@ -46,24 +47,43 @@ export const App = () => {
         undefined
     )
 
-    useEffect(() => {
-        if (localStorage.getItem("currentLesson") === null) {
-            setCurrentLesson({ chapter: 1, section: 1 })
-        }
-    })
-
     const [showLessonPicker, setShowLessonPicker] = useState(false)
 
     const audioManagerRef = useRef<AudioManager | null>(null)
 
     useEffect(() => {
-        audioManagerRef.current = new AudioManager(80, {
-            tonality: MinorTonality.Natural,
-            tonic: { letter: NoteLetter.D, accidental: NoteAccidental.None },
-        })
-        return () => {
-            audioManagerRef.current?.destroy()
-        }
+        audioManagerRef.current = new AudioManager(
+            80,
+            {
+                tonality: MinorTonality.Natural,
+                tonic: {
+                    letter: NoteLetter.D,
+                    accidental: NoteAccidental.None,
+                },
+            },
+            (sound) => {
+                if (isShowingMainMenu) {
+                    setTimeout(() => {
+                        setIsShowingMainMenu((currentMenuStatus) => {
+                            if (sound === Sound.Menu && currentMenuStatus) {
+                                console.log(currentMenuStatus)
+                                audioManagerRef.current?.sounds.menu.start()
+                                // setTimeout(() => {
+
+                                //     if (!isShowingMainMenu) {
+                                //         audioManagerRef.current?.sounds.menu.stop()
+                                //     }
+                                // }, 5000)
+                            }
+
+                            return currentMenuStatus
+                        })
+                    }, 800)
+                }
+            }
+        )
+
+        return () => audioManagerRef.current?.destroy()
     })
 
     // const lessonInfo: LessonInfo = {
@@ -83,13 +103,28 @@ export const App = () => {
         )
         return (
             <div class={`w-screen h-screen ${color}`}>
-                <div class={`h-full w-full m-4 grid place-items-center`}>
+                <div class={`h-full w-full grid place-items-center`}>
                     <div class={"grid place-items-center"}>
                         <Heading level={1} className="">
                             Untitled
                         </Heading>
                         <Button
-                            onClick={() => setIsShowingMainMenu(false)}
+                            onClick={() => {
+                                if (audioManagerRef.current !== null) {
+                                    audioManagerRef.current.play(
+                                        audioManagerRef.current.sounds.enter
+                                    )
+                                    audioManagerRef.current.sounds.menu.stop()
+                                }
+
+                                if (
+                                    localStorage.getItem("currentLesson") ===
+                                    null
+                                ) {
+                                    setCurrentLesson({ chapter: 1, section: 1 })
+                                }
+                                setIsShowingMainMenu(false)
+                            }}
                             kind={ButtonKind.Underline}
                             className="tracking-wider"
                         >

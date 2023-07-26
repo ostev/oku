@@ -655,6 +655,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                 additionalToolbarItems={additionalToolbarItems}
                 runnable={runnable}
                 onRun={async (code) => {
+                    audioManager.sounds.itemHover.stop()
                     setSpeechHistory([])
                     destroy()
 

@@ -1,11 +1,6 @@
 const { app, BrowserWindow, session } = require("electron")
 const path = require("path")
 
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (require("electron-squirrel-startup")) {
-    app.quit()
-}
-
 const createWindow = () => {
     // Create the browser window.
     const mainWindow = new BrowserWindow({
@@ -31,6 +26,9 @@ const createWindow = () => {
     // Open the DevTools.
     mainWindow.webContents.openDevTools()
 }
+
+// Allow autoplay
+app.commandLine.appendSwitch("autoplay-policy", "no-user-gesture-required")
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.

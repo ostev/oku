@@ -46,6 +46,10 @@ em {
     transform: scale(0);
 }
 
+.challenge-complete-box:not(.challenge-complete) {
+    display: none;
+}
+
 .challenge-complete {
     transform: scale(1);
 }

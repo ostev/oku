@@ -13,7 +13,6 @@ import {
     NoteAccidental,
     NoteLetter,
 } from "./audio/AudioManager"
-import * as Sounds from "./audio/sounds"
 
 export const MeshComponentNotFoundInThreeJSSceneError = error(
     "MeshComponentNotFoundInThreeJSSceneError"
@@ -153,8 +152,8 @@ export class World {
 
                 rigidBody.setEnabled(false)
 
-                this.audioManager.play(Sounds.pickUp)
-                Sounds.itemHover.start()
+                this.audioManager.play(this.audioManager.sounds.pickUp)
+                this.audioManager.sounds.itemHover.start()
 
                 // const kinematicBodyDesc =
                 //     Rapier.RigidBodyDesc.kinematicPositionBased()
@@ -236,8 +235,8 @@ export class World {
 
             this.heldParcel = undefined
 
-            this.audioManager.play(Sounds.placeDown)
-            Sounds.itemHover.stop()
+            this.audioManager.play(this.audioManager.sounds.placeDown)
+            this.audioManager.sounds.itemHover.stop()
         } else {
             throw new NoParcelHeldError(
                 "I'm not currently holding a parcel, so I can't place it down!"
