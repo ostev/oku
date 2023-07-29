@@ -17,6 +17,7 @@ import stageUrl from "../../assets/stage.gltf?url"
 import { addPeggy } from "../../characters/peggy"
 import { vec3Distance } from "../../maths"
 import { $, pickValue } from "../../helpers"
+import { Concert } from "./Concert"
 
 /** Beat length in milliseconds */
 const beatDuration = 250
@@ -54,7 +55,7 @@ const tween = (light: Three.SpotLight) => {
         .start()
 }
 
-export class GrandFinale extends Level {
+export class GrandFinale extends Concert {
     private previousSpotlightAnimationTime: number = 0
     private spotlights: Three.SpotLight[] = []
     private spotlightHelpers: Three.SpotLightHelper[] | undefined
@@ -92,10 +93,6 @@ export class GrandFinale extends Level {
         this.progress.turn &&
         this.progress.wait &&
         this.progress.repeat
-
-    onRun = (world: World) => {
-        world.audioManager.playBackground(world.audioManager.sounds.concert)
-    }
 
     init = async (world: World) => {
         world.view.sun.removeFromParent()

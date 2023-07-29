@@ -30,8 +30,7 @@
                         var e = undefined
                         var secure = undefined
                         var safeObjects = undefined
-                        const env = {
-                            source: `
+                        const headerSource = `
             // === Library code ===
             ${Object.entries(executionContextBindings)
                 .map(([name, syncInfo]) => {
@@ -81,16 +80,18 @@
                 .join("\n")}
             \n
             // === User code ===
-            \n
-            ${data[1]}
-            `,
+            \n`
+                        const env = {
+                            source: headerSource + data[1],
                         }
+
                         Object.freeze(env)
                         // console.log(env.source)
 
                         let __error__ = false
 
                         try {
+                            self.postMessage(["source", headerSource])
                             ;(() => {
                                 var data = undefined
                                 var executionContextBindings = undefined
@@ -283,8 +284,13 @@
                             if (this.timeoutHandle !== undefined) {
                                 clearTimeout(this.timeoutHandle)
                             }
-
                             if (
+                                Array.isArray(e.data) &&
+                                e.data[0] === "source" &&
+                                typeof e.data[1] === "string"
+                            ) {
+                                this.postMessage(["source", e.data[1]])
+                            } else if (
                                 Array.isArray(e.data) &&
                                 typeof e.data[0] === "string" &&
                                 !e.data[0].includes("proto") &&

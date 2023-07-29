@@ -191,10 +191,14 @@ export const Lesson: FunctionComponent<LessonProps> = ({
     )
     const [speechHistory, setSpeechHistory] = useState<string[]>([])
 
+    const [headerSource, setHeaderSource] = useState<string | undefined>(
+        undefined
+    )
+
     const [completeGoalAnim, setCompleteGoalAnim] = useState<
         number | undefined
     >(undefined)
-    const completeGoalAnimPlayer = useRef<HTMLVideoElement | null>(null)
+    // const completeGoalAnimPlayer = useRef<HTMLVideoElement | null>(null)
 
     const executionContextRef = useRef<UserExecutionContext | undefined>(
         undefined
@@ -371,8 +375,8 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                 try {
                     worldRef.current?.pickUpParcel()
                     setTimeout(context.resume, 200)
-                } catch (error) {
-                    setExecutionError(error as Error)
+                } catch (err) {
+                    error(err as Error)
                     destroy()
                     init()
                 }
@@ -384,8 +388,8 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                 try {
                     worldRef.current?.placeDownParcel()
                     setTimeout(context.resume, 200)
-                } catch (error) {
-                    setExecutionError(error as Error)
+                } catch (err) {
+                    error(err as Error)
                     destroy()
                     init()
                 }
@@ -410,11 +414,18 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                 source: new EventSource(new Vec3(0, 0, 0)),
             })
         }
+        setHeaderSource(undefined)
     }
 
     const debug = import.meta.env.DEV
 
     const cssRendererRef = useRef<HTMLDivElement | null>(null)
+    const error = (err: Error) => {
+        if (levelRef.current !== null && worldRef.current !== null) {
+            levelRef.current.onError(err, worldRef.current)
+        }
+        setExecutionError(err)
+    }
 
     // useEffect(() => {
     //     const onWindowFocus = () => {
@@ -472,8 +483,9 @@ export const Lesson: FunctionComponent<LessonProps> = ({
             executionContextRef.current = new UserExecutionContext(
                 executionParentRef.current,
                 bindings,
-                setExecutionError,
-                onFinish
+                error,
+                onFinish,
+                setHeaderSource
             )
         }
 
@@ -537,7 +549,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                             reject()
                         }
                     } catch (e) {
-                        setExecutionError(e as Error)
+                        error(e as Error)
                     }
                 })
             } else {
@@ -760,21 +772,52 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         Ref,
     }
 
-    const ErrorModal = () => (
-        <Modal
-            name="error"
-            title="I encountered an error..."
-            onDismiss={() => setExecutionError(undefined)}
-        >
-            <Paragraph>
-                I tried to run your code, but I encountered an error. Here it
-                is:
-            </Paragraph>
-            <Paragraph className="font-mono text-red-950">
-                {(executionError as Error).toString()}
-            </Paragraph>
-        </Modal>
-    )
+    const ErrorModal = () => {
+        if (executionError !== undefined && headerSource !== undefined) {
+            // let lineNumber
+            // const firefoxLineNumber = (
+            //     executionError as any as { lineNumber: number }
+            // ).lineNumber
+
+            // const headerLines = headerSource.split("\n").length
+
+            // if (firefoxLineNumber !== undefined) {
+            //     lineNumber = firefoxLineNumber + 1 - headerLines
+            // } else if (executionError.stack !== undefined) {
+            //     const parts = executionError.stack.split("\n")[1].split(":")
+            //     const lineNumberStr = parts[parts.length - 2]
+            //     console.log(parts)
+            //     console.log(executionError.stack)
+            //     lineNumber = parseInt(lineNumberStr, 10) - headerLines
+            // }
+
+            return (
+                <Modal
+                    name="error"
+                    title="I encountered an error..."
+                    onDismiss={() => setExecutionError(undefined)}
+                >
+                    <Paragraph>
+                        I tried to run your code, but I encountered an error.
+                        Here it is:
+                    </Paragraph>
+                    <Paragraph className="font-mono text-red-950">
+                        {executionError.toString()}
+                    </Paragraph>
+                </Modal>
+            )
+        } else {
+            return (
+                <Modal
+                    name="noError"
+                    title="There's no error! Congrats!"
+                    onDismiss={() => {}}
+                >
+                    <Paragraph>This should never appear.</Paragraph>
+                </Modal>
+            )
+        }
+    }
 
     return (
         <div>

@@ -10,6 +10,7 @@ export class Level {
     step: (delta: number, time: number, world: World) => void = () => {}
     destroy: (world: World) => void = () => {}
     onRun: (world: World) => void = () => {}
+    onError: (error: Error, world: World) => void = () => {}
 
     constructor() {}
 }

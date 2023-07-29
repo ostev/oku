@@ -12,15 +12,18 @@ export class UserExecutionContext {
     bindings: FnBindings
 
     onResume = () => {}
+    onHeaderReceived: (source: string) => void
 
     constructor(
         parent: Element,
         bindings: FnBindings,
         onError: (error: Error) => void,
-        onFinish: () => void
+        onFinish: () => void,
+        onHeaderReceived: (source: string) => void
     ) {
         this.onError = onError
         this.onFinish = onFinish
+        this.onHeaderReceived = onHeaderReceived
         this.bindings = bindings
         this.initialiseIFrame(parent)
     }
@@ -69,8 +72,13 @@ export class UserExecutionContext {
         }
         console.log("Received message from iframe:", e.data)
 
-        // Check that we received an array and that the program finished
-        if (Array.isArray(e.data) && e.data[0] === "result") {
+        if (
+            Array.isArray(e.data) &&
+            e.data[0] === "source" &&
+            typeof e.data[1] === "string"
+        ) {
+            this.onHeaderReceived(e.data[1])
+        } else if (Array.isArray(e.data) && e.data[0] === "result") {
             this.onFinish()
         } else if (Array.isArray(e.data) && e.data[0] === "error") {
             console.error("Your code has an error! 😲 Here it is:")

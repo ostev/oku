@@ -8,6 +8,7 @@ import { Level } from "../Level"
 import stageUrl from "../../assets/stage.gltf?url"
 import { addPeggy } from "../../characters/peggy"
 import { vec3Distance } from "../../maths"
+import { Concert } from "./Concert"
 
 function tween(light: Three.SpotLight) {
     new Tween.Tween(light)
@@ -39,7 +40,7 @@ function tween(light: Three.SpotLight) {
         .start()
 }
 
-export class SongAndDance extends Level {
+export class SongAndDance extends Concert {
     private previousSpotlightAnimationTime: number = 0
     private spotlights: Three.SpotLight[] = []
     private spotlightHelpers: Three.SpotLightHelper[] | undefined
