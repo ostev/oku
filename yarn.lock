@@ -5276,6 +5276,49 @@ __metadata:
   languageName: node
   linkType: hard
 
+"oku@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "oku@workspace:."
+  dependencies:
+    "@codemirror/lang-javascript": ^6.1.9
+    "@dimforge/rapier3d": ^0.11.2
+    "@electron-toolkit/preload": ^2.0.0
+    "@electron-toolkit/tsconfig": ^1.0.1
+    "@electron-toolkit/utils": ^1.0.2
+    "@electron/notarize": ^2.1.0
+    "@mdx-js/preact": ^2.3.0
+    "@mdx-js/rollup": ^2.3.0
+    "@preact/preset-vite": ^2.5.0
+    "@types/chroma-js": ^2.4.0
+    "@types/katex": ^0.16.0
+    "@types/three": ^0.152.1
+    autoprefixer: ^10.4.14
+    chroma-js: ^2.4.2
+    codemirror: ^6.0.1
+    cssnano: ^6.0.1
+    electron: ^25.2.0
+    electron-builder: ^24.4.0
+    electron-vite: ^1.0.25
+    immutable: ^4.3.0
+    katex: ^0.16.8
+    postcss: ^8.4.24
+    preact: ^10.15.1
+    rehype-katex: ^6.0.3
+    remark-gfm: ^3.0.1
+    remark-math: ^5.1.1
+    remark-mdx-images: ^2.0.0
+    remark-smartypants: ^2.0.0
+    tailwindcss: ^3.3.2
+    thememirror: ^2.0.1
+    three: ^0.153.0
+    tone: ^14.7.77
+    typescript: ^5.0.2
+    vite: ^4.3.9
+    vite-plugin-top-level-await: ^1.3.1
+    vite-plugin-wasm: ^3.2.2
+  languageName: unknown
+  linkType: soft
+
 "once@npm:^1.3.0, once@npm:^1.3.1, once@npm:^1.4.0":
   version: 1.4.0
   resolution: "once@npm:1.4.0"
@@ -5856,49 +5899,6 @@ __metadata:
   checksum: 1d38588e520dab7cea67cbbe2efdd86a10cc7a074c09657635e34f035277b59fbb57d09d8638346bf7090f8e8ebc070c96fa5fd183b777fff4f5edff5e9466cf
   languageName: node
   linkType: hard
-
-"programming-game@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "programming-game@workspace:."
-  dependencies:
-    "@codemirror/lang-javascript": ^6.1.9
-    "@dimforge/rapier3d": ^0.11.2
-    "@electron-toolkit/preload": ^2.0.0
-    "@electron-toolkit/tsconfig": ^1.0.1
-    "@electron-toolkit/utils": ^1.0.2
-    "@electron/notarize": ^2.1.0
-    "@mdx-js/preact": ^2.3.0
-    "@mdx-js/rollup": ^2.3.0
-    "@preact/preset-vite": ^2.5.0
-    "@types/chroma-js": ^2.4.0
-    "@types/katex": ^0.16.0
-    "@types/three": ^0.152.1
-    autoprefixer: ^10.4.14
-    chroma-js: ^2.4.2
-    codemirror: ^6.0.1
-    cssnano: ^6.0.1
-    electron: ^25.2.0
-    electron-builder: ^24.4.0
-    electron-vite: ^1.0.25
-    immutable: ^4.3.0
-    katex: ^0.16.8
-    postcss: ^8.4.24
-    preact: ^10.15.1
-    rehype-katex: ^6.0.3
-    remark-gfm: ^3.0.1
-    remark-math: ^5.1.1
-    remark-mdx-images: ^2.0.0
-    remark-smartypants: ^2.0.0
-    tailwindcss: ^3.3.2
-    thememirror: ^2.0.1
-    three: ^0.153.0
-    tone: ^14.7.77
-    typescript: ^5.0.2
-    vite: ^4.3.9
-    vite-plugin-top-level-await: ^1.3.1
-    vite-plugin-wasm: ^3.2.2
-  languageName: unknown
-  linkType: soft
 
 "progress@npm:^2.0.3":
   version: 2.0.3
