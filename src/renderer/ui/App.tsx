@@ -104,7 +104,7 @@ export const App = () => {
                 <div class={`h-full w-full grid place-items-center`}>
                     <div class={"grid place-items-center"}>
                         <Heading level={1} className="">
-                            Untitled
+                            Oku
                         </Heading>
                         <Button
                             onClick={() => {

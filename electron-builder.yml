@@ -1,5 +1,5 @@
 appId: com.electron.app
-productName: vanilla-ts
+productName: Oku
 directories:
     buildResources: build
 files:
@@ -13,7 +13,7 @@ asarUnpack:
     - resources/**
 # afterSign: build/notarize.js
 win:
-    executableName: vanilla-ts
+    executableName: oku
 nsis:
     artifactName: ${name}-${version}-setup.${ext}
     shortcutName: ${productName}

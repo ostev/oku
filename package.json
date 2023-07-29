@@ -1,12 +1,12 @@
 {
-    "name": "programming-game",
+    "name": "oku",
     "private": true,
-    "version": "0.1.0",
+    "version": "0.2.0",
     "main": "./out/main/index.js",
     "author": {
         "name": "Oscar Stevens"
     },
-    "description": "Untitled programming game for 2023 Australian Student Game Challenge",
+    "description": "Oku!",
     "scripts": {
         "dev": "electron-vite dev",
         "build": "electron-vite build",
