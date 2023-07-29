@@ -490,6 +490,10 @@ export const Lesson: FunctionComponent<LessonProps> = ({
             //     ])
             // )
             (index) => {
+                if (worldRef.current !== null) {
+                    worldRef.current.audioManager.sounds.completeGoal.start()
+                }
+
                 onGoalCompletion(
                     new ID(info.id.chapter, info.id.section, index)
                 )

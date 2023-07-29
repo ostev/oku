@@ -108,6 +108,7 @@ export class AudioManager {
         placeDown: Tone.Player
         concert: Tone.Player
         enter: Tone.Player
+        completeGoal: Tone.Player
     }
 
     private customOnLoad: (sound: Sound) => void
@@ -133,6 +134,7 @@ export class AudioManager {
             placeDown: this.createPlayer(placeDownUrl, Sound.PlaceDown),
             concert: this.createPlayer(concertUrl, Sound.Concert),
             enter: this.createPlayer(enterUrl, Sound.Enter),
+            completeGoal: this.createPlayer(enterUrl, Sound.Enter),
         }
 
         this.sounds.itemHover.loop = true
