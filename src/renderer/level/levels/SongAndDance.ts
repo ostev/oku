@@ -65,6 +65,10 @@ export class SongAndDance extends Concert {
     //         }
     // `
 
+    constructor() {
+        super()
+    }
+
     css = `
         canvas {
             background-image: linear-gradient(
@@ -119,16 +123,6 @@ export class SongAndDance extends Concert {
                                 this.progress.wait = true
                                 break
 
-                            case "executionComplete":
-                                if (
-                                    world.playerRaycastHits &&
-                                    this.mainGoalIsComplete()
-                                ) {
-                                    world.completeGoal(2)
-                                    console.log("Player remained on stage")
-                                }
-                                break
-
                             default:
                                 break
                         }
@@ -142,6 +136,14 @@ export class SongAndDance extends Concert {
         )
 
         this.initSpotlights(world)
+    }
+
+    onExecutionComplete = (world: World) => {
+        super.onExecutionComplete(world)
+        if (world.playerRaycastHits && this.mainGoalIsComplete()) {
+            world.completeGoal(2)
+            console.log("Player remained on stage")
+        }
     }
 
     private initSpotlights = (world: World) => {
@@ -187,7 +189,8 @@ export class SongAndDance extends Concert {
         Tween.update()
     }
 
-    destroy = (world: World) => {
+    destroy(world: World) {
+        super.destroy(world)
         for (const spotlight of this.spotlights) {
             spotlight.removeFromParent()
         }

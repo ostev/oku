@@ -69,6 +69,10 @@ export class GrandFinale extends Concert {
 
     private peggy: Entity | undefined
 
+    constructor() {
+        super()
+    }
+
     css = `
         canvas {
             background-image: linear-gradient(
@@ -134,54 +138,6 @@ export class GrandFinale extends Concert {
                                 this.progress.repeat = true
                                 break
 
-                            case "executionComplete":
-                                world.audioManager.sounds.concert.stop()
-
-                                if (world.code !== undefined) {
-                                    const cleanedCode = world.code.replace(
-                                        /\s+/g,
-                                        ""
-                                    )
-
-                                    const namedFunctionRegex =
-                                        /let\s+(singChorus|singchorus|SINGCHORUS|SINGchorus|singCHORUS|sing|chorus|SING|CHORUS)\s*=\s*\(.*\)\s*=>\s*{[\s\S]*}/
-
-                                    const repeatRegex =
-                                        /repeat\((0x.+|0b\d(\d|_)*|\d(\d|_)*|),(.+)\)/
-
-                                    const whileLoopRegex = /while\(.*\){.*\}/
-
-                                    if (this.progress.say) {
-                                        const match =
-                                            world.code.match(namedFunctionRegex)
-                                        if (match !== null) {
-                                            world.completeGoal(1)
-                                        }
-                                    }
-
-                                    if (this.progress.repeat) {
-                                        const match =
-                                            cleanedCode.match(repeatRegex)
-                                        if (match !== null) {
-                                            world.completeGoal(2)
-                                        }
-                                    }
-
-                                    if (
-                                        this.mainGoalIsComplete() &&
-                                        cleanedCode.includes("if") &&
-                                        cleanedCode.includes("else") &&
-                                        cleanedCode.match(repeatRegex) !==
-                                            null &&
-                                        cleanedCode.includes(")=>{") &&
-                                        cleanedCode.match(whileLoopRegex) !==
-                                            null
-                                    ) {
-                                        world.completeGoal(3)
-                                    }
-                                }
-                                break
-
                             default:
                                 break
                         }
@@ -191,6 +147,45 @@ export class GrandFinale extends Concert {
         )
 
         this.initSpotlights(world)
+    }
+
+    onExecutionComplete = (world: World) => {
+        super.onExecutionComplete(world)
+        if (world.code !== undefined) {
+            const cleanedCode = world.code.replace(/\s+/g, "")
+
+            const namedFunctionRegex =
+                /let\s+(singChorus|singchorus|SINGCHORUS|SINGchorus|singCHORUS|sing|chorus|SING|CHORUS)\s*=\s*\(.*\)\s*=>\s*{[\s\S]*}/
+
+            const repeatRegex = /repeat\((0x.+|0b\d(\d|_)*|\d(\d|_)*|),(.+)\)/
+
+            const whileLoopRegex = /while\(.*\){.*\}/
+
+            if (this.progress.say) {
+                const match = world.code.match(namedFunctionRegex)
+                if (match !== null) {
+                    world.completeGoal(1)
+                }
+            }
+
+            if (this.progress.repeat) {
+                const match = cleanedCode.match(repeatRegex)
+                if (match !== null) {
+                    world.completeGoal(2)
+                }
+            }
+
+            if (
+                this.mainGoalIsComplete() &&
+                cleanedCode.includes("if") &&
+                cleanedCode.includes("else") &&
+                cleanedCode.match(repeatRegex) !== null &&
+                cleanedCode.includes(")=>{") &&
+                cleanedCode.match(whileLoopRegex) !== null
+            ) {
+                world.completeGoal(3)
+            }
+        }
     }
 
     private initSpotlights = (world: World) => {
@@ -239,7 +234,8 @@ export class GrandFinale extends Concert {
         Tween.update(time)
     }
 
-    destroy = (world: World) => {
+    destroy(world: World) {
+        super.destroy(world)
         for (const spotlight of this.spotlights) {
             spotlight.removeFromParent()
         }

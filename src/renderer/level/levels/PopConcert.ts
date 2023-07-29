@@ -65,6 +65,10 @@ export class PopConcert extends Concert {
     //         }
     // `
 
+    constructor() {
+        super()
+    }
+
     css = `
         canvas {
             background-image: linear-gradient(
@@ -119,35 +123,6 @@ export class PopConcert extends Concert {
                                 this.progress.wait = true
                                 break
 
-                            case "executionComplete":
-                                if (
-                                    world.code !== undefined &&
-                                    this.mainGoalIsComplete()
-                                ) {
-                                    const cleanedCode = world.code.replace(
-                                        /\s+/g,
-                                        ""
-                                    )
-                                    {
-                                        const regex =
-                                            /(let|var|const) (.+) =(.*)/
-                                        const match = cleanedCode.match(regex)
-                                        if (match !== null) {
-                                            world.completeGoal(2)
-                                        }
-                                    }
-
-                                    {
-                                        const regex = /\+"(.*)"/
-                                        const match = cleanedCode.match(regex)
-                                        console.log(match)
-                                        if (match !== null) {
-                                            world.completeGoal(3)
-                                        }
-                                    }
-                                }
-                                break
-
                             default:
                                 break
                         }
@@ -157,6 +132,29 @@ export class PopConcert extends Concert {
         )
 
         this.initSpotlights(world)
+    }
+
+    onExecutionComplete = (world: World) => {
+        super.onExecutionComplete(world)
+        if (world.code !== undefined && this.mainGoalIsComplete()) {
+            const cleanedCode = world.code.replace(/\s+/g, "")
+            {
+                const regex = /(let|var|const) (.+) =(.*)/
+                const match = cleanedCode.match(regex)
+                if (match !== null) {
+                    world.completeGoal(2)
+                }
+            }
+
+            {
+                const regex = /\+"(.*)"/
+                const match = cleanedCode.match(regex)
+                console.log(match)
+                if (match !== null) {
+                    world.completeGoal(3)
+                }
+            }
+        }
     }
 
     private initSpotlights = (world: World) => {

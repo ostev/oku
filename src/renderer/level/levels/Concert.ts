@@ -2,10 +2,26 @@ import { World } from "../../World"
 import { Level } from "../Level"
 
 export class Concert extends Level {
-    onRun = (world: World) => {
+    private isPlaying = false
+    onRun(world: World) {
         world.audioManager.playBackground(world.audioManager.sounds.concert)
+        this.isPlaying = true
     }
-    onError = (_error: Error, world: World) => {
-        world.audioManager.sounds.concert.stop()
+
+    stopMusic(world: World) {
+        if (this.isPlaying) {
+            world.audioManager.sounds.concert.stop()
+            this.isPlaying = false
+        }
+    }
+
+    onError(_error: Error, world: World) {
+        this.stopMusic(world)
+    }
+    onExecutionComplete(world: World) {
+        this.stopMusic(world)
+    }
+    destroy(world: World) {
+        this.stopMusic(world)
     }
 }

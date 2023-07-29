@@ -228,8 +228,6 @@ export class DeliveryDriverPartIII extends Level {
         Tween.update(time)
     }
 
-    destroy = () => {}
-
     private updateBoundaryPosition = () => {
         if (this.boundaryDebugEntity !== undefined) {
             this.boundaryDebugEntity.transform.position = this.boundaryPosition

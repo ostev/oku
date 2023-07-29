@@ -889,20 +889,11 @@ export interface WorldEventInfo {
     source: EventSource
 }
 
-export type WorldEvent =
-    | AudioEvent
-    | MovementEvent
-    | WaitEvent
-    | RepeatEvent
-    | ExecutionCompleteEvent
+export type WorldEvent = AudioEvent | MovementEvent | WaitEvent | RepeatEvent
 
 export interface RepeatEvent {
     kind: "repeat"
     times: number
-}
-
-export interface ExecutionCompleteEvent {
-    kind: "executionComplete"
 }
 
 export interface WaitEvent {

@@ -170,12 +170,6 @@ export class DeliveryDriverPartII extends Level {
                                 cleanedCode.includes("if(distance<1)")
                             ) {
                                 world.completeGoal(2)
-                            } else if (
-                                event.kind === "executionComplete" &&
-                                cleanedCode.includes("readDistance()") &&
-                                cleanedCode.includes("if(distance>1)")
-                            ) {
-                                world.completeGoal(3)
                             }
                         }
                     },
@@ -184,9 +178,20 @@ export class DeliveryDriverPartII extends Level {
         )
     }
 
+    onExecutionComplete = (world: World) => {
+        if (world.code !== undefined) {
+            const cleanedCode = world.code.replace(/\s+/g, "")
+
+            if (
+                cleanedCode.includes("readDistance()") &&
+                cleanedCode.includes("if(distance>1)")
+            ) {
+                world.completeGoal(3)
+            }
+        }
+    }
+
     step = (delta: number, time: number, world: World) => {
         Tween.update(time)
     }
-
-    destroy = () => {}
 }

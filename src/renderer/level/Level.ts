@@ -6,11 +6,12 @@ import { Entity, Vec3, World, translation } from "../World"
 
 export class Level {
     css: string = ""
-    init: (world: World) => Promise<void> = async () => {}
-    step: (delta: number, time: number, world: World) => void = () => {}
-    destroy: (world: World) => void = () => {}
-    onRun: (world: World) => void = () => {}
-    onError: (error: Error, world: World) => void = () => {}
+    async init(world: World) {}
+    step(delta: number, time: number, world: World) {}
+    destroy(world: World) {}
+    onRun(world: World) {}
+    onError(error: Error, world: World) {}
+    onExecutionComplete(world: World) {}
 
     constructor() {}
 }

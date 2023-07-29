@@ -376,7 +376,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                     worldRef.current?.pickUpParcel()
                     setTimeout(context.resume, 200)
                 } catch (err) {
-                    error(err as Error)
+                    onError(err as Error)
                     destroy()
                     init()
                 }
@@ -389,7 +389,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                     worldRef.current?.placeDownParcel()
                     setTimeout(context.resume, 200)
                 } catch (err) {
-                    error(err as Error)
+                    onError(err as Error)
                     destroy()
                     init()
                 }
@@ -409,10 +409,10 @@ export const Lesson: FunctionComponent<LessonProps> = ({
 
     const onFinish = () => {
         if (worldRef.current !== null) {
-            worldRef.current.activateEvent({
-                event: { kind: "executionComplete" },
-                source: new EventSource(new Vec3(0, 0, 0)),
-            })
+            if (levelRef.current !== null) {
+                levelRef.current.onExecutionComplete(worldRef.current)
+            }
+            worldRef.current.code = undefined
         }
         setHeaderSource(undefined)
     }
@@ -420,7 +420,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
     const debug = import.meta.env.DEV
 
     const cssRendererRef = useRef<HTMLDivElement | null>(null)
-    const error = (err: Error) => {
+    const onError = (err: Error) => {
         if (levelRef.current !== null && worldRef.current !== null) {
             levelRef.current.onError(err, worldRef.current)
         }
@@ -483,7 +483,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
             executionContextRef.current = new UserExecutionContext(
                 executionParentRef.current,
                 bindings,
-                error,
+                onError,
                 onFinish,
                 setHeaderSource
             )
@@ -549,7 +549,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                             reject()
                         }
                     } catch (e) {
-                        error(e as Error)
+                        onError(e as Error)
                     }
                 })
             } else {

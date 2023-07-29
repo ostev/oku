@@ -79,7 +79,5 @@ export class HelloWorld extends Level {
         )
     }
 
-    step = (delta: number, time: number, world: World) => {}
-
-    destroy = () => {}
+    step(delta: number, time: number, world: World) {}
 }

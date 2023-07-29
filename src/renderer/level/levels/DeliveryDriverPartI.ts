@@ -149,6 +149,4 @@ export class DeliveryDriverPartI extends Level {
             this.isIntersecting = false
         }
     }
-
-    destroy = () => {}
 }
