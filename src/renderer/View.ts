@@ -326,7 +326,7 @@ class ColorGUIHelper {
 
 export const makeXYZGUI = (
     gui: GUI,
-    vector3: Vec3,
+    vector3: { x: number; y: number; z: number },
     name: string,
     onChangeFn: Function,
     range?: number
