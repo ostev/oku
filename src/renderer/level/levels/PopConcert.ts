@@ -70,7 +70,7 @@ export class PopConcert extends Concert {
     }
 
     css = `
-        canvas {
+        .view-3d {
             background-image: linear-gradient(
                 45deg,
                 hsl(240deg 100% 20%) 0%,

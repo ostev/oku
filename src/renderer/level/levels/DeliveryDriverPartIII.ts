@@ -24,8 +24,8 @@ export class DeliveryDriverPartIII extends Level {
     private gateStartingY = 0
     private gateTextStartingY = 0
 
-    private boundaryPosition: Vec3 = new Rapier.Vector3(0.3, -0.7, -1.4)
-    private boundaryDimensions: Vec3 = new Rapier.Vector3(2, 0.75, 0.17)
+    private boundaryPosition: Vec3 = new Vec3(0.3, -0.7, -1.4)
+    private boundaryDimensions: Vec3 = new Vec3(2, 0.75, 0.17)
     private boundaryShape: Rapier.Shape = new Rapier.Cuboid(
         this.boundaryDimensions.x / 2,
         this.boundaryDimensions.y / 2,
@@ -34,7 +34,7 @@ export class DeliveryDriverPartIII extends Level {
     private boundaryDebugEntity: Entity | undefined
 
     css = `
-        canvas {
+        .view-3d {
             background-image: linear-gradient(
                 45deg,
                 hsl(128deg 16% 65%) 0%,

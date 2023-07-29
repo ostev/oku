@@ -29,7 +29,7 @@ export class GreetingOthers extends Level {
     // `
 
     css = `
-        canvas {
+        .view-3d {
             background-image: linear-gradient(
                 45deg,
                 hsl(128deg 16% 65%) 0%,

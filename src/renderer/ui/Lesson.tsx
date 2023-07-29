@@ -44,6 +44,7 @@ import {
     RefAccessedBeforeComponentMountedError,
     error,
     findIndexRight,
+    pickValue,
 } from "../helpers"
 import { useStorage } from "./useStorage"
 import { Button, ButtonKind } from "./Button"
@@ -52,6 +53,7 @@ import { degToRad, easeInOutSine, vec3Distance } from "../maths"
 
 import completeGoalAnimUrl from "../assets/win.webm"
 import { AudioManager } from "../audio/AudioManager"
+import JSConfetti from "js-confetti"
 
 export interface LessonID {
     chapter: number
@@ -162,6 +164,7 @@ export interface LessonProps {
     onGoalCompletion: (id: ID) => void
     completedGoals: ID[]
     audioManager: AudioManager
+    confettiRef: MutableRef<JSConfetti>
 }
 
 export const Lesson: FunctionComponent<LessonProps> = ({
@@ -169,6 +172,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
     onGoalCompletion,
     completedGoals,
     audioManager,
+    confettiRef,
 }: LessonProps) => {
     // const [completedGoals, setCompletedGoals] = useStorage<ID[]>(
     //     `${info.chapter}-${info.section}_completedGoals`,
@@ -461,12 +465,34 @@ export const Lesson: FunctionComponent<LessonProps> = ({
             //     ])
             // )
             (index) => {
-                setCompleteGoalAnim(index)
-
-                setTimeout(() => setCompleteGoalAnim(undefined), 3000)
                 onGoalCompletion(
                     new ID(info.id.chapter, info.id.section, index)
                 )
+
+                setCompleteGoalAnim(index)
+
+                setTimeout(() => setCompleteGoalAnim(undefined), 3000)
+
+                const randomEmojis = [
+                    "🌈",
+                    "⚡️",
+                    "💥",
+                    "✨",
+                    "💫",
+                    "🎉",
+                    "😉",
+                    "🤖",
+                ]
+                const emojis = [
+                    pickValue(randomEmojis, Math.random()),
+                    pickValue(randomEmojis, Math.random()),
+                    "🤖",
+                ]
+
+                confettiRef.current.addConfetti({
+                    emojis,
+                    confettiNumber: Math.floor(Math.random() * 60) + 30,
+                })
             },
             audioManager
         )
@@ -873,7 +899,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                     </div> */
                 // </div>
             }
-            <div class={`fixed right-5 h-screen grid place-items-center`}>
+            {/* <div class={`fixed right-5 h-screen grid place-items-center`}>
                 <div
                     class={`rounded-xl shadow-xl backdrop-blur-xl grid place-items-center p-4 challenge-complete-box ${
                         completeGoalAnim === undefined
@@ -886,7 +912,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                         completed!
                     </Heading>
                 </div>
-            </div>
+            </div> */}
             {executionError === undefined ? undefined : <ErrorModal />}
             {speechHistory.length > 0 ? (
                 <div

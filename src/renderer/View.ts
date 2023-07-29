@@ -156,6 +156,7 @@ export class View {
             antialias: true,
             alpha: true,
         })
+        this.renderer.domElement.setAttribute("class", "view-3d")
         this.renderer.shadowMap.enabled = true
         this.renderer.toneMapping = Three.ACESFilmicToneMapping
         // this.renderer.setAnimationLoop(this.animation)

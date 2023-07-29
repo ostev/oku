@@ -39,6 +39,9 @@ import {
     Sound,
 } from "../audio/AudioManager"
 
+import JSConfetti from "js-confetti"
+import { ComponentChildren } from "preact"
+
 export const App = () => {
     const [isShowingMainMenu, setIsShowingMainMenu] = useState(true)
     const [progress, setProgress] = useStorage<Progress>("progress", {})
@@ -94,12 +97,22 @@ export const App = () => {
 
     // return <div class="">{/* <div class="border-r h-screen p-2"> */}</div>
 
+    const confettiRef = useRef<JSConfetti | null>(null)
+    const confettiCanvasRef = useRef<HTMLCanvasElement | null>(null)
+
+    useEffect(() => {
+        confettiRef.current = new JSConfetti({
+            canvas: confettiCanvasRef.current,
+        })
+    }, [])
+
+    let conditionalUI: ComponentChildren
     if (isShowingMainMenu) {
         const color = pickValue(
             ["bg-orange-300", "amber-bg", "lime-bg"],
             Math.random()
         )
-        return (
+        conditionalUI = (
             <div class={`w-screen h-screen ${color}`}>
                 <div class={`h-full w-full grid place-items-center`}>
                     <div class={"grid place-items-center"}>
@@ -135,15 +148,20 @@ export const App = () => {
             </div>
         )
     } else {
-        let lessonElement
+        let lessonElement: ComponentChildren
 
-        if (currentLesson !== undefined && audioManagerRef.current !== null) {
+        if (
+            currentLesson !== undefined &&
+            audioManagerRef.current !== null &&
+            confettiRef.current !== null
+        ) {
             const key = `${currentLesson.chapter}-${currentLesson.section}`
 
             const lesson = lessons[key]
 
             lessonElement = (
                 <Lesson
+                    confettiRef={confettiRef as MutableRef<JSConfetti>}
                     audioManager={audioManagerRef.current}
                     completedGoals={getGoalsCompleted(
                         progress,
@@ -184,7 +202,7 @@ export const App = () => {
             lessonElement = undefined
         }
 
-        return (
+        conditionalUI = (
             // <Lesson
             //     info={lessonInfo}
             //     onGoalCompletion={(id) => {
@@ -235,4 +253,38 @@ export const App = () => {
             </div>
         )
     }
+
+    const [{ windowWidth, windowHeight }, setWindowDimensions] = useState({
+        windowWidth: window.innerWidth,
+        windowHeight: window.innerHeight,
+    })
+    useEffect(() => {
+        const listener = () => {
+            setWindowDimensions({
+                windowWidth: window.innerWidth,
+                windowHeight: window.innerHeight,
+            })
+        }
+        window.addEventListener("resize", listener)
+        return () => {
+            window.removeEventListener("resize", listener)
+        }
+    }, [])
+
+    return (
+        <div>
+            {conditionalUI}
+            <canvas
+                ref={confettiCanvasRef}
+                id="confetti-canvas"
+                style={{
+                    zIndex: 2_000_000_000,
+                    position: "fixed",
+                    width: windowWidth,
+                    height: windowHeight,
+                    pointerEvents: "none",
+                }}
+            ></canvas>
+        </div>
+    )
 }
