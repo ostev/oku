@@ -1,17 +1,18 @@
 name: Build/release
 
-on: push
+on:
+    push:
+        branches:
+            - main
 
 jobs:
     release:
         runs-on: ${{ matrix.os }}
-        branches:
-            - main
 
         strategy:
             matrix:
-                # os: [macos-latest, ubuntu-latest, windows-latest]
-                os: [windows-latest]
+                os: [macos-latest, ubuntu-latest, windows-latest]
+                # os: [windows-latest]
 
         steps:
             - name: Check out Git repository
