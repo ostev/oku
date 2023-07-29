@@ -49,7 +49,20 @@ export class View {
 
     gui: GUI | undefined
 
-    constructor(element: HTMLElement) {
+    updateOrbitControls: (
+        position: Three.Vector3,
+        rotation: Three.Quaternion
+    ) => void
+
+    constructor(
+        element: HTMLElement,
+        updateOrbitControls: (
+            position: Three.Vector3,
+            rotation: Three.Quaternion
+        ) => void
+    ) {
+        this.updateOrbitControls = updateOrbitControls
+
         this.camera = new Three.OrthographicCamera()
         // this.camera = new Three.PerspectiveCamera()
 
@@ -214,8 +227,21 @@ export class View {
         // this.orbitControls.dampingFactor = 0.2
         this.orbitControls.minPolarAngle = -Math.atan(-1 / Math.sqrt(2))
         this.orbitControls.maxPolarAngle = -Math.atan(-1 / Math.sqrt(2))
-        this.camera.position.x = -20
-        this.camera.position.z = -20
+
+        // if (startingCameraPosition !== undefined) {
+        // console.log("starting pos:", startingCameraPosition)
+        // this.camera.position.x = startingCameraPosition.x
+        // this.camera.position.y = startingCameraPosition.y
+        // this.camera.position.z = startingCameraPosition.z
+        // // } else {
+        // // this.camera.position.x = -20
+        // // this.camera.position.z = -20
+        // // }
+
+        // if (startingCameraRotation !== undefined) {
+        //     this.camera.rotation.setFromQuaternion(startingCameraRotation)
+        // }
+
         this.orbitControls.saveState()
         this.orbitControls.update()
 
@@ -301,6 +327,11 @@ export class View {
 
         this.composer.render(delta)
         // this.cssRenderer.render(this.scene, this.camera)
+
+        this.updateOrbitControls(
+            structuredClone(this.camera.position),
+            new Three.Quaternion().setFromEuler(this.camera.rotation)
+        )
     }
 
     setOrthographicScale = (scale: number) => {

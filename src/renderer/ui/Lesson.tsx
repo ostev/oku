@@ -55,6 +55,11 @@ import completeGoalAnimUrl from "../assets/win.webm"
 import { AudioManager } from "../audio/AudioManager"
 import JSConfetti from "js-confetti"
 
+// let cameraInfo = {
+//     position: new Three.Vector3(-20, 0, -20),
+//     rotation: new Three.Quaternion(),
+// }
+
 export interface LessonID {
     chapter: number
     section: number
@@ -454,7 +459,27 @@ export const Lesson: FunctionComponent<LessonProps> = ({
     // }, [])
 
     const init = async () => {
-        viewRef.current = new View(cssRendererRef.current as HTMLElement)
+        // console.log(cameraInfo)
+        viewRef.current = new View(
+            cssRendererRef.current as HTMLElement,
+            () => {}
+
+            // (position, rotation) => {
+            //     cameraInfo = { position, rotation }
+            //     $(
+            //         "#other"
+            //     ).textContent = `${position.x}, ${position.y}, ${position.z}`
+            // }
+
+            // cameraInfoRef.current !== undefined
+            //     ? cameraInfoRef.current.position
+            //     : undefined,
+            // cameraInfoRef.current !== undefined
+            //     ? cameraInfoRef.current.rotation
+            //     : undefined
+            // cameraInfo.position,
+            // cameraInfo.rotation
+        )
         worldRef.current = new World(
             { x: 0, y: -9.8, z: 0 },
             viewRef.current,
