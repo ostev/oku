@@ -102,7 +102,7 @@ export const App = () => {
 
     useEffect(() => {
         confettiRef.current = new JSConfetti({
-            canvas: confettiCanvasRef.current,
+            canvas: confettiCanvasRef.current as HTMLCanvasElement,
         })
     }, [])
 

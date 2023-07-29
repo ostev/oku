@@ -70,7 +70,7 @@ export class GreetingOthers extends Level {
                             )
                             console.log("Distance: ", distance)
 
-                            if (distance <= 1) {
+                            if (distance <= 1.5) {
                                 console.log("Complete 1")
                                 world.completeGoal(1)
                             }
@@ -96,7 +96,7 @@ export class GreetingOthers extends Level {
                             )
                             console.log("Distance from Arnold: ", distance)
 
-                            if (distance <= 1) {
+                            if (distance <= 2) {
                                 console.log("Complete 2")
                                 world.completeGoal(2)
                             }
