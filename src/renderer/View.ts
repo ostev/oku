@@ -234,8 +234,9 @@ export class View {
         // this.camera.position.y = startingCameraPosition.y
         // this.camera.position.z = startingCameraPosition.z
         // // } else {
-        // // this.camera.position.x = -20
-        // // this.camera.position.z = -20
+        this.camera.position.x = -20
+        this.camera.position.z = -20
+
         // // }
 
         // if (startingCameraRotation !== undefined) {
