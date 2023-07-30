@@ -9,6 +9,7 @@ import placeDownUrl from "./sounds/place-down.wav"
 import concertUrl from "./sounds/concert.wav"
 import menuUrl from "./sounds/menu.wav"
 import enterUrl from "./sounds/enter.wav"
+import completeGoalUrl from "./sounds/complete-goal.wav"
 
 import { Vec3 } from "../World"
 
@@ -134,7 +135,7 @@ export class AudioManager {
             placeDown: this.createPlayer(placeDownUrl, Sound.PlaceDown),
             concert: this.createPlayer(concertUrl, Sound.Concert),
             enter: this.createPlayer(enterUrl, Sound.Enter),
-            completeGoal: this.createPlayer(enterUrl, Sound.Enter),
+            completeGoal: this.createPlayer(completeGoalUrl, Sound.Enter),
         }
 
         this.sounds.itemHover.loop = true
