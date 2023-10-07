@@ -26,7 +26,7 @@
         "electron": "^25.2.0",
         "electron-builder": "^24.4.0",
         "electron-vite": "^1.0.25",
-        "postcss": "^8.4.24",
+        "postcss": "^8.4.31",
         "rehype-katex": "^6.0.3",
         "remark-gfm": "^3.0.1",
         "remark-math": "^5.1.1",
