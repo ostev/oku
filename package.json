@@ -2,30 +2,21 @@
     "name": "oku",
     "private": true,
     "version": "1.1.3",
-    "main": "./out/main/index.js",
     "author": {
         "name": "Oscar Stevens"
     },
     "description": "Oku!",
     "scripts": {
-        "dev": "electron-vite dev",
-        "build": "electron-vite build",
-        "preview": "electron-vite preview",
-        "build:win-portable": "yarn build && electron-builder --win portable --config",
-        "build:win": "yarn build && electron-builder --win --config",
-        "postinstall": "electron-builder install-app-deps"
+        "dev": "vite dev",
+        "build": "vite build"
     },
     "devDependencies": {
-        "@electron-toolkit/tsconfig": "^1.0.1",
-        "@electron/notarize": "^2.1.0",
         "@preact/preset-vite": "^2.5.0",
         "@types/chroma-js": "^2.4.0",
         "@types/three": "^0.152.1",
         "autoprefixer": "^10.4.14",
         "cssnano": "^6.0.1",
         "electron": "^25.2.0",
-        "electron-builder": "^24.4.0",
-        "electron-vite": "^1.0.25",
         "postcss": "^8.4.24",
         "rehype-katex": "^6.0.3",
         "remark-gfm": "^3.0.1",
@@ -41,8 +32,6 @@
     "dependencies": {
         "@codemirror/lang-javascript": "^6.1.9",
         "@dimforge/rapier3d": "^0.11.2",
-        "@electron-toolkit/preload": "^2.0.0",
-        "@electron-toolkit/utils": "^1.0.2",
         "@mdx-js/preact": "^2.3.0",
         "@mdx-js/rollup": "^2.3.0",
         "@types/katex": "^0.16.0",
