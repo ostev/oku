@@ -16,7 +16,7 @@
         "@types/three": "^0.152.1",
         "autoprefixer": "^10.4.14",
         "cssnano": "^6.0.1",
-        "electron": "^25.2.0",
+        "electron": "^39.8.10",
         "postcss": "^8.4.24",
         "rehype-katex": "^6.0.3",
         "remark-gfm": "^3.0.1",
