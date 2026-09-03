@@ -22,15 +22,14 @@ export const uint32Range = (start: number, end: number): Uint32Array => {
     return array
 }
 
-export const error = (name: string) => {
-    return class extends Error {
+export const error = (name: string) =>
+    class extends Error {
         name = name
 
         constructor(message: string | undefined) {
             super(message)
         }
     }
-}
 
 /**
  * Pick a value from an array based on a number between `0` and `1`.
@@ -41,12 +40,12 @@ export const pickValue = <T>(array: ArrayLike<T>, x: number) =>
 export const NotYetImplementedError = error("NotYetImplementedError")
 
 export const RefAccessedBeforeComponentMountedError = error(
-    "RefAccessedBeforeComponentMountedError"
+    "RefAccessedBeforeComponentMountedError",
 )
 
 export const findIndexRight = <T>(
     predicate: (x: T) => boolean,
-    array: ArrayLike<T>
+    array: ArrayLike<T>,
 ): number | undefined => {
     console.log(array.length)
     for (let i = array.length; i >= 0; i--) {
