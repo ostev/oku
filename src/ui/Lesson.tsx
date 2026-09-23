@@ -619,189 +619,210 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         return destroy
     }, [info])
 
-    const Code: FunctionComponent = ({ children }) => {
-        const { initialCode, index, runnable } = useMemo(() => {
-            let code: string
+    const Code: FunctionComponent = useMemo(
+        () =>
+            ({ children }) => {
+                const { initialCode, index, runnable } = useMemo(() => {
+                    let code: string
 
-            if (typeof children === "object") {
-                code = (children as any).props.children
-            } else if (typeof children === "string") {
-                code = children
-            } else {
-                code = "⚠️ Invalid children ⚠️"
-            }
+                    if (typeof children === "object") {
+                        code = (children as any).props.children
+                    } else if (typeof children === "string") {
+                        code = children
+                    } else {
+                        code = "⚠️ Invalid children ⚠️"
+                    }
 
-            let index: number
-            const lines = code.split("\n")
-            if (code.trim().startsWith("//")) {
-                const match = lines[0].trim().match(/\/\/\s*(\d+)/)
+                    let index: number
+                    const lines = code.split("\n")
+                    if (code.trim().startsWith("//")) {
+                        const match = lines[0].trim().match(/\/\/\s*(\d+)/)
 
-                if (match !== null && match[1] !== undefined) {
-                    index = Number(match[1])
-                } else {
-                    throw new CodeExcerptIDNotFoundError(
-                        `No ID header found in the following code (regex didn't match):\n${code}`,
-                    )
-                }
-            } else {
-                throw new CodeExcerptIDNotFoundError(
-                    `No ID header found in the following code:\n${code}`,
+                        if (match !== null && match[1] !== undefined) {
+                            index = Number(match[1])
+                        } else {
+                            throw new CodeExcerptIDNotFoundError(
+                                `No ID header found in the following code (regex didn't match):\n${code}`,
+                            )
+                        }
+                    } else {
+                        throw new CodeExcerptIDNotFoundError(
+                            `No ID header found in the following code:\n${code}`,
+                        )
+                    }
+
+                    lines.shift()
+
+                    const runnable = !lines[0].includes("no-run")
+
+                    return {
+                        initialCode: lines.join("\n") + "\n",
+                        index,
+                        runnable,
+                    }
+                }, [children])
+
+                const [storedCode, setStoredCode] = useStorage(
+                    `${info.id.chapter}-${info.id.section}_${new ID(
+                        info.id.chapter,
+                        info.id.section,
+                        index,
+                    ).stringify()}_storedCode`,
+                    initialCode,
                 )
-            }
+                const readWriteRef = useRef(new EditorReadWriter())
 
-            lines.shift()
+                useEffect(() => {
+                    readWriteRef.current.write(storedCode)
+                }, [storedCode])
 
-            const runnable = !lines[0].includes("no-run")
+                useEffect(() => {
+                    const intervalHandle = setInterval(() => {
+                        // console.log("Save")
+                        setStoredCode(readWriteRef.current.read())
+                        // console.log(storedCode)
+                    }, 5_000)
+                    const blurEventListener = () =>
+                        setStoredCode(readWriteRef.current.read())
+                    window.addEventListener("blur", blurEventListener)
 
-            return { initialCode: lines.join("\n") + "\n", index, runnable }
-        }, [children])
-
-        const [storedCode, setStoredCode] = useStorage(
-            `${info.id.chapter}-${info.id.section}_${new ID(
-                info.id.chapter,
-                info.id.section,
-                index,
-            ).stringify()}_storedCode`,
-            initialCode,
-        )
-        const readWriteRef = useRef(new EditorReadWriter())
-
-        useEffect(() => {
-            readWriteRef.current.write(storedCode)
-        }, [storedCode])
-
-        useEffect(() => {
-            const intervalHandle = setInterval(() => {
-                // console.log("Save")
-                setStoredCode(readWriteRef.current.read())
-                // console.log(storedCode)
-            }, 5_000)
-            const blurEventListener = () =>
-                setStoredCode(readWriteRef.current.read())
-            window.addEventListener("blur", blurEventListener)
-
-            return () => {
-                clearInterval(intervalHandle)
-                window.removeEventListener("blur", blurEventListener)
-            }
-        }, [])
-
-        const additionalToolbarItems = (
-            <Button
-                kind={ButtonKind.Danger}
-                onClick={() => {
-                    audioManager.sounds.alert.start()
-                    setStoredCode(initialCode)
-                }}
-            >
-                Reset
-            </Button>
-        )
-
-        return (
-            <EditorWrapper
-                bindings={bindings}
-                initialCode={initialCode}
-                readerRef={readWriteRef}
-                additionalToolbarItems={additionalToolbarItems}
-                runnable={runnable}
-                onRun={async (code) => {
-                    audioManager.sounds.itemHover.stop()
-                    audioManager.sounds.okay.start()
-
-                    setSpeechHistory([])
-                    // destroy()
-                    reset()
-
-                    setStoredCode(code)
-
-                    // return init().then(() => {
-                    if (worldRef.current !== null) {
-                        worldRef.current.code = code
+                    return () => {
+                        clearInterval(intervalHandle)
+                        window.removeEventListener("blur", blurEventListener)
                     }
+                }, [])
 
-                    if (
-                        worldRef.current !== null &&
-                        levelRef.current !== null
-                    ) {
-                        levelRef.current.onRun(worldRef.current)
-                    }
-                    executionContextRef!.current!.evalAsync(code)
-                    // })
-                }}
-                onFocus={() => {
-                    if (worldRef.current?.isRunning) {
-                        worldRef.current?.stop()
-                    }
-                    setStoredCode(readWriteRef.current.read())
-                }}
-                onBlur={() => {
-                    if (!worldRef.current?.isRunning) {
-                        worldRef.current?.start()
-                    }
-                    setStoredCode(readWriteRef.current.read())
-                }}
-            />
+                const additionalToolbarItems = (
+                    <Button
+                        kind={ButtonKind.Danger}
+                        onClick={() => {
+                            audioManager.sounds.alert.start()
+                            setStoredCode(initialCode)
+                        }}
+                    >
+                        Reset
+                    </Button>
+                )
+
+                return (
+                    <EditorWrapper
+                        bindings={bindings}
+                        initialCode={initialCode}
+                        readerRef={readWriteRef}
+                        additionalToolbarItems={additionalToolbarItems}
+                        runnable={runnable}
+                        onRun={async (code) => {
+                            audioManager.sounds.itemHover.stop()
+                            audioManager.sounds.okay.start()
+
+                            setSpeechHistory([])
+                            // destroy()
+                            reset()
+
+                            setStoredCode(code)
+
+                            // return init().then(() => {
+                            if (worldRef.current !== null) {
+                                worldRef.current.code = code
+                            }
+
+                            if (
+                                worldRef.current !== null &&
+                                levelRef.current !== null
+                            ) {
+                                levelRef.current.onRun(worldRef.current)
+                            }
+                            executionContextRef!.current!.evalAsync(code)
+                            // })
+                        }}
+                        onFocus={() => {
+                            if (worldRef.current?.isRunning) {
+                                worldRef.current?.stop()
+                            }
+                            setStoredCode(readWriteRef.current.read())
+                        }}
+                        onBlur={() => {
+                            if (!worldRef.current?.isRunning) {
+                                worldRef.current?.start()
+                            }
+                            setStoredCode(readWriteRef.current.read())
+                        }}
+                    />
+                )
+            },
+        [],
+    )
+
+    const Goal: FunctionalComponent<{ index: number; onClear: () => void }> =
+        useMemo(
+            () =>
+                ({ children, index }) => {
+                    const id = new ID(info.id.chapter, info.id.section, index)
+
+                    return (
+                        <GoalDisplay
+                            completed={completedGoals.some((otherID) =>
+                                id.equals(otherID),
+                            )}
+                            id={id}
+                            titlePrefix="🎯 Goal"
+                        >
+                            {children}
+                        </GoalDisplay>
+                    )
+                },
+            [],
         )
-    }
-
-    const Goal: FunctionalComponent<{ index: number; onClear: () => void }> = ({
-        children,
-        index,
-    }) => {
-        const id = new ID(info.id.chapter, info.id.section, index)
-
-        return (
-            <GoalDisplay
-                completed={completedGoals.some((otherID) => id.equals(otherID))}
-                id={id}
-                titlePrefix="🎯 Goal"
-            >
-                {children}
-            </GoalDisplay>
-        )
-    }
 
     const Challenge: FunctionComponent<{
         index: number
         difficulty: "easy" | "medium" | "hard"
-    }> = ({ children, index, difficulty }) => {
-        const id = new ID(info.id.chapter, info.id.section, index)
+    }> = useMemo(
+        () =>
+            ({ children, index, difficulty }) => {
+                const id = new ID(info.id.chapter, info.id.section, index)
 
-        let difficultyEmoji
+                let difficultyEmoji
 
-        if (difficulty == "easy") {
-            difficultyEmoji = "🟩"
-        } else if (difficulty == "medium") {
-            difficultyEmoji = "🟧"
-        } else {
-            difficultyEmoji = "🟥"
-        }
+                if (difficulty == "easy") {
+                    difficultyEmoji = "🟩"
+                } else if (difficulty == "medium") {
+                    difficultyEmoji = "🟧"
+                } else {
+                    difficultyEmoji = "🟥"
+                }
 
-        return (
-            <GoalDisplay
-                completed={completedGoals.some((otherID) => id.equals(otherID))}
-                id={id}
-                titlePrefix={`${difficultyEmoji} Challenge`}
-            >
-                {children}
-            </GoalDisplay>
-        )
-    }
+                return (
+                    <GoalDisplay
+                        completed={completedGoals.some((otherID) =>
+                            id.equals(otherID),
+                        )}
+                        id={id}
+                        titlePrefix={`${difficultyEmoji} Challenge`}
+                    >
+                        {children}
+                    </GoalDisplay>
+                )
+            },
+        [],
+    )
 
-    const components = {
-        h1: H1,
-        pre: Code,
-        MainEditor: EditorWrapper,
-        FunFact,
-        p: Paragraph,
-        DocLink,
-        YourTurn,
-        Challenge: Goal,
-        Goal,
-        Hint,
-        Ref,
-    }
+    const components = useMemo(
+        () => ({
+            h1: H1,
+            pre: Code,
+            MainEditor: EditorWrapper,
+            FunFact,
+            p: Paragraph,
+            DocLink,
+            YourTurn,
+            Challenge: Goal,
+            Goal,
+            Hint,
+            Ref,
+        }),
+        [],
+    )
 
     const ErrorModal = () => {
         if (executionError !== undefined && headerSource !== undefined) {

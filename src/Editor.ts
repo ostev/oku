@@ -15,50 +15,10 @@ export class Editor {
     playerRigidBody: Rapier.RigidBody | undefined
 
     constructor(parent: Element) {
-        // this.world = world
-        // addPlayer(world).then((player) => {
-        //     this.player = player
-        //     this.playerRigidBody = (
-        //         getComponent(this.player, "rigidBody") as RigidBody
-        //     ).rigidBody
-        //     this.playerCharacterController = (
-        //         getComponent(
-        //             this.player,
-        //             "characterController"
-        //         ) as CharacterController
-        //     ).characterController
-        // })
-
         this.view = new EditorView({
             extensions: [basicSetup, javascript(), dracula],
             parent,
         })
-        // helloThere: { fn: () => console.log("Hi!") },
-        // forward: {
-        //     fn: (duration: number) => {
-        //         // this.playerRigidBody.rigidBody.addForce(
-        //         //     new Rapier.Vector3(25, 0, 0),
-        //         //     true
-        //         // )
-        //         // setTimeout(
-        //         //     () => this.playerRigidBody.rigidBody.resetForces(true),
-        //         //     duration * 1000
-        //         // )
-        //         // const joint = (getComponent(this.player, "joint") as Joint)
-        //         //     .joint as Rapier.RevoluteImpulseJoint
-        //         // joint.configureMotorVelocity(20, 0.5)
-        //         // setTimeout(
-        //         //     () => joint.configureMotorVelocity(0, 0.5),
-        //         //     duration * 1000
-        //         // )
-
-        //         this.world.playerMovementVector.y += 0.1
-
-        //         setTimeout(() => {
-        //             this.world.playerMovementVector.y -= 0.1
-        //         }, duration * 1000)
-        //     }
-        // }
     }
 
     get code(): string {

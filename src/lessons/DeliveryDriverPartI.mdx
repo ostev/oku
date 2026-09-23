@@ -35,8 +35,9 @@ Picking up and placing objects is more straightforward: we simply use the <DocLi
 
 ```javascript
 // 3
-forward(1)
+forward(readDistance())
 pickUp()
+forward(1)
 turn(180)
 forward(1)
 placeDown()

@@ -22,7 +22,7 @@ export class EditorReadWriter {
     write = (code: string) => {
         if (this.editor === undefined) {
             throw new EditorNotInitialisedError(
-                "Cannot write to uninitialised editor."
+                "Cannot write to uninitialised editor.",
             )
         } else {
             this.editor.code = code
@@ -94,7 +94,7 @@ export const EditorWrapper: FunctionComponent<EditorWrapperProps> = ({
 
             const el =
                 editorRef.current.domElement.getElementsByClassName(
-                    "cm-content"
+                    "cm-content",
                 )[0]
 
             if (onFocus !== undefined) {
@@ -116,7 +116,7 @@ export const EditorWrapper: FunctionComponent<EditorWrapperProps> = ({
             }
         } else {
             throw new EditorNotInitialisedError(
-                "Attempted to initialise editor before the component was mounted."
+                "Attempted to initialise editor before the component was mounted.",
             )
         }
     }, [])
