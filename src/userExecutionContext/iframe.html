@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 
 <html>
     <head></head>
@@ -114,85 +114,6 @@
             }
         </script>
         <script>
-            //             const workerSource = `
-            // let executionContextBindings = undefined
-            // let __syncArray__ = undefined
-
-            // onmessage = (e) => {
-            //     // let data: any[] = e.data
-            //     let data = e.data
-
-            //     if (
-            //         e.data[0] === "init" &&
-            //         typeof e.data[1] === "object" &&
-            //         typeof e.data[2] === "object"
-            //     ) {
-            //         // executionContextBindings = e.data[1] as Bindings
-            //         executionContextBindings = e.data[1]
-            //         __syncArray__ = new Int32Array(e.data[2])
-            //         // __syncArray__[1] = 352
-            //         // console.log(__syncArray__)
-            //         // setTimeout(() => {
-            //         //     console.log(__syncArray__)
-            //         // }, 2000)
-            //     } else if (e.data[0] === "eval" && typeof e.data[1] === "string") {
-            //         // console.log("eval", e)
-            //         // console.log(__syncArray__?.buffer)
-
-            //         let workerResult = undefined
-            //         ;(() => {
-            //             // Remove some things from scope
-            //             var e = undefined
-            //             var secure = undefined
-            //             var safeObjects = undefined
-            //             // console.log(executionContextBindings)
-            //             const env = {
-            //                 source: \`
-            // // === Library code ===
-            // \${Object.entries(executionContextBindings)
-            //     .map(([name, syncInfo]) => {
-            //         if (syncInfo.delay === 0) {
-            //             return \`function \${name}(...args) {
-            //     self.postMessage(["\${name}", ...args])
-            // }\`
-            //         } else if (syncInfo.delay === "parameterSeconds") {
-            //             return \`function \${name}(delay, ...args) {
-            //     self.postMessage(["\${name}", delay, ...args])
-            //     Atomics.wait(__syncArray__, 0, 0, delay * 1000)
-            // }\`
-            //         } else if (syncInfo.delay === "untilResume") {
-            //             return \`function \${name}(...args) {
-            //     self.postMessage(["\${name}", ...args])
-            //     Atomics.wait(__syncArray__, 0, 0)
-            // }\`
-            //         } else {
-            //             return \`function \${name}(...args) {
-            //     self.postMessage(["\${name}", ...args])
-            //     Atomics.wait(__syncArray__, 0, 0, \${syncInfo.delay})
-            // }\`
-            //         }
-            //     })
-            //     .join("\n")}
-            // \n
-            // // === User code ===
-            // \n
-            // \${data[1]}
-            // \`,
-            //             }
-            //             Object.freeze(env)
-            //             // console.log(env.source)
-            //             ;(() => {
-            //                 var data = undefined
-            //                 var executionContextBindings = undefined
-
-            //                 workerResult = eval(env.source)
-            //             })()
-            //         })()
-
-            //         self.postMessage(["result", workerResult])
-            //     }
-            // }
-            // `
             const workerSource = document.getElementById("worker").textContent
 
             const error = (name) => {
@@ -218,7 +139,7 @@
             }
 
             const InvalidMessageReceivedFromHostApplicationError = error(
-                "InvalidMessageReceivedFromHostApplicationError"
+                "InvalidMessageReceivedFromHostApplicationError",
             )
 
             class UserExecutionContext {
@@ -232,7 +153,6 @@
                 // private resolve: ((data: any) => void) | undefined
                 // private reject: ((msg: string) => void) | undefined
 
-                // constructor(bindings: Bindings, postMessage: (message: any[]) => void) {
                 constructor(bindings, postMessage) {
                     this.syncBuffer = new SharedArrayBuffer(256)
                     this.syncArray = new BigInt64Array(this.syncBuffer)
@@ -241,7 +161,6 @@
 
                     this.postMessage = postMessage
 
-                    // this.worker = null as any as Worker
                     this.worker = null
                     this.initWorker()
                 }
@@ -255,8 +174,8 @@
                         URL.createObjectURL(
                             new Blob([workerSource], {
                                 type: "application/javascript",
-                            })
-                        )
+                            }),
+                        ),
                     )
 
                     this.worker.postMessage([
@@ -319,7 +238,7 @@
                         }
 
                         this.timeoutHandle = setTimeout(() => {
-                            this.killWorker, reject("timeout")
+                            ;(this.killWorker, reject("timeout"))
                         }, timeout)
 
                         this.worker.postMessage(["eval", script])
@@ -335,7 +254,7 @@
                 bindingSyncInfo,
                 (message) => {
                     return window.top?.postMessage(message)
-                }
+                },
             )
 
             window.addEventListener("message", (e) => {
@@ -357,11 +276,11 @@
                         },
                         (error) => {
                             window.top?.postMessage(["error", error])
-                        }
+                        },
                     )
                 } else {
                     throw new InvalidMessageReceivedFromHostApplicationError(
-                        "Invalid message received from host application."
+                        "Invalid message received from host application.",
                     )
                 }
             })

@@ -19,7 +19,7 @@ export class UserExecutionContext {
         bindings: FnBindings,
         onError: (error: Error) => void,
         onFinish: () => void,
-        onHeaderReceived: (source: string) => void
+        onHeaderReceived: (source: string) => void,
     ) {
         this.onError = onError
         this.onFinish = onFinish
@@ -43,26 +43,14 @@ export class UserExecutionContext {
 
                 this.iframe.setAttribute(
                     "sandbox",
-                    "allow-scripts allow-same-origin"
+                    "allow-scripts allow-same-origin",
                 )
                 this.iframe.setAttribute("style", "display: none;")
                 this.iframe.setAttribute("src", URL.createObjectURL(src))
                 parent.appendChild(this.iframe)
 
-                // this.iframe.contentWindow?.document.open()
-
-                // const script = this.iframe.contentWindow?.document.createElement(
-                //     "script"
-                // ) as HTMLScriptElement
-                // // script.setAttribute("src", "/userExecutionContext/iframe.js")
-                // this.iframe.contentWindow?.document.appendChild(script)
-
-                // this.iframe.contentWindow?.document.close()
-
                 window.addEventListener("message", this.messageEventListener)
             })
-
-        // ;(this.iframe as HTMLIFrameElement).contentWindow?.postMessage([""], "*")
     }
 
     private messageEventListener = (e: MessageEvent<unknown>) => {
@@ -97,7 +85,7 @@ export class UserExecutionContext {
             bindingInfo.fn(this, ...args)
         } else {
             throw new InvalidMessageReceivedFromUserExecutionContextError(
-                "The user execution context iframe posted an invalid response to the host application."
+                "The user execution context iframe posted an invalid response to the host application.",
             )
         }
     }
@@ -115,7 +103,7 @@ export class UserExecutionContext {
         console.log("Send message", message)
         ;(this.iframe as HTMLIFrameElement).contentWindow?.postMessage(
             message,
-            "*"
+            "*",
         )
     }
 
@@ -135,5 +123,5 @@ export class UserExecutionContext {
 }
 
 export const InvalidMessageReceivedFromUserExecutionContextError = error(
-    "InvalidMessageReceivedFromExecutionContext"
+    "InvalidMessageReceivedFromExecutionContext",
 )

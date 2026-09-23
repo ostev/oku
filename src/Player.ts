@@ -76,6 +76,7 @@ export const addPlayer = async (world: World): Promise<Entity> => {
             { kind: "player" },
             new EventSource(new Vec3(0, 0, 0)),
         ]),
+        "Player",
     )
 
     // const wheelDesc = Rapier.RigidBodyDesc.dynamic().setAdditionalMass(0.5)

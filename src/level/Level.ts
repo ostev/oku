@@ -19,7 +19,7 @@ export class Level {
 export const addTestCube = (world: World): Entity => {
     const mesh = new Three.Mesh(
         new Three.BoxGeometry(2, 2, 2),
-        new Three.MeshStandardMaterial({ color: "white" })
+        new Three.MeshStandardMaterial({ color: "white" }),
     )
     const rigidBodyDesc = Rapier.RigidBodyDesc.dynamic()
         .setTranslation(0, 5, 0)
@@ -27,7 +27,7 @@ export const addTestCube = (world: World): Entity => {
     const rigidBody = world.physics.createRigidBody(rigidBodyDesc)
     const collider = world.physics.createCollider(
         Rapier.ColliderDesc.cuboid(1, 1, 1),
-        rigidBody
+        rigidBody,
     )
 
     return world.addEntity(
@@ -35,19 +35,19 @@ export const addTestCube = (world: World): Entity => {
         new Set([
             { kind: "mesh", mesh },
             { kind: "rigidBody", rigidBody, collider },
-        ])
+        ]),
     )
 }
 
 export const addParcel = async (
     world: World,
-    position: Vec3
+    position: Vec3,
 ): Promise<Entity> => {
     // const mesh = new Three.Mesh(
     //     new Three.BoxGeometry(0.4, 0.4, 0.4),
     //     new Three.MeshStandardMaterial({ color: "white" })
     // )
-    const entity = (await world.importGLTF(parcelUrl, Vec3.zero))[1]
+    const entity = (await world.importGLTF(parcelUrl, position))[1]
 
     const rigidBodyDesc = Rapier.RigidBodyDesc.dynamic()
         .setTranslation(position.x, position.y, position.z)
@@ -55,10 +55,9 @@ export const addParcel = async (
     const rigidBody = world.physics.createRigidBody(rigidBodyDesc)
     const collider = world.physics.createCollider(
         Rapier.ColliderDesc.cuboid(0.2, 0.2, 0.2),
-        rigidBody
+        rigidBody,
     )
 
-    entity.transform.position = position
     world.addComponentToEntity(entity, {
         kind: "rigidBody",
         rigidBody,

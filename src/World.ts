@@ -15,7 +15,7 @@ import {
 } from "./audio/AudioManager"
 
 export const MeshComponentNotFoundInThreeJSSceneError = error(
-    "MeshComponentNotFoundInThreeJSSceneError"
+    "MeshComponentNotFoundInThreeJSSceneError",
 )
 
 export const ComponentNotFoundError = error("ComponentNotFoundError")
@@ -23,18 +23,18 @@ export const ComponentNotFoundError = error("ComponentNotFoundError")
 export const CannotCreateConvexHullError = error("CannotCreateConvexHullError")
 
 export const NoIndicesFoundOnGeometryError = error(
-    "NoIndicesFoundOnGeometryError"
+    "NoIndicesFoundOnGeometryError",
 )
 
 export const getComponent = (
     entity: Readonly<Entity>,
-    kind: Readonly<ComponentKind>
+    kind: Readonly<ComponentKind>,
 ): Component => {
     const component = entity.components.get(kind)
 
     if (component === undefined) {
         throw new ComponentNotFoundError(
-            `Component ${kind} not found in entity ${entity.id}`
+            `Component ${kind} not found in entity ${entity.id}`,
         )
     } else {
         if (component.kind === kind) {
@@ -47,12 +47,12 @@ export const getComponent = (
 
 export const removeComponent = (
     entity: Readonly<Entity>,
-    kind: Readonly<ComponentKind>
+    kind: Readonly<ComponentKind>,
 ): boolean => entity.components.delete(kind)
 
 export const forwardVector = (transform: Transform) => {
     const forward = new Three.Vector3(0, 0, -1).applyQuaternion(
-        transform.rotation
+        transform.rotation,
     )
     return forward
 }
@@ -63,6 +63,11 @@ export const ParcelAlreadyHeldError = error("ParcelAlreadyHeldError")
 export const NoParcelNearbyError = error("NoParcelNearbyError")
 export const NoParcelHeldError = error("NoParcelHeldError")
 
+interface StepFunctionInfo {
+    fn: StepFunction
+    persistent: boolean
+}
+
 export class World {
     private entities: Map<EntityId, Entity> = new Map()
     private componentLookupTable: Map<ComponentKind, Set<EntityId>> = new Map()
@@ -71,7 +76,7 @@ export class World {
     private animRequestHandle: number | undefined
     private time = 0
 
-    private stepFunctions: StepFunction[] = []
+    private stepFunctions: StepFunctionInfo[] = []
 
     isRunning: boolean = false
 
@@ -99,7 +104,7 @@ export class World {
         gravity: Readonly<Rapier.Vector3>,
         view: View,
         completeGoal: (index: number) => void,
-        audioManager: AudioManager
+        audioManager: AudioManager,
     ) {
         this.physics = new Rapier.World(gravity)
         this.view = view
@@ -108,7 +113,7 @@ export class World {
 
         this.addEntity(
             translation(Vec3.zero),
-            new Set([{ kind: "listener", notify: () => {} }])
+            new Set([{ kind: "listener", notify: () => {} }]),
         )
     }
 
@@ -129,7 +134,7 @@ export class World {
                 if (verticalDistance < 0.5 && verticalDistance > -0.5) {
                     const distance = vec2Distance(
                         new Vec2(playerPos.x, playerPos.z),
-                        new Vec2(parcelPos.x, parcelPos.z)
+                        new Vec2(parcelPos.x, parcelPos.z),
                     )
                     if (closest === undefined || distance < closest.distance) {
                         closest = { distance, parcel }
@@ -139,14 +144,14 @@ export class World {
 
             if (closest === undefined || closest.distance > 1) {
                 throw new NoParcelNearbyError(
-                    "There's no parcel within 1 metre for me to pick up!"
+                    "There's no parcel within 1 metre for me to pick up!",
                 )
             } else {
                 this.heldParcel = closest.parcel
 
                 const { rigidBody } = getComponent(
                     this.heldParcel,
-                    "rigidBody"
+                    "rigidBody",
                 ) as RigidBody
                 // const translation = rigidBody.translation()
 
@@ -182,7 +187,7 @@ export class World {
             }
         } else {
             throw new ParcelAlreadyHeldError(
-                "I'm already holding a parcel, so I can't pick up another one!"
+                "I'm already holding a parcel, so I can't pick up another one!",
             )
         }
     }
@@ -191,7 +196,7 @@ export class World {
         if (this.heldParcel !== undefined) {
             const { rigidBody } = getComponent(
                 this.heldParcel,
-                "rigidBody"
+                "rigidBody",
             ) as RigidBody
 
             const position = this.heldParcel.transform.position
@@ -199,7 +204,7 @@ export class World {
             this.heldParcel.transform.position = new Vec3(
                 position.x + forward.x / 2,
                 position.y + forward.y / 2,
-                position.z + forward.z / 2
+                position.z + forward.z / 2,
             )
 
             rigidBody.setTranslation(this.heldParcel.transform.position, true)
@@ -239,17 +244,19 @@ export class World {
             this.audioManager.sounds.itemHover.stop()
         } else {
             throw new NoParcelHeldError(
-                "I'm not currently holding a parcel, so I can't place it down!"
+                "I'm not currently holding a parcel, so I can't place it down!",
             )
         }
     }
 
-    registerStepFunction = (fn: StepFunction) => {
-        this.stepFunctions.push(fn)
+    registerStepFunction = (fn: StepFunction, persistent = false) => {
+        this.stepFunctions.push({ fn, persistent })
     }
 
     unregisterStepFunction = (fn: StepFunction) => {
-        const index = this.stepFunctions.findIndex((x) => x === fn)
+        const index = this.stepFunctions.findIndex(
+            ({ fn: otherFn }) => otherFn === fn,
+        )
 
         if (index !== -1) {
             this.stepFunctions.splice(index, 1)
@@ -264,30 +271,50 @@ export class World {
         this.entities = null as any
     }
 
+    reset = () => {
+        this.playerMovementVector = new Rapier.Vector3(0, 0, 0)
+        this.playerRotation = 0
+        this.playerRaycastHits = true
+        this.heldParcel = undefined
+
+        for (const entity of this.entities.values()) {
+            entity.transform = cloneTransform(entity.initialTransform)
+
+            const rigidBodyComponent = entity.components.get("rigidBody")
+            const { position, rotation } = entity.transform
+
+            if (rigidBodyComponent?.kind === "rigidBody") {
+                const { rigidBody } = rigidBodyComponent
+                rigidBody.setTranslation(
+                    new Rapier.Vector3(position.x, position.y, position.z),
+                    true,
+                )
+                rigidBody.setRotation(rotation, true)
+                rigidBody.setLinvel(new Rapier.Vector3(0, 0, 0), true)
+                rigidBody.setAngvel(new Rapier.Vector3(0, 0, 0), true)
+                rigidBody.resetForces(true)
+                rigidBody.resetTorques(true)
+                rigidBody.setEnabled(true)
+            }
+
+            const meshComponent = entity.components.get("mesh")
+            if (meshComponent?.kind === "mesh") {
+                const { mesh } = meshComponent
+                const { position, rotation, scale } = entity.transform
+
+                mesh.position.set(position.x, position.y, position.z)
+                mesh.rotation.setFromQuaternion(rotation)
+                mesh.scale.set(scale.x, scale.y, scale.z)
+            }
+        }
+
+        // Keep only step functions that should persist between resets
+        this.stepFunctions = this.stepFunctions.filter(
+            ({ persistent }) => persistent,
+        )
+    }
+
     start = () => {
-        // window.addEventListener("keydown", (ev) => {
-        //     this.keys[ev.key] = true
-        // })
-
-        // window.addEventListener("keyup", (ev) => {
-        //     this.keys[ev.key] = false
-        // })
-
-        // for (const entity of intersection(
-        //     this.getEntities("rigidBody"),
-        //     this.getEntities("hover")
-        // )) {
-        //     const rigidBody = (getComponent(entity, "rigidBody") as RigidBody)
-        //         .rigidBody
-        //     const targetAltitude = (getComponent(entity, "rigidBody") as Hover)
-        //         .altitude
-
-        //     console.log("hover")
-
-        //     rigidBody.addForce({ x: 0, y: 40, z: 0 }, true)
-        // }
-
-        // this.intervalHandle = setInterval(this.fixedStep, 1 / 60)
         this.isRunning = true
         this.animate(0)
     }
@@ -309,7 +336,7 @@ export class World {
         for (const listenerEntity of listenerEntities) {
             const listener = getComponent(
                 listenerEntity,
-                "listener"
+                "listener",
             ) as Listener
 
             listener.notify(event, this)
@@ -354,19 +381,19 @@ export class World {
             objects.push(object)
 
             entityDescriptions.push(
-                this.importObject(object, translation, true)
+                this.importObject(object, translation, true),
             )
         })
 
         return entityDescriptions.map(({ transform, components, label }) =>
-            this.addEntity(transform, components, label)
+            this.addEntity(transform, components, label),
         )
     }
 
     importObject = (
         object: Three.Object3D,
         translation: Vec3,
-        useShadows: boolean
+        useShadows: boolean,
     ): { transform: Transform; components: Set<Component>; label?: string } => {
         const position = object.getWorldPosition(new Three.Vector3())
         const scale = object.getWorldScale(new Three.Vector3())
@@ -387,11 +414,11 @@ export class World {
             if (object.name.includes("convex_collider")) {
                 // console.log("Convex", object.name)
                 const desc = Rapier.ColliderDesc.convexHull(
-                    new Float32Array(mesh.geometry.attributes.position.array)
+                    new Float32Array(mesh.geometry.attributes.position.array),
                 )
                 if (desc === null) {
                     throw new CannotCreateConvexHullError(
-                        `Unable to create convex hull for imported mesh of name ${mesh.name}`
+                        `Unable to create convex hull for imported mesh of name ${mesh.name}`,
                     )
                 }
                 const collider = this.physics.createCollider(desc)
@@ -405,10 +432,10 @@ export class World {
                 if (mesh.geometry.index !== null) {
                     const desc = Rapier.ColliderDesc.trimesh(
                         new Float32Array(
-                            mesh.geometry.getAttribute("position").array
+                            mesh.geometry.getAttribute("position").array,
                         ),
                         // uint32Range(0, vertices.length)
-                        new Uint32Array(mesh.geometry.index.array)
+                        new Uint32Array(mesh.geometry.index.array),
                     )
 
                     const collider = this.physics.createCollider(desc)
@@ -419,7 +446,7 @@ export class World {
                     components.add({ kind: "collider", collider })
                 } else {
                     throw new NoIndicesFoundOnGeometryError(
-                        `The geometry of object ${object.name} doesn't include any indices.`
+                        `The geometry of object ${object.name} doesn't include any indices.`,
                     )
                 }
             } else {
@@ -445,7 +472,7 @@ export class World {
     addEntity = (
         transform: Transform,
         components: ReadonlySet<Component>,
-        label?: string
+        label?: string,
     ): Entity => {
         this.idCount += 1
 
@@ -457,22 +484,24 @@ export class World {
                     accumulator.set(component.kind, component)
                     return accumulator
                 },
-                new Map()
+                new Map(),
             ),
             transform,
+            initialTransform: cloneTransform(transform),
         }
 
         const entity: Entity = {
             id,
             components: new Map(),
             transform,
+            initialTransform: cloneTransform(transform),
             label,
         }
 
-        for (const [kind, component] of uninitialisedEntity.components) {
+        for (const [_kind, component] of uninitialisedEntity.components) {
             const finalisedComponent = this.initComponent(
                 uninitialisedEntity,
-                component
+                component,
             )
             entity.components.set(finalisedComponent.kind, finalisedComponent)
         }
@@ -498,7 +527,7 @@ export class World {
     }
 
     findEntity = (
-        predicate: (entity: Readonly<Entity>) => boolean
+        predicate: (entity: Readonly<Entity>) => boolean,
     ): Entity | undefined => {
         for (const entity of this.entities.values()) {
             if (predicate(entity)) {
@@ -526,24 +555,24 @@ export class World {
 
     private initComponent = (
         entity: Readonly<Entity>,
-        component: Readonly<Component>
+        component: Readonly<Component>,
     ): Component => {
         if (component.kind === "rigidBodyDesc") {
             const rigidBody = this.physics.createRigidBody(
-                component.rigidBodyDesc
+                component.rigidBodyDesc,
             )
             const collider = this.physics.createCollider(
                 component.colliderDesc,
-                rigidBody
+                rigidBody,
             )
 
             rigidBody.setTranslation(
                 new Rapier.Vector3(
                     entity.transform.position.x,
                     entity.transform.position.y,
-                    entity.transform.position.z
+                    entity.transform.position.z,
                 ),
-                false
+                false,
             )
 
             return { kind: "rigidBody", rigidBody, collider }
@@ -551,7 +580,7 @@ export class World {
             component.mesh.position.set(
                 entity.transform.position.x,
                 entity.transform.position.y,
-                entity.transform.position.z
+                entity.transform.position.z,
             )
 
             // component.mesh.name = entity.id.toString()
@@ -595,35 +624,10 @@ export class World {
                     rotation.x,
                     rotation.y,
                     rotation.z,
-                    rotation.w
+                    rotation.w,
                 )
             }
-            // if (this.keys["w"]) {
-            //     rigidBody.applyImpulse(new Three.Vector3(0.5, 0, 0), true)
-            // }
-            // if (this.keys["s"]) {
-            //     rigidBody.applyImpulse(new Three.Vector3(-0.5, 0, 0), true)
-            // }
-            // if (this.keys["a"]) {
-            //     rigidBody.applyImpulse(new Three.Vector3(0, 0, -0.5), true)
-            // }
-            // if (this.keys["d"]) {
-            //     rigidBody.applyImpulse(new Three.Vector3(0, 0, 0.5), true)
-            // }
-            // if (this.keys[" "]) {
-            //     rigidBody.applyImpulse(new Three.Vector3(0, 1, 0), true)
-            // }
         }
-
-        // for (const entity of intersection(
-        //     this.getEntities("rigidBody"),
-        //     this.getEntities("hover")
-        // )) {
-        //     const rigidBody = (getComponent(entity, "rigidBody") as RigidBody)
-        //         .rigidBody
-        //     const targetAltitude = (getComponent(entity, "rigidBody") as Hover)
-        //         .altitude
-        // }
 
         for (const entity of this.getEntities("mesh")) {
             const mesh = (entity.components.get("mesh") as Mesh).mesh
@@ -631,25 +635,25 @@ export class World {
             mesh.position.set(
                 entity.transform.position.x,
                 entity.transform.position.y,
-                entity.transform.position.z
+                entity.transform.position.z,
             )
             mesh.rotation.setFromQuaternion(entity.transform.rotation)
             mesh.scale.set(
                 entity.transform.scale.x,
                 entity.transform.scale.y,
-                entity.transform.scale.z
+                entity.transform.scale.z,
             )
         }
 
         for (const entity of this.getEntities("eventSource")) {
             const audioSource = getComponent(
                 entity,
-                "eventSource"
+                "eventSource",
             ) as EventSource
             audioSource.position = entity.transform.position
         }
 
-        for (const fn of this.stepFunctions) {
+        for (const { fn } of this.stepFunctions) {
             fn(delta, this.time, this)
         }
     }
@@ -666,7 +670,7 @@ export class World {
             const characterController = (
                 getComponent(
                     entity,
-                    "characterController"
+                    "characterController",
                 ) as CharacterController
             ).characterController
             const rigidBody = (getComponent(entity, "rigidBody") as RigidBody)
@@ -680,7 +684,7 @@ export class World {
                     y: currentPosition.y - 0.21,
                     z: currentPosition.z,
                 },
-                { x: 0, y: -1, z: 0 }
+                { x: 0, y: -1, z: 0 },
             )
 
             const hit = this.physics.castRay(ray, 20, true)
@@ -691,7 +695,7 @@ export class World {
             const movementVector = new Vec3(
                 this.playerMovementVector.x,
                 this.playerMovementVector.y,
-                this.playerMovementVector.z
+                this.playerMovementVector.z,
             )
 
             if (hit !== null) {
@@ -732,7 +736,7 @@ export class World {
 
             characterController.computeColliderMovement(
                 rigidBody.collider(0),
-                movementVector
+                movementVector,
             )
 
             const correctedMovement = characterController.computedMovement()
@@ -740,12 +744,12 @@ export class World {
                 new Rapier.Vector3(
                     currentPosition.x + correctedMovement.x,
                     currentPosition.y + correctedMovement.y,
-                    currentPosition.z + correctedMovement.z
-                )
+                    currentPosition.z + correctedMovement.z,
+                ),
             )
 
             const rotation = new Three.Quaternion().setFromEuler(
-                new Three.Euler(0, this.playerRotation, 0, "YXZ")
+                new Three.Euler(0, this.playerRotation, 0, "YXZ"),
             )
             // rotation.setFromAxisAngle(
             //     new Three.Vector3(0, 1, 0),
@@ -760,7 +764,7 @@ export class World {
             this.heldParcel.transform.position = new Vec3(
                 position.x,
                 position.y + 1.5,
-                position.z
+                position.z,
             )
         }
     }
@@ -786,7 +790,7 @@ export class World {
             this.view.render(delta)
         } else {
             console.warn(
-                `Excessive frame time of ${delta.toFixed(0)}ms. Skipping frame.`
+                `Excessive frame time of ${delta.toFixed(0)}ms. Skipping frame.`,
             )
         }
 
@@ -800,6 +804,12 @@ export interface Transform {
     scale: Vec3
 }
 
+const cloneTransform = (transform: Transform): Transform => ({
+    position: transform.position.clone(),
+    rotation: transform.rotation.clone(),
+    scale: transform.scale.clone(),
+})
+
 export const translation = (translation: Vec3): Transform => ({
     position: translation,
     rotation: new Three.Quaternion(),
@@ -810,6 +820,7 @@ export interface Entity {
     id: EntityId
     components: Map<ComponentKind, Component>
     transform: Transform
+    initialTransform: Transform
     label?: string
 }
 
@@ -970,13 +981,15 @@ export class Vec3 {
         new Vec3(this.x + other.x, this.y + other.y, this.z + other.z)
 
     prettyPrint = () => `${this.x}, ${this.y}, ${this.z}`
+
+    clone = (): Vec3 => new Vec3(this.x, this.y, this.z)
 }
 
 export const forward = (
     distance: number,
     world: World,
     entity: Entity,
-    onComplete: () => void
+    onComplete: () => void,
 ) => {
     const startingPlayerPos = entity.transform.position
     const speed = 0.001
@@ -998,7 +1011,7 @@ export const forward = (
                 const forward = forwardVector(player.transform)
 
                 world.playerMovementVector = forward.multiplyScalar(
-                    speed * delta
+                    speed * delta,
                 )
 
                 // $(
@@ -1016,7 +1029,7 @@ export const turn = (
     world: World,
     entity: Entity,
     setRotation: (radians: number) => void,
-    onComplete: () => void
+    onComplete: () => void,
 ) => {
     const radians = -degToRad(degrees)
 

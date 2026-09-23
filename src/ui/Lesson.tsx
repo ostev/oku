@@ -458,6 +458,16 @@ export const Lesson: FunctionComponent<LessonProps> = ({
     //     }
     // }, [])
 
+    const initExecutionContext = () => {
+        executionContextRef.current = new UserExecutionContext(
+            executionParentRef.current!,
+            bindings,
+            onError,
+            onFinish,
+            setHeaderSource,
+        )
+    }
+
     const init = async () => {
         viewRef.current = new View(
             () => {},
@@ -532,15 +542,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         })
         resizeObserverRef.current.observe(viewParentRef.current as Element)
 
-        if (executionParentRef.current !== null) {
-            executionContextRef.current = new UserExecutionContext(
-                executionParentRef.current,
-                bindings,
-                onError,
-                onFinish,
-                setHeaderSource,
-            )
-        }
+        initExecutionContext()
 
         return new Promise<void>((resolve, reject) => {
             if (worldRef.current !== null) {
@@ -549,7 +551,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
 
                     const level = new info.level()
 
-                    worldRef.current?.registerStepFunction(level.step)
+                    worldRef.current?.registerStepFunction(level.step, true)
 
                     try {
                         if (worldRef.current !== null) {
@@ -599,6 +601,13 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         resizeObserverRef.current?.disconnect()
 
         executionContextRef.current?.destroy()
+    }
+
+    const reset = () => {
+        worldRef.current?.reset()
+
+        // executionContextRef.current?.destroy()
+        // initExecutionContext()
     }
 
     useEffect(() => {
@@ -701,29 +710,24 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                     audioManager.sounds.okay.start()
 
                     setSpeechHistory([])
-                    destroy()
+                    // destroy()
+                    reset()
 
                     setStoredCode(code)
 
-                    return init().then(() => {
-                        if (worldRef.current !== null) {
-                            worldRef.current.code = code
-                        }
+                    // return init().then(() => {
+                    if (worldRef.current !== null) {
+                        worldRef.current.code = code
+                    }
 
-                        if (
-                            worldRef.current !== null &&
-                            levelRef.current !== null
-                        ) {
-                            levelRef.current.onRun(worldRef.current)
-                        }
-                        if (executionContextRef.current !== undefined) {
-                            setTimeout(() => {
-                                if (executionContextRef.current !== undefined) {
-                                    executionContextRef.current.evalAsync(code)
-                                }
-                            }, 500)
-                        }
-                    })
+                    if (
+                        worldRef.current !== null &&
+                        levelRef.current !== null
+                    ) {
+                        levelRef.current.onRun(worldRef.current)
+                    }
+                    executionContextRef!.current!.evalAsync(code)
+                    // })
                 }}
                 onFocus={() => {
                     if (worldRef.current?.isRunning) {
