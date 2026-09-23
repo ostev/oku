@@ -172,6 +172,56 @@ export interface LessonProps {
     confettiRef: MutableRef<JSConfetti>
 }
 
+const ErrorModal: FunctionalComponent<{
+    executionError: Error | undefined
+    onDismiss: () => void
+}> = ({ executionError, onDismiss }) => {
+    if (executionError !== undefined) {
+        // let lineNumber
+        // const firefoxLineNumber = (
+        //     executionError as any as { lineNumber: number }
+        // ).lineNumber
+
+        // const headerLines = headerSource.split("\n").length
+
+        // if (firefoxLineNumber !== undefined) {
+        //     lineNumber = firefoxLineNumber + 1 - headerLines
+        // } else if (executionError.stack !== undefined) {
+        //     const parts = executionError.stack.split("\n")[1].split(":")
+        //     const lineNumberStr = parts[parts.length - 2]
+        //     console.log(parts)
+        //     console.log(executionError.stack)
+        //     lineNumber = parseInt(lineNumberStr, 10) - headerLines
+        // }
+
+        return (
+            <Modal
+                name="error"
+                title="I encountered an error..."
+                onDismiss={onDismiss}
+            >
+                <Paragraph>
+                    I tried to run your code, but I encountered an error. Here
+                    it is:
+                </Paragraph>
+                <Paragraph className="font-mono text-red-950">
+                    {executionError.toString()}
+                </Paragraph>
+            </Modal>
+        )
+    } else {
+        return (
+            <Modal
+                name="noError"
+                title="There's no error! Congrats!"
+                onDismiss={() => {}}
+            >
+                <Paragraph>This should never appear.</Paragraph>
+            </Modal>
+        )
+    }
+}
+
 export const Lesson: FunctionComponent<LessonProps> = ({
     info,
     onGoalCompletion,
@@ -725,7 +775,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                     />
                 )
             },
-        [],
+        [info],
     )
 
     const Goal: FunctionalComponent<{ index: number; onClear: () => void }> =
@@ -746,7 +796,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                         </GoalDisplay>
                     )
                 },
-            [],
+            [info, completedGoals],
         )
 
     const Challenge: FunctionComponent<{
@@ -779,7 +829,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                     </GoalDisplay>
                 )
             },
-        [],
+        [info, completedGoals],
     )
 
     const components = useMemo(
@@ -791,60 +841,13 @@ export const Lesson: FunctionComponent<LessonProps> = ({
             p: Paragraph,
             DocLink,
             YourTurn,
-            Challenge: Goal,
+            Challenge,
             Goal,
             Hint,
             Ref,
         }),
-        [],
+        [info, completedGoals],
     )
-
-    const ErrorModal = () => {
-        if (executionError !== undefined && headerSource !== undefined) {
-            // let lineNumber
-            // const firefoxLineNumber = (
-            //     executionError as any as { lineNumber: number }
-            // ).lineNumber
-
-            // const headerLines = headerSource.split("\n").length
-
-            // if (firefoxLineNumber !== undefined) {
-            //     lineNumber = firefoxLineNumber + 1 - headerLines
-            // } else if (executionError.stack !== undefined) {
-            //     const parts = executionError.stack.split("\n")[1].split(":")
-            //     const lineNumberStr = parts[parts.length - 2]
-            //     console.log(parts)
-            //     console.log(executionError.stack)
-            //     lineNumber = parseInt(lineNumberStr, 10) - headerLines
-            // }
-
-            return (
-                <Modal
-                    name="error"
-                    title="I encountered an error..."
-                    onDismiss={() => setExecutionError(undefined)}
-                >
-                    <Paragraph>
-                        I tried to run your code, but I encountered an error.
-                        Here it is:
-                    </Paragraph>
-                    <Paragraph className="font-mono text-red-950">
-                        {executionError.toString()}
-                    </Paragraph>
-                </Modal>
-            )
-        } else {
-            return (
-                <Modal
-                    name="noError"
-                    title="There's no error! Congrats!"
-                    onDismiss={() => {}}
-                >
-                    <Paragraph>This should never appear.</Paragraph>
-                </Modal>
-            )
-        }
-    }
 
     return (
         <div>
@@ -868,7 +871,12 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                 <style>{levelCss}</style>
             </div>
 
-            {executionError === undefined ? undefined : <ErrorModal />}
+            {executionError === undefined ? undefined : (
+                <ErrorModal
+                    executionError={executionError}
+                    onDismiss={() => setExecutionError(undefined)}
+                />
+            )}
             {speechHistory.length > 0 ? (
                 <div
                     class="fixed  max-h-40 overflow-x-hidden overflow-y-scroll top-5 right-5 bg-slate-200 bg-opacity-70 backdrop-blur-xl rounded p-1"
