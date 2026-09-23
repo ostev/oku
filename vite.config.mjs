@@ -1,7 +1,6 @@
 import { defineConfig } from "vite"
 
 import wasm from "vite-plugin-wasm"
-import topLevelAwait from "vite-plugin-top-level-await"
 
 import preact from "@preact/preset-vite"
 
@@ -14,6 +13,7 @@ import rehypeKatex from "rehype-katex"
 import { resolve } from "path"
 
 export default defineConfig({
+    base: "/oku/",
     server: {
         headers: {
             "Cross-Origin-Opener-Policy": "same-origin",
@@ -22,7 +22,6 @@ export default defineConfig({
     },
     plugins: [
         wasm(),
-        topLevelAwait(),
         preact(),
         mdx({
             providerImportSource: "@mdx-js/preact",
@@ -38,7 +37,7 @@ export default defineConfig({
     build: {
         rollupOptions: {
             input: {
-                main: resolve(__dirname, "index.html"),
+                main: resolve(import.meta.dirname, "index.html"),
             },
         },
     },
