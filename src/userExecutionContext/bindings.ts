@@ -16,12 +16,3 @@ export interface SyncInfo {
         | "untilReturnNumber"
         | "local"
 }
-
-// export const stripFn = (fnBindings: FnBindings): Bindings => {
-//     const bindings: Bindings = {}
-//     for (const [name, { sync }] of Object.entries(fnBindings)) {
-//         bindings[name] = sync
-//     }
-
-//     return bindings
-// }

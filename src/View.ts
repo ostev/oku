@@ -16,7 +16,6 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js"
 
 import { paintFragment } from "./render/shaders/paint"
 import { simpleVertex } from "./render/shaders/simple"
-import { Vec3 } from "./World"
 
 export class View {
     camera: Three.OrthographicCamera
@@ -32,14 +31,7 @@ export class View {
     private height = 0
 
     renderer: Three.WebGLRenderer
-    // cssRenderer: CSS3DRenderer
     composer: EffectComposer
-
-    // outlinePass: SketchPass
-    // ssaoPass: SSAOPass
-    // fxaaPass: ShaderPass
-    // smaaPass: SMAAPass
-    // bloomPass: UnrealBloomPass
 
     paintMaterial: Three.ShaderMaterial
 
@@ -51,15 +43,14 @@ export class View {
 
     updateOrbitControls: (
         position: Three.Vector3,
-        rotation: Three.Quaternion
+        rotation: Three.Quaternion,
     ) => void
 
     constructor(
-        element: HTMLElement,
         updateOrbitControls: (
             position: Three.Vector3,
-            rotation: Three.Quaternion
-        ) => void
+            rotation: Three.Quaternion,
+        ) => void,
     ) {
         this.updateOrbitControls = updateOrbitControls
 
@@ -96,12 +87,12 @@ export class View {
 
         if (this.debug) {
             const shadowCameraHelper = new Three.CameraHelper(
-                this.sun.shadow.camera
+                this.sun.shadow.camera,
             )
             this.lightHelper = new Three.DirectionalLightHelper(
                 this.sun,
                 1,
-                "red"
+                "red",
             )
             this.scene.add(this.lightHelper)
             this.scene.add(shadowCameraHelper)
@@ -111,7 +102,7 @@ export class View {
                 const folder = this.gui.addFolder("Ambient Light")
                 folder.addColor(
                     new ColorGUIHelper(this.ambientLight, "color"),
-                    "value"
+                    "value",
                 )
                 folder.open()
             }
@@ -134,7 +125,7 @@ export class View {
                     folder,
                     this.sun.target.position,
                     "position",
-                    onLightChange
+                    onLightChange,
                 )
                 folder.open()
             }
@@ -180,7 +171,7 @@ export class View {
             this.scene,
             this.camera,
             undefined,
-            new Three.Color("white")
+            new Three.Color("white"),
         )
         this.composer.addPass(renderPass)
 
@@ -221,7 +212,7 @@ export class View {
 
         this.orbitControls = new OrbitControls(
             this.camera,
-            this.renderer.domElement
+            this.renderer.domElement,
         )
         // this.orbitControls.enableDamping = true
         // this.orbitControls.dampingFactor = 0.2
@@ -331,7 +322,7 @@ export class View {
 
         this.updateOrbitControls(
             structuredClone(this.camera.position),
-            new Three.Quaternion().setFromEuler(this.camera.rotation)
+            new Three.Quaternion().setFromEuler(this.camera.rotation),
         )
     }
 
@@ -362,7 +353,7 @@ export const makeXYZGUI = (
     vector3: { x: number; y: number; z: number },
     name: string,
     onChangeFn: Function,
-    range?: number
+    range?: number,
 ) => {
     const rangeWithDefault = range === undefined ? 100 : range
 

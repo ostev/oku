@@ -33,11 +33,11 @@ import okuModelUrl from "./assets/oku.gltf?url"
 export const addPlayer = async (world: World): Promise<Entity> => {
     const characterController = world.physics.createCharacterController(0.001)
     const rigidBody = world.physics.createRigidBody(
-        Rapier.RigidBodyDesc.kinematicPositionBased().setAdditionalMass(1)
+        Rapier.RigidBodyDesc.kinematicPositionBased().setAdditionalMass(1),
     )
     const collider = world.physics.createCollider(
         Rapier.ColliderDesc.ball(0.2),
-        rigidBody
+        rigidBody,
     )
 
     const gltfLoader = new GLTFLoader()
@@ -75,7 +75,7 @@ export const addPlayer = async (world: World): Promise<Entity> => {
             { kind: "rigidBody", rigidBody, collider },
             { kind: "player" },
             new EventSource(new Vec3(0, 0, 0)),
-        ])
+        ]),
     )
 
     // const wheelDesc = Rapier.RigidBodyDesc.dynamic().setAdditionalMass(0.5)

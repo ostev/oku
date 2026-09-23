@@ -196,12 +196,12 @@ export const Lesson: FunctionComponent<LessonProps> = ({
     // const [linesSaid, setLinesSaid] = useState<string[]>([])
     const [levelCss, setLevelCss] = useState("")
     const [executionError, setExecutionError] = useState<Error | undefined>(
-        undefined
+        undefined,
     )
     const [speechHistory, setSpeechHistory] = useState<string[]>([])
 
     const [headerSource, setHeaderSource] = useState<string | undefined>(
-        undefined
+        undefined,
     )
 
     const [completeGoalAnim, setCompleteGoalAnim] = useState<
@@ -210,7 +210,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
     // const completeGoalAnimPlayer = useRef<HTMLVideoElement | null>(null)
 
     const executionContextRef = useRef<UserExecutionContext | undefined>(
-        undefined
+        undefined,
     )
     const executionParentRef = useRef<HTMLDivElement | null>(null)
 
@@ -222,7 +222,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                         event: { kind: "wait", duration },
                         source: getComponent(
                             playerRef.current,
-                            "eventSource"
+                            "eventSource",
                         ) as EventSource,
                     })
                 }
@@ -245,7 +245,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                         },
                         source: getComponent(
                             playerRef.current,
-                            "eventSource"
+                            "eventSource",
                         ) as EventSource,
                     })
                 }
@@ -266,14 +266,14 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                         },
                         source: getComponent(
                             playerRef.current,
-                            "eventSource"
+                            "eventSource",
                         ) as EventSource,
                     })
                     forward(
                         distance,
                         worldRef.current,
                         playerRef.current,
-                        context.resume
+                        context.resume,
                     )
                 }
             },
@@ -288,7 +288,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                         },
                         source: getComponent(
                             playerRef.current,
-                            "eventSource"
+                            "eventSource",
                         ) as EventSource,
                     })
 
@@ -302,7 +302,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                                 worldRef.current.playerRotation = radians
                             }
                         },
-                        context.resume
+                        context.resume,
                     )
                 }
             },
@@ -318,7 +318,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                     const shapePos = new Vec3(
                         position.x + forward.x * multiplier + 0.3 * forward.x,
                         position.y + forward.y * multiplier - 0.2,
-                        position.z + forward.z * multiplier + 0.3 * forward.z
+                        position.z + forward.z * multiplier + 0.3 * forward.z,
                     )
 
                     if (debug) {
@@ -331,10 +331,10 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                                         new Three.BoxGeometry(0.1, 0.1, 0.1),
                                         new Three.MeshStandardMaterial({
                                             color: "red",
-                                        })
+                                        }),
                                     ),
                                 },
-                            ])
+                            ]),
                         )
                     }
 
@@ -346,7 +346,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                         forward,
                         shape,
                         50,
-                        true
+                        true,
                     )
 
                     if (hit !== null) {
@@ -360,14 +360,14 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                                             new Three.BoxGeometry(
                                                 0.1,
                                                 0.1,
-                                                0.1
+                                                0.1,
                                             ),
                                             new Three.MeshStandardMaterial({
                                                 color: "purple",
-                                            })
+                                            }),
                                         ),
                                     },
-                                ])
+                                ]),
                             )
                         }
 
@@ -459,10 +459,8 @@ export const Lesson: FunctionComponent<LessonProps> = ({
     // }, [])
 
     const init = async () => {
-        // console.log(cameraInfo)
         viewRef.current = new View(
-            cssRendererRef.current as HTMLElement,
-            () => {}
+            () => {},
 
             // (position, rotation) => {
             //     cameraInfo = { position, rotation }
@@ -495,7 +493,7 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                 }
 
                 onGoalCompletion(
-                    new ID(info.id.chapter, info.id.section, index)
+                    new ID(info.id.chapter, info.id.section, index),
                 )
 
                 setCompleteGoalAnim(index)
@@ -523,13 +521,13 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                     confettiNumber: Math.floor(Math.random() * 60) + 30,
                 })
             },
-            audioManager
+            audioManager,
         )
 
         resizeObserverRef.current = new ResizeObserver(([viewParentEntry]) => {
             viewRef.current?.setSize(
                 viewParentEntry.contentRect.width,
-                viewParentEntry.contentRect.height
+                viewParentEntry.contentRect.height,
             )
         })
         resizeObserverRef.current.observe(viewParentRef.current as Element)
@@ -540,35 +538,9 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                 bindings,
                 onError,
                 onFinish,
-                setHeaderSource
+                setHeaderSource,
             )
         }
-
-        // addBox(
-        //     worldRef.current,
-        //     translation(new Vec3(0, -4, 0)),
-        //     { width: 5, height: 5, depth: 5 },
-        //     Rapier.RigidBodyDesc.fixed().setAdditionalMass(1),
-        //     "#A7D49B"
-        // )
-
-        // addBox(
-        //     worldRef.current,
-        //     translation(new Vec3(0, -20, 0)),
-        //     { width: 30, height: 2, depth: 30 },
-        //     Rapier.RigidBodyDesc.fixed().setAdditionalMass(1),
-        //     "white"
-        // )
-
-        // addBox(
-        //     worldRef.current,
-        //     translation(new Vec3(0, -4, 0)),
-        //     { width: 20, height: 2, depth: 20 },
-        //     Rapier.RigidBodyDesc.fixed().setAdditionalMass(1),
-        //     "white"
-        // )
-
-        // worldRef.current.importGLTF(roadSceneUrl)
 
         return new Promise<void>((resolve, reject) => {
             if (worldRef.current !== null) {
@@ -584,11 +556,11 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                             level.init(worldRef.current).then(() => {
                                 if (viewParentRef.current !== null) {
                                     viewRef.current?.appendToElement(
-                                        viewParentRef.current
+                                        viewParentRef.current,
                                     )
                                 } else {
                                     throw new RefAccessedBeforeComponentMountedError(
-                                        "View parent ref is null"
+                                        "View parent ref is null",
                                     )
                                 }
 
@@ -659,12 +631,12 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                     index = Number(match[1])
                 } else {
                     throw new CodeExcerptIDNotFoundError(
-                        `No ID header found in the following code (regex didn't match):\n${code}`
+                        `No ID header found in the following code (regex didn't match):\n${code}`,
                     )
                 }
             } else {
                 throw new CodeExcerptIDNotFoundError(
-                    `No ID header found in the following code:\n${code}`
+                    `No ID header found in the following code:\n${code}`,
                 )
             }
 
@@ -679,9 +651,9 @@ export const Lesson: FunctionComponent<LessonProps> = ({
             `${info.id.chapter}-${info.id.section}_${new ID(
                 info.id.chapter,
                 info.id.section,
-                index
+                index,
             ).stringify()}_storedCode`,
-            initialCode
+            initialCode,
         )
         const readWriteRef = useRef(new EditorReadWriter())
 
