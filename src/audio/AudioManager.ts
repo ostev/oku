@@ -58,7 +58,7 @@ export interface Key {
 }
 
 export enum Sound {
-    Menu,
+    // Menu,
     ItemHover,
     Okay,
     PickUp,
@@ -101,7 +101,7 @@ export class AudioManager {
     }
 
     sounds: {
-        menu: Tone.Player
+        // menu: Tone.Player
         alert: Tone.Player
         itemHover: Tone.Player
         okay: Tone.Player
@@ -127,7 +127,7 @@ export class AudioManager {
         this.customOnLoad = onLoad
 
         this.sounds = {
-            menu: this.createPlayer(menuUrl, Sound.Menu),
+            // menu: this.createPlayer(menuUrl, Sound.Menu),
             alert: this.createPlayer(alertUrl, Sound.Alert),
             itemHover: this.createPlayer(itemHoverUrl, Sound.ItemHover),
             okay: this.createPlayer(okayUrl, Sound.Okay),
@@ -143,8 +143,8 @@ export class AudioManager {
         this.sounds.itemHover.fadeOut = 1
         this.sounds.itemHover.volume.value = -10
 
-        this.sounds.menu.fadeIn = 1
-        this.sounds.menu.fadeOut = 2
+        // this.sounds.menu.fadeIn = 1
+        // this.sounds.menu.fadeOut = 2
 
         this.sounds.concert.loop = true
         this.sounds.concert.fadeIn = 0.5
@@ -173,17 +173,17 @@ export class AudioManager {
 
         player.onstop = () => {
             const index = this.playing.findIndex(
-                (otherPlayer) => otherPlayer === player
+                (otherPlayer) => otherPlayer === player,
             )
             this.playing.splice(index)
         }
     }
 
-    play = (player: Tone.Player) => {
+    play = async (player: Tone.Player) => {
         this.playing.push(player)
         player.onstop = () => {
             const index = this.playing.findIndex(
-                (otherPlayer) => otherPlayer === player
+                (otherPlayer) => otherPlayer === player,
             )
             this.playing.splice(index)
 
@@ -195,6 +195,8 @@ export class AudioManager {
                 }
             }
         }
+
+        await Tone.loaded()
         player.start()
     }
 

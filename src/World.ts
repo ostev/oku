@@ -240,8 +240,8 @@ export class World {
 
             this.heldParcel = undefined
 
-            this.audioManager.play(this.audioManager.sounds.placeDown)
             this.audioManager.sounds.itemHover.stop()
+            this.audioManager.play(this.audioManager.sounds.placeDown)
         } else {
             throw new NoParcelHeldError(
                 "I'm not currently holding a parcel, so I can't place it down!",

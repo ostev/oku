@@ -47,7 +47,7 @@ export const App = () => {
     const [progress, setProgress] = useStorage<Progress>("progress", {})
     const [currentLesson, setCurrentLesson] = useStorage<LessonID | undefined>(
         "currentLesson",
-        undefined
+        undefined,
     )
 
     const [showLessonPicker, setShowLessonPicker] = useState(false)
@@ -64,26 +64,27 @@ export const App = () => {
                     accidental: NoteAccidental.None,
                 },
             },
-            (sound) => {
-                if (isShowingMainMenu) {
-                    setTimeout(() => {
-                        setIsShowingMainMenu((currentMenuStatus) => {
-                            if (sound === Sound.Menu && currentMenuStatus) {
-                                console.log(currentMenuStatus)
-                                audioManagerRef.current?.sounds.menu.start()
-                                // setTimeout(() => {
+            () => {},
+            // (sound) => {
+            //     if (isShowingMainMenu) {
+            //         setTimeout(() => {
+            //             setIsShowingMainMenu((currentMenuStatus) => {
+            //                 // if (sound === Sound.Menu && currentMenuStatus) {
+            //                 //     console.log(currentMenuStatus)
+            //                 //     audioManagerRef.current?.sounds.menu.start()
+            //                 //     // setTimeout(() => {
 
-                                //     if (!isShowingMainMenu) {
-                                //         audioManagerRef.current?.sounds.menu.stop()
-                                //     }
-                                // }, 5000)
-                            }
+            //                 //     //     if (!isShowingMainMenu) {
+            //                 //     //         audioManagerRef.current?.sounds.menu.stop()
+            //                 //     //     }
+            //                 //     // }, 5000)
+            //                 // }
 
-                            return currentMenuStatus
-                        })
-                    }, 800)
-                }
-            }
+            //                 return currentMenuStatus
+            //             })
+            //         }, 800)
+            //     }
+            // },
         )
     })
 
@@ -110,7 +111,7 @@ export const App = () => {
     if (isShowingMainMenu) {
         const color = pickValue(
             ["bg-orange-300", "amber-bg", "lime-bg"],
-            Math.random()
+            Math.random(),
         )
         conditionalUI = (
             <div class={`w-screen h-screen ${color}`}>
@@ -123,9 +124,9 @@ export const App = () => {
                             onClick={() => {
                                 if (audioManagerRef.current !== null) {
                                     audioManagerRef.current.play(
-                                        audioManagerRef.current.sounds.enter
+                                        audioManagerRef.current.sounds.enter,
                                     )
-                                    audioManagerRef.current.sounds.menu.stop()
+                                    // audioManagerRef.current.sounds.menu.stop()
                                 }
 
                                 if (
@@ -166,7 +167,7 @@ export const App = () => {
                     completedGoals={getGoalsCompleted(
                         progress,
                         lesson.id.chapter,
-                        lesson.id.section
+                        lesson.id.section,
                     )}
                     onGoalCompletion={(id) => {
                         console.log("Completed goal", id)
@@ -175,7 +176,7 @@ export const App = () => {
                             const goalsCompleted = getGoalsCompleted(
                                 progress,
                                 currentLesson.chapter,
-                                currentLesson.section
+                                currentLesson.section,
                             )
 
                             if (goalsCompleted.find(id.equals) === undefined) {
@@ -186,7 +187,7 @@ export const App = () => {
 
                                 console.log(
                                     "Updated progress to:",
-                                    updatedProgress
+                                    updatedProgress,
                                 )
 
                                 return updatedProgress

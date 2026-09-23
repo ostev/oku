@@ -8,7 +8,8 @@
     "description": "Oku!",
     "scripts": {
         "dev": "vite dev",
-        "build": "vite build"
+        "build": "vite build",
+        "preview": "vite preview"
     },
     "devDependencies": {
         "@preact/preset-vite": "^2.5.0",
