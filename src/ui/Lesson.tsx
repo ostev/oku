@@ -436,28 +436,6 @@ export const Lesson: FunctionComponent<LessonProps> = ({
         setExecutionError(err)
     }
 
-    // useEffect(() => {
-    //     const onWindowFocus = () => {
-    //         if (worldRef.current !== null && !worldRef.current.isRunning) {
-    //             worldRef.current.start()
-    //         }
-    //     }
-
-    //     const onWindowBlur = () => {
-    //         if (worldRef.current !== null && worldRef.current.isRunning) {
-    //             worldRef.current.stop()
-    //         }
-    //     }
-
-    //     window.addEventListener("focus", onWindowFocus)
-    //     window.addEventListener("blur", onWindowBlur)
-
-    //     return () => {
-    //         window.removeEventListener("focus", onWindowFocus)
-    //         window.removeEventListener("blur", onWindowBlur)
-    //     }
-    // }, [])
-
     const initExecutionContext = () => {
         executionContextRef.current = new UserExecutionContext(
             executionParentRef.current!,
@@ -716,12 +694,10 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                             audioManager.sounds.okay.start()
 
                             setSpeechHistory([])
-                            // destroy()
                             reset()
 
                             setStoredCode(code)
 
-                            // return init().then(() => {
                             if (worldRef.current !== null) {
                                 worldRef.current.code = code
                             }
@@ -733,18 +709,17 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                                 levelRef.current.onRun(worldRef.current)
                             }
                             executionContextRef!.current!.evalAsync(code)
-                            // })
                         }}
                         onFocus={() => {
-                            if (worldRef.current?.isRunning) {
-                                worldRef.current?.stop()
-                            }
+                            // if (worldRef.current?.isRunning) {
+                            //     worldRef.current?.stop()
+                            // }
                             setStoredCode(readWriteRef.current.read())
                         }}
                         onBlur={() => {
-                            if (!worldRef.current?.isRunning) {
-                                worldRef.current?.start()
-                            }
+                            // if (!worldRef.current?.isRunning) {
+                            //     worldRef.current?.start()
+                            // }
                             setStoredCode(readWriteRef.current.read())
                         }}
                     />
@@ -886,59 +861,13 @@ export const Lesson: FunctionComponent<LessonProps> = ({
                     {h(info.content, {})}
                 </MDXProvider>
             </article>
-            {/* <div class="border-l h-screen" ref={viewParentRef}></div> */}
             <div
                 class="h-full w-full absolute top-0 left-0 z-0"
                 ref={viewParentRef}
             >
-                {/* <div
-                    ref={cssRendererRef}
-                    style="width: 100%; height: 100%; position:absolute; top:0; left:0; pointer-events: none;"
-                ></div> */}
                 <style>{levelCss}</style>
             </div>
-            {
-                // <div>
-                /* <video
-                        ref={completeGoalAnimPlayer}
-                        src={completeGoalAnimUrl}
-                        controls={false}
-                        autoPlay={true}
-                        style={{
-                            height: "60vh",
-                            position: "fixed",
-                            right: "5vw",
-                            top: "45%",
-                            margin: 0,
-                        }}
-                    ></video>
-                    <div
-                        style={{
-                            height: "60vh",
-                            position: "fixed",
-                            right: "5vw",
-                            top: "45%",
-                            margin: 0,
-                        }}
-                    >
-                        <Heading level={1}>{completeGoalAnim}</Heading>
-                    </div> */
-                // </div>
-            }
-            {/* <div class={`fixed right-5 h-screen grid place-items-center`}>
-                <div
-                    class={`rounded-xl shadow-xl backdrop-blur-xl grid place-items-center p-4 challenge-complete-box ${
-                        completeGoalAnim === undefined
-                            ? ""
-                            : "challenge-complete"
-                    }`}
-                >
-                    <Heading level={1}>
-                        <span class="party">🎉</span> Goal {completeGoalAnim}{" "}
-                        completed!
-                    </Heading>
-                </div>
-            </div> */}
+
             {executionError === undefined ? undefined : <ErrorModal />}
             {speechHistory.length > 0 ? (
                 <div
