@@ -14,7 +14,6 @@ import { resolve } from "path"
 import netlify from "@netlify/vite-plugin"
 
 export default defineConfig({
-    base: "/oku/",
     server: {
         headers: {
             "Cross-Origin-Opener-Policy": "same-origin",
