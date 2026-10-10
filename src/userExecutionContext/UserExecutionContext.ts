@@ -42,6 +42,7 @@ export class UserExecutionContext {
                 this.iframe = document.createElement("iframe")
 
                 this.iframe.setAttribute("sandbox", "allow-scripts")
+                this.iframe.setAttribute("allow", "cross-origin-isolated")
                 this.iframe.setAttribute("style", "display: none;")
                 this.iframe.setAttribute("src", URL.createObjectURL(src))
                 parent.appendChild(this.iframe)
