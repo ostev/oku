@@ -11,6 +11,7 @@ import remarkMath from "remark-math"
 import remarkGfm from "remark-gfm"
 import rehypeKatex from "rehype-katex"
 import { resolve } from "path"
+import netlify from "@netlify/vite-plugin"
 
 export default defineConfig({
     base: "/oku/",
@@ -21,6 +22,7 @@ export default defineConfig({
         },
     },
     plugins: [
+        netlify(),
         wasm(),
         preact(),
         mdx({
