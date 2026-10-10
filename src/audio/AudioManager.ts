@@ -1,15 +1,15 @@
 import * as Tone from "tone"
 import { ToneAudioNode } from "tone"
 
-import alertUrl from "./sounds/alert.mp3"
-import itemHoverUrl from "./sounds/item-hover.mp3"
-import okayUrl from "./sounds/okay.mp3"
-import pickUpUrl from "./sounds/pick-up.mp3"
-import placeDownUrl from "./sounds/place-down.mp3"
-import concertUrl from "./sounds/concert.mp3"
+import alertUrl from "./sounds/alert-128k.mp3"
+import itemHoverUrl from "./sounds/item-hover-128k.mp3"
+import okayUrl from "./sounds/okay-128k.mp3"
+import pickUpUrl from "./sounds/pick-up-128k.mp3"
+import placeDownUrl from "./sounds/place-down-128k.mp3"
+import concertUrl from "./sounds/concert-128k.mp3"
 // import menuUrl from "./sounds/menu.wav"
-import enterUrl from "./sounds/enter.mp3"
-import completeGoalUrl from "./sounds/complete-goal.mp3"
+import enterUrl from "./sounds/enter-128k.mp3"
+import completeGoalUrl from "./sounds/complete-goal-128k.mp3"
 
 import { Vec3 } from "../World"
 
